@@ -9,7 +9,6 @@ module Raylib
 
   # Window
   ffi_func :InitWindow, %i[int int str], :void
-  ffi_func :IsWindowReady, [], :bool
   ffi_func :CloseWindow, [], :void
   # Bool-returning raylib functions go through sp_ shims (see
   # raylib_adapter.c — _Bool returns only define AL on x86-64).
@@ -37,6 +36,7 @@ module Raylib
   ffi_func :sp_DrawCircleV, %i[ptr float ptr], :void
   ffi_func :sp_DrawTriangle, %i[ptr ptr ptr ptr], :void
   ffi_func :sp_DrawText, %i[str int int int ptr], :void
+  ffi_func :sp_DrawTextInt, %i[str int int int int ptr], :void
   ffi_func :DrawFPS, %i[int int], :void
 
   # Input
@@ -49,10 +49,20 @@ module Raylib
   ffi_func :GetTime, [], :double # raylib returns double
   ffi_func :GetFPS, [], :int
 
-  # Color struct (ffi_struct generates Color_new, Color_get_r/g/b/a,
-  # Color_set_r/g/b/a — heap-allocated, returned as a void* pointer)
-  ffi_struct :Color, [%i[r uchar], %i[g uchar], %i[b uchar], %i[a uchar]]
-  ffi_func :sp_ColorFree, [:ptr], :void
+  # Color is a native (C-backed) GC-managed class (see raylib_adapter.c:
+  # sp_Color embeds the raylib Color struct). Instances live in spinel's GC
+  # heap, so a color is reclaimed automatically when the last reference
+  # (e.g. a Bunny) is collected — no manual Color.free is needed.
+  #
+  # Spinel cannot pass a native object to an ffi_func :ptr/:any argument
+  # (only as a native_method receiver), so every color-consuming draw call
+  # is a method on the Color itself (the color is the receiver).
+  native_struct "Color", "sp_Color"
+  native_new [:int, :int, :int, :int], "sp_Color_new"
+  native_method :fill_background, [], :void, "sp_Color_fill_background"
+  native_method :draw_texture, [:any, :int, :int], :void, "sp_Color_draw_texture"
+  native_method :draw_text, [:string, :int, :int, :int], :void, "sp_Color_draw_text"
+  native_method :draw_text_int, [:string, :int, :int, :int, :int], :void, "sp_Color_draw_text_int"
 
   # Texture (opaque pointer — sp_LoadTexture mallocs Texture2D)
   ffi_func :sp_LoadTexture, [:str], :ptr
@@ -190,6 +200,9 @@ module Raylib
       Raylib.sp_DrawText(text, x, y, size, color)
     end
 
+    def self.DrawTextInt(text, n, x, y, size, color)
+      Raylib.sp_DrawTextInt(text, n, x, y, size, color)
+    end
     def self.DrawTexture(texture, x, y, color)
       Raylib.sp_DrawTexture(texture, x, y, color)
     end
@@ -233,47 +246,50 @@ module Raylib
       Raylib.sp_IsGamepadButtonDown(gamepad, button)
     end
 
+    LIGHTGRAY = Color.new(200, 200, 200, 255)
+    GRAY = Color.new(130, 130, 130, 255)
+    DARKGRAY = Color.new(80, 80, 80, 255)
+    YELLOW = Color.new(253, 249, 0, 255)
+    GOLD = Color.new(255, 203, 0, 255)
+    ORANGE = Color.new(255, 161, 0, 255)
+    PINK = Color.new(255, 109, 194, 255)
+    RED = Color.new(230, 41, 55, 255)
+    MAROON = Color.new(190, 33, 55, 255)
+    GREEN = Color.new(0, 228, 48, 255)
+    LIME = Color.new(0, 158, 47, 255)
+    DARKGREEN = Color.new(0, 117, 44, 255)
+    SKYBLUE = Color.new(102, 191, 255, 255)
+    BLUE = Color.new(0, 121, 241, 255)
+    DARKBLUE = Color.new(0, 82, 172, 255)
+    PURPLE = Color.new(200, 122, 255, 255)
+    VIOLET = Color.new(135, 60, 190, 255)
+    DARKPURPLE = Color.new(112, 31, 126, 255)
+    BEIGE = Color.new(211, 176, 131, 255)
+    BROWN = Color.new(127, 106, 79, 255)
+    DARKBROWN = Color.new(76, 63, 47, 255)
+
+    WHITE = Color.new(255, 255, 255, 255)
+    BLACK = Color.new(0, 0, 0, 255)
+    BLANK = Color.new(0, 0, 0, 0)
+    MAGENTA = Color.new(255, 0, 255, 255)
+    RAYWHITE = Color.new(245, 245, 245, 255)
+
+    # Color factories — thin wrappers over the native ctor (Color.new lowers to
+    # sp_Color_new). Kept here (Spinel side) so they compile as Ruby methods on
+    # the native class; MRI gets the identical helpers in raylib_ruby.rb.
     class Color
       def self.from_u8(r = 0, g = 0, b = 0, a = 255)
-        ptr = Raylib.Color_new
-        Raylib.Color_set_r(ptr, r)
-        Raylib.Color_set_g(ptr, g)
-        Raylib.Color_set_b(ptr, b)
-        Raylib.Color_set_a(ptr, a)
-        ptr
+        Color.new(r, g, b, a)
       end
 
-      def self.free(color)
-        Raylib.sp_ColorFree(color)
+      def self.from_u32(rgba = 255)
+        Color.new(
+          (rgba >> 24) & 0xFF,
+          (rgba >> 16) & 0xFF,
+          (rgba >> 8) & 0xFF,
+          rgba & 0xFF
+        )
       end
     end
-
-    LIGHTGRAY = Color.from_u8(200, 200, 200, 255)
-    GRAY = Color.from_u8(130, 130, 130, 255)
-    DARKGRAY = Color.from_u8(80, 80, 80, 255)
-    YELLOW = Color.from_u8(253, 249, 0, 255)
-    GOLD = Color.from_u8(255, 203, 0, 255)
-    ORANGE = Color.from_u8(255, 161, 0, 255)
-    PINK = Color.from_u8(255, 109, 194, 255)
-    RED = Color.from_u8(230, 41, 55, 255)
-    MAROON = Color.from_u8(190, 33, 55, 255)
-    GREEN = Color.from_u8(0, 228, 48, 255)
-    LIME = Color.from_u8(0, 158, 47, 255)
-    DARKGREEN = Color.from_u8(0, 117, 44, 255)
-    SKYBLUE = Color.from_u8(102, 191, 255, 255)
-    BLUE = Color.from_u8(0, 121, 241, 255)
-    DARKBLUE = Color.from_u8(0, 82, 172, 255)
-    PURPLE = Color.from_u8(200, 122, 255, 255)
-    VIOLET = Color.from_u8(135, 60, 190, 255)
-    DARKPURPLE = Color.from_u8(112, 31, 126, 255)
-    BEIGE = Color.from_u8(211, 176, 131, 255)
-    BROWN = Color.from_u8(127, 106, 79, 255)
-    DARKBROWN = Color.from_u8(76, 63, 47, 255)
-
-    WHITE = Color.from_u8(255, 255, 255, 255)
-    BLACK = Color.from_u8(0, 0, 0, 255)
-    BLANK = Color.from_u8(0, 0, 0, 0)
-    MAGENTA = Color.from_u8(255, 0, 255, 255)
-    RAYWHITE = Color.from_u8(245, 245, 245, 255)
   end
 end
