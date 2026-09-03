@@ -70,6 +70,40 @@ module Raylib
   ffi_func :sp_DrawTextureEx, %i[ptr float float float float ptr], :void
   ffi_func :sp_UnloadTexture, [:ptr], :void
 
+  # Input / misc (plain raylib functions — no struct args)
+  ffi_func :GetRandomValue, %i[int int], :int
+  ffi_func :DisableCursor, [], :void
+  ffi_func :EndMode3D, [], :void
+
+  # 3D / extra drawing (Vector3, Vector2, Camera3D, Color passed as pointers)
+  ffi_func :sp_BeginMode3D, [:ptr], :void
+  ffi_func :sp_UpdateCamera, %i[ptr int], :void
+  ffi_func :sp_DrawPlane, %i[ptr ptr ptr], :void
+  ffi_func :sp_DrawCube, %i[ptr float float float ptr], :void
+  ffi_func :sp_DrawCubeWires, %i[ptr float float float ptr], :void
+  ffi_func :sp_DrawRectangle, %i[int int int int ptr], :void
+  ffi_func :sp_DrawRectangleLines, %i[int int int int ptr], :void
+
+  # Vector3 — native GC object (mirrors Color). Passed to the 3D shims as its
+  # pointer; field-read with .x/.y/.z.
+  native_struct "Vector3", "sp_Vector3"
+  native_new [:float, :float, :float], "sp_Vector3_new"
+  native_method :x, [], :float, "sp_Vector3_x"
+  native_method :y, [], :float, "sp_Vector3_y"
+  native_method :z, [], :float, "sp_Vector3_z"
+  native_method :pointer, [], :ptr, "sp_Vector3_ptr"
+
+  # Camera — native GC object wrapping Camera3D. Built with the with_* chain,
+  # mutated by sp_UpdateCamera, passed to sp_BeginMode3D.
+  native_struct "Camera", "sp_Camera"
+  native_new [], "sp_Camera_new"
+  native_method :with_position, [:float, :float, :float], :self, "sp_Camera_with_position"
+  native_method :with_target, [:float, :float, :float], :self, "sp_Camera_with_target"
+  native_method :with_up, [:float, :float, :float], :self, "sp_Camera_with_up"
+  native_method :with_fovy, [:float], :self, "sp_Camera_with_fovy"
+  native_method :with_projection, [:int], :self, "sp_Camera_with_projection"
+  native_method :pointer, [], :ptr, "sp_Camera_ptr"
+
   # Constants — only define under Spinel (MRI gets them from the gem)
   unless $PROGRAM_NAME.end_with?(".rb")
     # KeyboardKey enum — mirrors raylib.h (raylib 5.0), same order
@@ -190,6 +224,15 @@ module Raylib
     GAMEPAD_BUTTON_LEFT_FACE_DOWN = 2
     GAMEPAD_BUTTON_RIGHT_FACE_LEFT = 4
 
+    CAMERA_CUSTOM = 0
+    CAMERA_FREE = 1
+    CAMERA_ORBITAL = 2
+    CAMERA_FIRST_PERSON = 3
+    CAMERA_THIRD_PERSON = 4
+    CAMERA_ORTHOGRAPHIC = 5
+    CAMERA_PERSPECTIVE = 0
+    CAMERA_RIGHT_HAND_XYZ = 0
+
     # Wrappers accepting Color pointers (game code stays backend-agnostic;
     # MRI gets these from the gem, which marshals structs itself).
     def self.ClearBackground(color)
@@ -225,6 +268,34 @@ module Raylib
 
     def self.DrawTriangle(v1, v2, v3, color)
       Raylib.sp_DrawTriangle(v1, v2, v3, color)
+    end
+
+    def self.BeginMode3D(camera)
+      Raylib.sp_BeginMode3D(camera)
+    end
+
+    def self.UpdateCamera(camera, mode)
+      Raylib.sp_UpdateCamera(camera, mode)
+    end
+
+    def self.DrawPlane(center_pos, size, color)
+      Raylib.sp_DrawPlane(center_pos, size, color)
+    end
+
+    def self.DrawCube(position, width, height, length, color)
+      Raylib.sp_DrawCube(position, width, height, length, color)
+    end
+
+    def self.DrawCubeWires(position, width, height, length, color)
+      Raylib.sp_DrawCubeWires(position, width, height, length, color)
+    end
+
+    def self.DrawRectangle(x, y, width, height, color)
+      Raylib.sp_DrawRectangle(x, y, width, height, color)
+    end
+
+    def self.DrawRectangleLines(x, y, width, height, color)
+      Raylib.sp_DrawRectangleLines(x, y, width, height, color)
     end
 
     # Predicate wrappers return true/false in both backends: the gem

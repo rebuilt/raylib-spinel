@@ -113,3 +113,120 @@ int sp_IsKeyPressed(int key) { return IsKeyPressed(key); }
 int sp_IsGamepadButtonDown(int gamepad, int button) {
   return IsGamepadButtonDown(gamepad, button);
 }
+
+
+/* ================================================================
+ * Vector3 — native, GC-managed 3D vector (mirrors sp_Color).
+ * Embeds raylib's Vector3 { float x, y, z; }. Used by the 3D
+ * columns example: stored in arrays, field-read with .x/.y/.z,
+ * and passed (as its pointer) to the sp_Draw* shims below.
+ * ================================================================ */
+typedef struct sp_Vector3_s {
+  sp_int cls_id;   /* object header */
+  Vector3 v;       /* raylib Vector3 */
+} sp_Vector3;
+
+static void sp_Vector3_scan(void *p) { (void)p; }
+
+sp_Vector3 *sp_Vector3_new(sp_int cls_id, double x, double y, double z) {
+  sp_Vector3 *self = (sp_Vector3 *)sp_gc_alloc(sizeof(sp_Vector3), NULL, sp_Vector3_scan);
+  self->cls_id = cls_id;
+  self->v = (Vector3){ (float)x, (float)y, (float)z };
+  return self;
+}
+double sp_Vector3_x(sp_Vector3 *self) { return self->v.x; }
+double sp_Vector3_y(sp_Vector3 *self) { return self->v.y; }
+double sp_Vector3_z(sp_Vector3 *self) { return self->v.z; }
+void *sp_Vector3_ptr(sp_Vector3 *self) { return self; }
+
+
+/* ================================================================
+ * Camera — native, GC-managed Camera3D (mirrors sp_Color/sp_Vector3).
+ * Embeds raylib's Camera3D. Built with the with_* chain, mutated in
+ * place by UpdateCamera (via sp_UpdateCamera), and handed to
+ * BeginMode3D (via sp_BeginMode3D). Both take this object's pointer.
+ * ================================================================ */
+typedef struct sp_Camera_s {
+  sp_int cls_id;
+  Camera3D c;
+} sp_Camera;
+
+static void sp_Camera_scan(void *p) { (void)p; }
+
+sp_Camera *sp_Camera_new(sp_int cls_id) {
+  sp_Camera *self = (sp_Camera *)sp_gc_alloc(sizeof(sp_Camera), NULL, sp_Camera_scan);
+  self->cls_id = cls_id;
+  self->c = (Camera3D){ 0 };
+  return self;
+}
+sp_Camera *sp_Camera_with_position(sp_Camera *self, double x, double y, double z) {
+  self->c.position = (Vector3){ (float)x, (float)y, (float)z };
+  return self;
+}
+sp_Camera *sp_Camera_with_target(sp_Camera *self, double x, double y, double z) {
+  self->c.target = (Vector3){ (float)x, (float)y, (float)z };
+  return self;
+}
+sp_Camera *sp_Camera_with_up(sp_Camera *self, double x, double y, double z) {
+  self->c.up = (Vector3){ (float)x, (float)y, (float)z };
+  return self;
+}
+sp_Camera *sp_Camera_with_fovy(sp_Camera *self, double fovy) {
+  self->c.fovy = (float)fovy;
+  return self;
+}
+sp_Camera *sp_Camera_with_projection(sp_Camera *self, int projection) {
+  self->c.projection = projection;
+  return self;
+}
+void *sp_Camera_ptr(sp_Camera *self) { return self; }
+
+
+/* ================================================================
+ * Vector2 helper — heap allocates a raylib Vector2 and returns a
+ * pointer (matches the ffi_func Vector2Create(:ptr) declaration).
+ * Freed is unnecessary: raylib hands out small fixed-size Vec2s.
+ * ================================================================ */
+void *Vector2Create(float x, float y) {
+  Vector2 *v = (Vector2 *)malloc(sizeof(Vector2));
+  v->x = x;
+  v->y = y;
+  return v;
+}
+double Vector2GetX(void *v) { return ((Vector2 *)v)->x; }
+double Vector2GetY(void *v) { return ((Vector2 *)v)->y; }
+void Vector2SetX(void *v, float x) { ((Vector2 *)v)->x = x; }
+void Vector2SetY(void *v, float y) { ((Vector2 *)v)->y = y; }
+
+
+/* ================================================================
+ * 3D / extra drawing shims for the columns example.
+ * Vector3, Vector2, Camera3D and Color are passed as pointers
+ * (spinel cannot pass structs by value; see header).
+ *
+ * NOTE: these are ffi_func entries, so their :float parameters lower
+ * to C `float` (unlike native_method/native_new args, which use the
+ * double-typed sp_float). Mismatching them (e.g. declaring `double`)
+ * corrupts the dims passed by the generated ABI. See raylib_ffi.rb.
+ * ================================================================ */
+void sp_BeginMode3D(void *camera) {
+  BeginMode3D(((sp_Camera *)camera)->c);
+}
+void sp_UpdateCamera(void *camera, int mode) {
+  UpdateCamera(&((sp_Camera *)camera)->c, mode);
+}
+void sp_DrawPlane(void *pos, void *size, void *color) {
+  DrawPlane(((sp_Vector3 *)pos)->v, *(Vector2 *)size, ((sp_Color *)color)->c);
+}
+void sp_DrawCube(void *pos, float w, float h, float l, void *color) {
+  DrawCube(((sp_Vector3 *)pos)->v, w, h, l, ((sp_Color *)color)->c);
+}
+void sp_DrawCubeWires(void *pos, float w, float h, float l, void *color) {
+  DrawCubeWires(((sp_Vector3 *)pos)->v, w, h, l, ((sp_Color *)color)->c);
+}
+void sp_DrawRectangle(int x, int y, int w, int h, void *color) {
+  DrawRectangle(x, y, w, h, ((sp_Color *)color)->c);
+}
+void sp_DrawRectangleLines(int x, int y, int w, int h, void *color) {
+  DrawRectangleLines(x, y, w, h, ((sp_Color *)color)->c);
+}

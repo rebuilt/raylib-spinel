@@ -45,6 +45,34 @@ module Raylib
     DrawText("#{prefix}#{value}", x, y, size, color)
   end
 
+  # ---- UpdateCamera ----
+  # The gem binds raylib's UpdateCamera(Camera*, int) and expects a raw
+  # pointer; Spinel passes the native Camera object straight to the same
+  # shim. Accept the Camera object (an FFI::Struct / Camera3D) here and hand
+  # FFI its pointer so game code is identical on both backends.
+  class << self
+    alias_method :__binding_UpdateCamera, :UpdateCamera
+    def UpdateCamera(camera, mode)
+      __binding_UpdateCamera(camera.pointer, mode)
+    end
+  end
+
+  # ---- Vector3 helper (mirror of the Color.new override above) ----
+  # Under Spinel, Vector3.new(x,y,z) lowers to the native sp_Vector3_new.
+  # Under MRI, Vector3 is an FFI::Struct whose positional-arg new is treated
+  # as a layout array, so accept the 3-float x/y/z form to match Spinel.
+  class Vector3
+    class << self
+      def new(*args)
+        if args.length == 3
+          allocate.tap { |v| v.set(*args) }
+        else
+          super
+        end
+      end
+    end
+  end
+
   # ---- Color helper ----
   # Under Spinel, Color.new(r,g,b,a) lowers to the native sp_Color_new. Under
   # MRI, Raylib::Color is an FFI::Struct whose default .new treats positional
