@@ -12,7 +12,6 @@
 # require-splicing skips it; the Spinel branch's require_relative is a literal
 # that gets spliced in. $PROGRAM_NAME is the runtime discriminator.
 
-CANARY = 'canary'
 if $PROGRAM_NAME.end_with?(".rb")
   require_relative File.join("lib","raylib_ruby")
 else
