@@ -24,10 +24,6 @@
  * raylib.h prototypes here makes the compiler extract AL cleanly.
  * ================================================================ */
 
-/* ---- sp_ shims: Color passed as pointer ---- */
-void sp_ColorFree(void *color) {
-  if (color) free(color);
-}
 
 /* ================================================================
  * sp_Color — native, GC-managed Color (see native_struct in
