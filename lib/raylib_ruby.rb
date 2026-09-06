@@ -6,6 +6,37 @@
 # (BeginDrawing, ClearBackground, etc.) that match our adapter's signatures.
 # We only add custom helpers here.
 
+# --- Live reloading (MRI only) ---
+# If the main program set $live_reload_game_lib / $live_reload_game_modules
+# before requiring raylib-spinel, start a file watcher that loads changed
+# game files and signals the main loop to reinitialize.
+if $live_reload_game_lib
+  require "listen"
+
+  $reload_requested = false
+  $reload_mutex = Mutex.new
+
+  listener = Listen.to($live_reload_game_lib) do |modified, added, removed|
+    (modified + added).each do |file|
+      next unless $live_reload_game_modules.key?(file)
+
+      mod_name = $live_reload_game_modules[file]
+      begin
+        load(file)
+        $reload_mutex.synchronize do
+          $reload_mod = mod_name
+          $reload_requested = true
+        end
+        puts "[live-reload] reloaded #{mod_name} from #{File.basename(file)}"
+      rescue => e
+        $stderr.puts "[live-reload] error reloading #{file}: #{e}"
+      end
+    end
+  end
+
+  listener.start
+end
+
 module Raylib
   # Require the raylib-bindings gem's raylib.rb by absolute path. A plain
   # `require "raylib"` is ambiguous: RubyGems resolves it to the gem literally
