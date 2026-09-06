@@ -12,4 +12,5 @@ Gem::Specification.new do |s|
   s.license       = "zlib"
 
   s.add_dependency "raylib-bindings"
+  s.add_dependency "listen"
 end
