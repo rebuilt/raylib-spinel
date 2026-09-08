@@ -42,7 +42,10 @@ module Raylib
   # Input
   ffi_func :sp_IsKeyDown, [:int], :bool
   ffi_func :sp_IsKeyPressed, [:int], :bool
+  ffi_func :sp_IsMouseButtonDown, [:int], :bool
   ffi_func :sp_IsGamepadButtonDown, %i[int int], :bool
+  ffi_func :GetMouseX, [], :int
+  ffi_func :GetMouseY, [], :int
 
   # Time
   ffi_func :GetFrameTime, [], :float
@@ -83,15 +86,16 @@ module Raylib
   ffi_func :sp_DrawCubeWires, %i[ptr float float float ptr], :void
   ffi_func :sp_DrawRectangle, %i[int int int int ptr], :void
   ffi_func :sp_DrawRectangleLines, %i[int int int int ptr], :void
+  ffi_func :sp_DrawPixel, %i[int int ptr], :void
 
   # Vector3 — native GC object (mirrors Color). Passed to the 3D shims as its
   # pointer; field-read with .x/.y/.z.
   native_struct "Vector3", "sp_Vector3"
   native_new [:float, :float, :float], "sp_Vector3_new"
-  native_method :x, [], :float, "sp_Vector3_x"
-  native_method :y, [], :float, "sp_Vector3_y"
-  native_method :z, [], :float, "sp_Vector3_z"
-  native_method :pointer, [], :ptr, "sp_Vector3_ptr"
+  # native_method :x, [], :float, "sp_Vector3_x"
+  # native_method :y, [], :float, "sp_Vector3_y"
+  # native_method :z, [], :float, "sp_Vector3_z"
+  # native_method :pointer, [], :ptr, "sp_Vector3_ptr"
 
   # Camera — native GC object wrapping Camera3D. Built with the with_* chain,
   # mutated by sp_UpdateCamera, passed to sp_BeginMode3D.
@@ -224,6 +228,25 @@ module Raylib
     GAMEPAD_BUTTON_LEFT_FACE_DOWN = 2
     GAMEPAD_BUTTON_RIGHT_FACE_LEFT = 4
 
+    GAMEPAD_BUTTON_UNKNOWN = 0
+    GAMEPAD_BUTTON_LEFT_FACE_UP = 1
+    GAMEPAD_BUTTON_LEFT_FACE_RIGHT = 2
+    GAMEPAD_BUTTON_LEFT_FACE_DOWN = 3
+    GAMEPAD_BUTTON_LEFT_FACE_LEFT = 4
+    GAMEPAD_BUTTON_RIGHT_FACE_UP = 5
+    GAMEPAD_BUTTON_RIGHT_FACE_RIGHT = 6
+    GAMEPAD_BUTTON_RIGHT_FACE_DOWN = 7
+    GAMEPAD_BUTTON_RIGHT_FACE_LEFT = 8
+    GAMEPAD_BUTTON_LEFT_TRIGGER_1 = 9
+    GAMEPAD_BUTTON_LEFT_TRIGGER_2 = 10
+    GAMEPAD_BUTTON_RIGHT_TRIGGER_1 = 11
+    GAMEPAD_BUTTON_RIGHT_TRIGGER_2 = 12
+    GAMEPAD_BUTTON_MIDDLE_LEFT = 13
+    GAMEPAD_BUTTON_MIDDLE = 14
+    GAMEPAD_BUTTON_MIDDLE_RIGHT = 15
+    GAMEPAD_BUTTON_LEFT_THUMB = 16
+    GAMEPAD_BUTTON_RIGHT_THUMB = 17
+
     CAMERA_CUSTOM = 0
     CAMERA_FREE = 1
     CAMERA_ORBITAL = 2
@@ -232,6 +255,27 @@ module Raylib
     CAMERA_ORTHOGRAPHIC = 5
     CAMERA_PERSPECTIVE = 0
     CAMERA_RIGHT_HAND_XYZ = 0
+
+    MOUSE_BUTTON_LEFT    = 0       
+    MOUSE_BUTTON_RIGHT   = 1       
+    MOUSE_BUTTON_MIDDLE  = 2       
+    MOUSE_BUTTON_SIDE    = 3       
+    MOUSE_BUTTON_EXTRA   = 4       
+    MOUSE_BUTTON_FORWARD = 5       
+    MOUSE_BUTTON_BACK    = 6       
+
+    MOUSE_CURSOR_DEFAULT       = 0
+    MOUSE_CURSOR_ARROW         = 1
+    MOUSE_CURSOR_IBEAM         = 2
+    MOUSE_CURSOR_CROSSHAIR     = 3
+    MOUSE_CURSOR_POINTING_HAND = 4
+    MOUSE_CURSOR_RESIZE_EW     = 5
+    MOUSE_CURSOR_RESIZE_NS     = 6
+    MOUSE_CURSOR_RESIZE_NWSE   = 7
+    MOUSE_CURSOR_RESIZE_NESW   = 8
+    MOUSE_CURSOR_RESIZE_ALL    = 9
+    MOUSE_CURSOR_NOT_ALLOWED   = 10 
+
 
     # Wrappers accepting Color pointers (game code stays backend-agnostic;
     # MRI gets these from the gem, which marshals structs itself).
@@ -298,6 +342,10 @@ module Raylib
       Raylib.sp_DrawRectangleLines(x, y, width, height, color)
     end
 
+    def self.DrawPixel(x, y, color)
+      Raylib.sp_DrawPixel(x, y, color)
+    end
+
     # Predicate wrappers return true/false in both backends: the gem
     # binds raylib's bool directly; here spinel marshals the shims'
     # 0/1 ints via the :bool declarations above.
@@ -311,6 +359,10 @@ module Raylib
 
     def self.IsKeyPressed(key)
       Raylib.sp_IsKeyPressed(key)
+    end
+
+    def self.IsMouseButtonDown(button)
+      Raylib.sp_IsMouseButtonDown(button)
     end
 
     def self.IsGamepadButtonDown(gamepad, button)
@@ -344,6 +396,7 @@ module Raylib
     BLANK = Color.new(0, 0, 0, 0)
     MAGENTA = Color.new(255, 0, 255, 255)
     RAYWHITE = Color.new(245, 245, 245, 255)
+
 
     # Color factories — thin wrappers over the native ctor (Color.new lowers to
     # sp_Color_new). Kept here (Spinel side) so they compile as Ruby methods on

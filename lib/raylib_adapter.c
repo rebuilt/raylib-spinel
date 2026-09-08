@@ -92,6 +92,9 @@ void sp_UnloadTexture(void *tex) {
 void sp_DrawCircleV(void *center, float radius, void *color) {
   DrawCircleV(*(Vector2 *)center, radius, ((sp_Color *)color)->c);
 }
+void sp_DrawPixel(int x, int y, void *color) {
+  DrawPixel(x, y, ((sp_Color *)color)->c);
+}
 void sp_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
   DrawTriangle(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3,
                ((sp_Color *)color)->c);
@@ -106,6 +109,7 @@ void sp_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
 int sp_WindowShouldClose(void) { return WindowShouldClose(); }
 int sp_IsKeyDown(int key) { return IsKeyDown(key); }
 int sp_IsKeyPressed(int key) { return IsKeyPressed(key); }
+int sp_IsMouseButtonDown(int button) { return IsMouseButtonDown(button); }
 int sp_IsGamepadButtonDown(int gamepad, int button) {
   return IsGamepadButtonDown(gamepad, button);
 }

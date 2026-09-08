@@ -12,6 +12,7 @@
 # game files and signals the main loop to reinitialize.
 if $live_reload_game_lib
   require "listen"
+  require "debug"
 
   $reload_requested = false
   $reload_mutex = Mutex.new
