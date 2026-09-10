@@ -1,3 +1,4 @@
 [package]
 name = "raylib"
 version = "0.1.0"
+sources = ["lib/raylib_adapter.c"]
