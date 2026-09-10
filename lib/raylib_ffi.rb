@@ -13,7 +13,7 @@ module Raylib
   # Bool-returning raylib functions go through sp_ shims (see
   # raylib_adapter.c — _Bool returns only define AL on x86-64).
   # Spinel marshals :bool results as real true/false objects.
-  ffi_func :sp_WindowShouldClose, [], :bool
+  ffi_func :WindowShouldClose, [], :bool
   ffi_func :SetTargetFPS, [:int], :void
   ffi_func :EnableCursor, [], :void
   ffi_func :GetScreenWidth, [], :int
@@ -40,10 +40,10 @@ module Raylib
   ffi_func :DrawFPS, %i[int int], :void
 
   # Input
-  ffi_func :sp_IsKeyDown, [:int], :bool
-  ffi_func :sp_IsKeyPressed, [:int], :bool
-  ffi_func :sp_IsMouseButtonDown, [:int], :bool
-  ffi_func :sp_IsGamepadButtonDown, %i[int int], :bool
+  ffi_func :IsKeyDown, [:int], :bool
+  ffi_func :IsKeyPressed, [:int], :bool
+  ffi_func :IsMouseButtonDown, [:int], :bool
+  ffi_func :IsGamepadButtonDown, %i[int int], :bool
   ffi_func :GetMouseX, [], :int
   ffi_func :GetMouseY, [], :int
 
@@ -349,25 +349,25 @@ module Raylib
     # Predicate wrappers return true/false in both backends: the gem
     # binds raylib's bool directly; here spinel marshals the shims'
     # 0/1 ints via the :bool declarations above.
-    def self.WindowShouldClose
-      Raylib.sp_WindowShouldClose
-    end
-
-    def self.IsKeyDown(key)
-      Raylib.sp_IsKeyDown(key)
-    end
-
-    def self.IsKeyPressed(key)
-      Raylib.sp_IsKeyPressed(key)
-    end
-
-    def self.IsMouseButtonDown(button)
-      Raylib.sp_IsMouseButtonDown(button)
-    end
-
-    def self.IsGamepadButtonDown(gamepad, button)
-      Raylib.sp_IsGamepadButtonDown(gamepad, button)
-    end
+    # def self.WindowShouldClose
+    #   Raylib.sp_WindowShouldClose
+    # end
+    #
+    # def self.IsKeyDown(key)
+    #   Raylib.sp_IsKeyDown(key)
+    # end
+    #
+    # def self.IsKeyPressed(key)
+    #   Raylib.sp_IsKeyPressed(key)
+    # end
+    #
+    # def self.IsMouseButtonDown(button)
+    #   Raylib.sp_IsMouseButtonDown(button)
+    # end
+    #
+    # def self.IsGamepadButtonDown(gamepad, button)
+    #   Raylib.sp_IsGamepadButtonDown(gamepad, button)
+    # end
 
     LIGHTGRAY = Color.new(200, 200, 200, 255)
     GRAY = Color.new(130, 130, 130, 255)

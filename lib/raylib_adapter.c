@@ -81,6 +81,7 @@ void *sp_LoadTexture(const char *path) {
   *t = LoadTexture(path);
   return t;
 }
+
 void sp_UnloadTexture(void *tex) {
   if (tex) {
     UnloadTexture(*(Texture2D *)tex);
@@ -98,20 +99,6 @@ void sp_DrawPixel(int x, int y, void *color) {
 void sp_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
   DrawTriangle(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3,
                ((sp_Color *)color)->c);
-}
-
-
-/* ---- Bool-returning raylib functions ----
- * See header comment: int-typed FFI externs must not read the
- * unspecified upper bits of a _Bool return. These wrappers are
- * compiled against raylib.h, so the bool->int conversion happens
- * at the call site where the compiler knows the real type. */
-int sp_WindowShouldClose(void) { return WindowShouldClose(); }
-int sp_IsKeyDown(int key) { return IsKeyDown(key); }
-int sp_IsKeyPressed(int key) { return IsKeyPressed(key); }
-int sp_IsMouseButtonDown(int button) { return IsMouseButtonDown(button); }
-int sp_IsGamepadButtonDown(int gamepad, int button) {
-  return IsGamepadButtonDown(gamepad, button);
 }
 
 
