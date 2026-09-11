@@ -453,9 +453,17 @@ def wrapper_out(fn, wrapper_args, out_class):
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
     fwd = (a + ", _out") if a else "_out"
-    return ("    def self.%s(%s)\n      _out = %s.new\n"
+    # Native structs whose sp_<K>_new requires positional args cannot be
+    # zero-arg-constructed; default them so the out-param write has storage.
+    if out_class == "Color":
+        init = "Color.new(0, 0, 0, 0)"
+    elif out_class == "Vector3":
+        init = "Vector3.new(0.0, 0.0, 0.0)"
+    else:
+        init = "%s.new" % out_class
+    return ("    def self.%s(%s)\n      _out = %s\n"
             "      Raylib.sp_%s(%s)\n      _out\n    end\n"
-            % (name, a, out_class, name, fwd))
+            % (name, a, init, name, fwd))
 
 
 # ------------------------------------------------------------------ scan --

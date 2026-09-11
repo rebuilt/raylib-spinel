@@ -397,6 +397,11 @@ module Raylib
   ffi_func :GetPixelDataSize, [:int, :int, :int], :int
   ffi_func :sp_GetFontDefault, [], :ptr
   ffi_func :sp_FontBaseSize, [:ptr], :float
+  ffi_func :sp_TextureWidth, [:ptr], :int
+  ffi_func :sp_TextureHeight, [:ptr], :int
+  ffi_func :sp_DrawTextureRec4, %i[ptr float float float float ptr ptr], :void
+  ffi_func :sp_BeginMode2DF, %i[float float float float float float], :void
+  ffi_func :sp_DrawRectangleRecF, %i[float float float float ptr], :void
   ffi_func :sp_LoadFont, [:str], :ptr
   ffi_func :sp_LoadFontEx, [:str, :int, :ptr, :int], :ptr
   ffi_func :sp_LoadFontFromImage, [:ptr, :ptr, :int], :ptr
@@ -1659,7 +1664,7 @@ module Raylib
       _out
     end
     def self.GetImageColor(image, x, y)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_GetImageColor(image, x, y, _out)
       _out
     end
@@ -1805,7 +1810,7 @@ module Raylib
       Raylib.sp_ColorIsEqual(col1, col2)
     end
     def self.Fade(color, alpha)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_Fade(color, alpha, _out)
       _out
     end
@@ -1818,57 +1823,57 @@ module Raylib
       _out
     end
     def self.ColorFromNormalized(normalized)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorFromNormalized(normalized, _out)
       _out
     end
     def self.ColorToHSV(color)
-      _out = Vector3.new
+      _out = Vector3.new(0.0, 0.0, 0.0)
       Raylib.sp_ColorToHSV(color, _out)
       _out
     end
     def self.ColorFromHSV(hue, saturation, value)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorFromHSV(hue, saturation, value, _out)
       _out
     end
     def self.ColorTint(color, tint)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorTint(color, tint, _out)
       _out
     end
     def self.ColorBrightness(color, factor)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorBrightness(color, factor, _out)
       _out
     end
     def self.ColorContrast(color, contrast)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorContrast(color, contrast, _out)
       _out
     end
     def self.ColorAlpha(color, alpha)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorAlpha(color, alpha, _out)
       _out
     end
     def self.ColorAlphaBlend(dst, src, tint)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorAlphaBlend(dst, src, tint, _out)
       _out
     end
     def self.ColorLerp(color1, color2, factor)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_ColorLerp(color1, color2, factor, _out)
       _out
     end
     def self.GetColor(hexValue)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_GetColor(hexValue, _out)
       _out
     end
     def self.GetPixelColor(srcPtr, format)
-      _out = Color.new
+      _out = Color.new(0, 0, 0, 0)
       Raylib.sp_GetPixelColor(srcPtr, format, _out)
       _out
     end

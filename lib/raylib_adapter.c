@@ -66,6 +66,28 @@ void sp_DrawTextInt(const char *prefix, int value, int x, int y, int size,
   DrawText(buf, x, y, size, ((sp_Color *)color)->c);
 }
 float sp_FontBaseSize(void *font) { return (float)((Font *)font)->baseSize; }
+int sp_TextureWidth(void *texture) { return (int)((Texture *)texture)->width; }
+int sp_TextureHeight(void *texture) { return (int)((Texture *)texture)->height; }
+void sp_DrawTextureRec4(void *texture, float x, float y, float w, float h,
+                        void *position, void *tint) {
+  Rectangle src = { x, y, w, h };
+  DrawTextureRec(*(Texture2D *)texture, src, *(Vector2 *)position,
+                 ((sp_Color *)tint)->c);
+}
+void sp_BeginMode2DF(float target_x, float target_y, float offset_x,
+                     float offset_y, float rotation, float zoom) {
+  Camera2D cam = { 0 };
+  cam.target.x = target_x;
+  cam.target.y = target_y;
+  cam.offset.x = offset_x;
+  cam.offset.y = offset_y;
+  cam.rotation = rotation;
+  cam.zoom = zoom;
+  BeginMode2D(cam);
+}
+void sp_DrawRectangleRecF(float x, float y, float w, float h, void *color) {
+  DrawRectangleRec((Rectangle){ x, y, w, h }, ((sp_Color *)color)->c);
+}
 void sp_DrawTexture(void *tex, int x, int y, void *color) {
   DrawTexture(*(Texture2D *)tex, x, y, ((sp_Color *)color)->c);
 }
