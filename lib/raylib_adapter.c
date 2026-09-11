@@ -88,6 +88,30 @@ void sp_BeginMode2DF(float target_x, float target_y, float offset_x,
 void sp_DrawRectangleRecF(float x, float y, float w, float h, void *color) {
   DrawRectangleRec((Rectangle){ x, y, w, h }, ((sp_Color *)color)->c);
 }
+void *sp_Camera3DCreate(float px, float py, float pz, float tx, float ty,
+                        float tz, float ux, float uy, float uz, float fovy,
+                        int projection) {
+  Camera3D *cam = (Camera3D *)malloc(sizeof(Camera3D));
+  cam->position = (Vector3){ px, py, pz };
+  cam->target = (Vector3){ tx, ty, tz };
+  cam->up = (Vector3){ ux, uy, uz };
+  cam->fovy = fovy;
+  cam->projection = projection;
+  return cam;
+}
+void sp_EndMode3D(void) { EndMode3D(); }
+void sp_DrawGrid(int slices, float spacing) { DrawGrid(slices, spacing); }
+void sp_DrawRenderTexture(void *target, void *tint) {
+  RenderTexture2D *rt = (RenderTexture2D *)target;
+  Rectangle src = { 0, 0, (float)rt->texture.width, (float)-rt->texture.height };
+  DrawTextureRec(rt->texture, src, (Vector2){ 0, 0 }, ((sp_Color *)tint)->c);
+}
+void *sp_LoadImageFromRenderTexture(void *target) {
+  RenderTexture2D *rt = (RenderTexture2D *)target;
+  Image *r = (Image *)malloc(sizeof(Image));
+  *r = LoadImageFromTexture(rt->texture);
+  return r;
+}
 void sp_DrawTexture(void *tex, int x, int y, void *color) {
   DrawTexture(*(Texture2D *)tex, x, y, ((sp_Color *)color)->c);
 }

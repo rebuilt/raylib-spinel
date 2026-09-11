@@ -77,6 +77,17 @@ module Raylib
     DrawText("#{prefix}#{value}", x, y, size, color)
   end
 
+  # ---- SaveRenderTextureImage ----
+  # AOT twin in raylib_ffi.rb. Saves a render texture's canvas (y-flipped back
+  # to top-down) to path. Lives here so the gem-only image.pointer call is
+  # never compiled by Spinel.
+  def self.SaveRenderTextureImage(target, path)
+    image = LoadImageFromTexture(target.texture)
+    ImageFlipVertical(image.pointer)
+    ExportImage(image, path)
+    UnloadImage(image)
+  end
+
   # ---- UpdateCamera ----
   # The gem binds raylib's UpdateCamera(Camera*, int) and expects a raw
   # pointer; Spinel passes the native Camera object straight to the same

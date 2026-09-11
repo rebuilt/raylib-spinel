@@ -402,6 +402,17 @@ module Raylib
   ffi_func :sp_DrawTextureRec4, %i[ptr float float float float ptr ptr], :void
   ffi_func :sp_BeginMode2DF, %i[float float float float float float], :void
   ffi_func :sp_DrawRectangleRecF, %i[float float float float ptr], :void
+  ffi_func :sp_Camera3DCreate, %i[float float float float float float float float float float int], :ptr
+  ffi_func :sp_EndMode3D, [], :void
+  ffi_func :sp_DrawGrid, [:int, :float], :void
+  ffi_func :sp_DrawRenderTexture, [:ptr, :ptr], :void
+  ffi_func :sp_LoadImageFromRenderTexture, [:ptr], :ptr
+  def self.SaveRenderTextureImage(target, path)
+    image = Raylib.sp_LoadImageFromRenderTexture(target)
+    Raylib.ImageFlipVertical(image)
+    Raylib.sp_ExportImage(image, path)
+    Raylib.sp_UnloadImage(image)
+  end
   ffi_func :sp_LoadFont, [:str], :ptr
   ffi_func :sp_LoadFontEx, [:str, :int, :ptr, :int], :ptr
   ffi_func :sp_LoadFontFromImage, [:ptr, :ptr, :int], :ptr
