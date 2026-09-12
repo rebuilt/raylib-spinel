@@ -38,15 +38,80 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIB = os.path.join(ROOT, "lib")
 FFI_PATH = os.path.join(LIB, "raylib_ffi.rb")
 ADAPTER_PATH = os.path.join(LIB, "raylib_adapter.c")
-# Library the bindings are generated against. Only raylib 6.x is supported;
-# a pre-6.x lib makes the symbol gate below abort generation. Override with
-# RAYLIB_LIB (e.g. a shared lib built from the raylib source tree).
-RAYLIB_LIB = os.environ.get("RAYLIB_LIB", "/usr/local/lib/libraylib.so")
+# Compatibility is defined by the raylib version the MRI path actually uses:
+#   * the symbol gate (below) runs against the libraylib bundled by the
+#     installed raylib-bindings gem (RAYLIB_LIB);
+#   * the signatures come from the gem's generator/raylib_api.json, taken from
+#     the raylib-bindings source checkout pinned to the installed gem version.
+# Override either with RAYLIB_LIB / argv api_dir (absolute fallbacks kept).
+def gem_libraylib():
+    """Path to the libraylib bundled by the installed raylib-bindings gem
+    (lib/libraylib.<arch>.so), or None when the gem is absent or lacks it."""
+    import subprocess
+    code = ('s=Gem::Specification.find_by_name("raylib-bindings");'
+            'arch=RUBY_PLATFORM.split("-")[0];'
+            'print File.join(s.full_gem_path,"lib","libraylib."+arch+".so")')
+    try:
+        out = subprocess.check_output(["ruby", "-e", code], text=True,
+                                      stderr=subprocess.DEVNULL).strip()
+    except Exception:
+        return None
+    return out if os.path.exists(out) else None
+
+
+def gem_api_json():
+    """generator/raylib_api.json from the raylib-bindings source checkout
+    (sibling repo, pinned to the installed gem version)."""
+    return os.path.join(os.path.dirname(ROOT), "raylib-bindings",
+                        "generator", "raylib_api.json")
+
+
+def _gem_version():
+    import subprocess
+    try:
+        return subprocess.check_output(
+            ["ruby", "-e", "print Gem::Specification.find_by_name('raylib-bindings').version"],
+            text=True, stderr=subprocess.DEVNULL).strip()
+    except Exception:
+        return None
+
+
+def _checkout_version():
+    import subprocess
+    checkout = os.path.join(os.path.dirname(ROOT), "raylib-bindings")
+    try:
+        out = subprocess.check_output(
+            ["git", "-C", checkout, "describe", "--tags", "--abbrev=0"],
+            text=True, stderr=subprocess.DEVNULL).strip()
+        return out.lstrip("v")
+    except Exception:
+        return None
+
+
+_gem_lib = gem_libraylib()
+RAYLIB_LIB = os.environ.get("RAYLIB_LIB", _gem_lib or "/usr/local/lib/libraylib.so")
+if not os.environ.get("RAYLIB_LIB") and not _gem_lib:
+    print("warning: raylib-bindings gem lib not found; falling back to %s"
+          % RAYLIB_LIB)
 if len(sys.argv) > 1:
     API_PATH = os.path.join(sys.argv[1], "raylib_api.json")
 else:
-    API_PATH = ("/home/nelson/workspace/c/raylib/raylib/tools/"
-                "rlparser/output/raylib_api.json")
+    API_PATH = gem_api_json()
+    if not os.path.exists(API_PATH):
+        API_PATH = ("/home/nelson/workspace/c/raylib/raylib/tools/"
+                    "rlparser/output/raylib_api.json")
+        print("warning: %s not found; falling back to %s"
+              % (gem_api_json(), API_PATH))
+
+# Version-sync guard: the checkout signatures must match the installed gem so
+# a stale checkout cannot silently desync from the raylib MRI loads.
+if len(sys.argv) <= 1:
+    _gv, _cv = _gem_version(), _checkout_version()
+    if _gv and _cv and _gv != _cv:
+        raise SystemExit(
+            "raylib-spinel: raylib-bindings checkout (%s) does not match the "
+            "installed gem (%s). Update the checkout or pass an explicit "
+            "api_dir / RAYLIB_LIB." % (_cv, _gv))
 
 # ------------------------------------------------------------------ tables --
 
@@ -229,7 +294,7 @@ enative = existing_set(r'native_struct\s+"(\w+)"', FFI_PATH)
 enmethod = existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(sp_[A-Za-z0-9_]+)"',
                         FFI_PATH)
 ewrap = existing_set(r"def self\.(\w+)", FFI_PATH)
-econst = existing_set(r"(?m)^[ \t]*([A-Z][A-Z0-9_]*)\s*=[ \t]", FFI_PATH, True)
+econst = existing_set(r"(?m)^[ \t]*([A-Z][A-Za-z0-9_]*)\s*=[ \t]", FFI_PATH, True)
 esp = existing_set(r"\bsp_[A-Za-z0-9_]+", ADAPTER_PATH)
 
 
@@ -553,8 +618,9 @@ ffi_text = open(FFI_PATH).read()
 anchor = '  ffi_cflags "-Wl,-rpath,/usr/local/lib"\n'
 assert anchor in ffi_text
 top = "".join(gen_ffi)
-ffi_text = ffi_text.replace(
-    anchor, anchor + "\n# ====== generated: complete raylib API surface ======\n" + top, 1)
+if top:
+    ffi_text = ffi_text.replace(
+        anchor, anchor + "\n# ====== generated: complete raylib API surface ======\n" + top, 1)
 
 consts = []
 for e in api["enums"]:
@@ -577,21 +643,26 @@ for df in api["defines"]:
 
 wrappers_out = "".join(g for g in gen_wrap if g)
 constants_out = "".join(consts)
-guard_insert = ("\n    # ====== generated: wrappers + constants ======\n"
-                + wrappers_out + constants_out)
 
 assert ffi_text.endswith("  end\nend\n"), ffi_text[-40:]
-ffi_text = ffi_text[: -len("  end\nend\n")] + guard_insert + "  end\nend\n"
+if wrappers_out or constants_out:
+    guard_insert = ("\n    # ====== generated: wrappers + constants ======\n"
+                    + wrappers_out + constants_out)
+    ffi_text = ffi_text[: -len("  end\nend\n")] + guard_insert + "  end\nend\n"
 open(FFI_PATH, "w").write(ffi_text)
 
-adapter_text = open(ADAPTER_PATH).read().rstrip()
-adapter_text += ("\n\n/* ================================================================\n"
-                 " * Generated shims (tools/gen_raylib_ffi.py). Same conventions as the\n"
-                 " * hand-written shims above; keep in sync by re-running the generator.\n"
-                 " * ================================================================ */\n\n")
-adapter_text += "".join(gen_c)
-adapter_text += "\n/* ---- generated shims ---- */\n"
-adapter_text += "".join(gen_shim_c)
+adapter_text = open(ADAPTER_PATH).read()
+gen_c_out = "".join(gen_c)
+gen_shim_c_out = "".join(gen_shim_c)
+if gen_c_out or gen_shim_c_out:
+    adapter_text = adapter_text.rstrip()
+    adapter_text += ("\n\n/* ================================================================\n"
+                     " * Generated shims (tools/gen_raylib_ffi.py). Same conventions as the\n"
+                     " * hand-written shims above; keep in sync by re-running the generator.\n"
+                     " * ================================================================ */\n\n")
+    adapter_text += gen_c_out
+    adapter_text += "\n/* ---- generated shims ---- */\n"
+    adapter_text += gen_shim_c_out
 open(ADAPTER_PATH, "w").write(adapter_text)
 
 print("=== gen_raylib_ffi summary ===")
