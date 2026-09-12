@@ -2,3 +2,23 @@
 name = "raylib"
 version = "0.1.0"
 sources = ["lib/raylib_adapter.c"]
+
+[[package]]
+name = "physac"
+version = "1.0"
+sources = ["lib/physac_adapter.c"]
+
+[[package]]
+name = "raymath"
+version = "3.5"
+sources = ["lib/raymath_adapter.c"]
+
+[[package]]
+name = "rcamera"
+version = "1.0"
+sources = ["lib/rcamera_adapter.c"]
+
+[[package]]
+name = "rlgl"
+version = "3.5"
+sources = ["lib/rlgl_adapter.c"]
