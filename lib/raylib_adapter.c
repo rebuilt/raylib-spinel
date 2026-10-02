@@ -1473,17 +1473,36 @@ void sp_ImageColorReplace(void * image, void * color, void * replace) {
 void * sp_LoadImageColors(void * image) {
   return LoadImageColors(*(Image *)image);
 }
+/** LoadFileText as a raw char* handle so the pointer returned can be freed
+ *  with sp_UnloadFileTextPtr. The flat `:str` binding copies the text into a
+ *  Ruby String and loses the original pointer; UnloadFileText then frees a
+ *  string literal/GC buffer and aborts. */
+void * sp_LoadFileTextPtr(const char * fileName) {
+  return LoadFileText(fileName);
+}
+/** UnloadFileText(params: void * text -> void) */
+void sp_UnloadFileTextPtr(void * text) {
+  UnloadFileText((char *)text);
+}
+/** Copy a NUL-terminated C string into a Ruby String (the pointer stays
+ *  owned by raylib until sp_UnloadFileTextPtr). */
+const char * sp_PtrToString(void * ptr) {
+  return (const char *)ptr;
+}
 /** LoadImagePalette(params: void * image, int maxPaletteSize, void * colorCount -> void *) */
 void * sp_LoadImagePalette(void * image, int maxPaletteSize, void * colorCount) {
   return LoadImagePalette(*(Image *)image, maxPaletteSize, colorCount);
 }
 /** UnloadImageColors(params: void * colors -> void) */
 void sp_UnloadImageColors(void * colors) {
-  UnloadImageColors(&((sp_Color*)colors)->c);
+  /* LoadImageColors returns a raw Color* array (see sp_LoadImageColors and
+   * sp_ImageColorR), not an sp_Color object. Passing the interior field
+   * address here made free() abort with "invalid pointer". */
+  UnloadImageColors((Color *)colors);
 }
 /** UnloadImagePalette(params: void * colors -> void) */
 void sp_UnloadImagePalette(void * colors) {
-  UnloadImagePalette(&((sp_Color*)colors)->c);
+  UnloadImagePalette((Color *)colors);
 }
 /** GetImageAlphaBorder(params: void * image, float threshold, void * _out -> void) */
 void sp_GetImageAlphaBorder(void * image, float threshold, void * _out) {

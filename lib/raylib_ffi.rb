@@ -115,6 +115,9 @@ module Raylib
   ffi_func :SaveFileData, [:str, :ptr, :int], :bool
   ffi_func :ExportDataAsCode, [:ptr, :int, :str], :bool
   ffi_func :LoadFileText, [:str], :str
+  ffi_func :sp_LoadFileTextPtr, [:str], :ptr
+  ffi_func :sp_UnloadFileTextPtr, [:ptr], :void
+  ffi_func :sp_PtrToString, [:ptr], :str
   ffi_func :UnloadFileText, [:str], :void
   ffi_func :SaveFileText, [:str, :str], :bool
   ffi_func :sp_SetLoadFileDataCallback, [:ptr], :void

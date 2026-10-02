@@ -298,7 +298,7 @@ econst = existing_set(r"(?m)^[ \t]*([A-Z][A-Za-z0-9_]*)\s*=[ \t]", FFI_PATH, Tru
 esp = existing_set(r"\bsp_[A-Za-z0-9_]+", ADAPTER_PATH)
 
 
-def classify_param(t):
+def _classify_param_t(t):
     """Return a (kind, ...) tuple. Inside shims, kinds carry unwrap data."""
     base = base_of(t)
     if not is_ptr(t):
@@ -316,9 +316,27 @@ def classify_param(t):
     return ("raw", base)
 
 
+# A `Color *` argument is normally a by-value Color handed through a GC object
+# (`sp_Color`), but some functions take a raw Color* ARRAY produced elsewhere
+# (LoadImageColors / LoadImagePalette). Those must be passed straight through,
+# not unwrapped with `&((sp_Color*)colors)->c`, or free() gets an interior
+# pointer and aborts. Keyed fn name -> arg name.
+PARAM_AS_RAW = {
+    "UnloadImageColors": {"colors"},
+    "UnloadImagePalette": {"colors"},
+}
+
+
+def classify_param(fn_name, aname, t):
+    if aname in PARAM_AS_RAW.get(fn_name, ()):
+        return ("raw", base_of(t))
+    return _classify_param_t(t)
+
+
+
 def func_needs_shim(fn):
-    for _, t in fn.args:
-        if classify_param(t)[0] != "flat":
+    for aname, t in fn.args:
+        if classify_param(fn.name, aname, t)[0] != "flat":
             return True
     if is_ptr(fn.ret):
         return False
@@ -376,7 +394,7 @@ def emit_flat(fn):
         report["dup_name"] += 1
         return
     effi.add(fn.name)
-    args = ", ".join(classify_param(t)[1] for _, t in fn.args)
+    args = ", ".join(classify_param(fn.name, aname, t)[1] for aname, t in fn.args)
     gen_ffi.append("  ffi_func :%s, [%s], %s\n" % (fn.name, args, ffi_flat(fn.ret)))
     report["direct"] += 1
 
@@ -399,7 +417,7 @@ def emit_shim(fn):
     wrapper_args = []
 
     for aname, t in fn.args:
-        kind = classify_param(t)
+        kind = classify_param(fn.name, aname, t)
         if kind[0] == "flat":
             c_params.append((ffi_c_type(kind[1]), aname))
             ffi_args.append(ARG_OVERRIDES.get(fn.name, {}).get(aname, kind[1]))
