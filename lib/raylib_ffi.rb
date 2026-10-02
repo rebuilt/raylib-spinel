@@ -4,7 +4,14 @@
 
 module Raylib
   ffi_lib "raylib"
-  ffi_cflags "-I/usr/local/include"
+  # -I/usr/local/include keeps the adapter's raylib.h include resolving.
+  # -Wl,-rpath,'$ORIGIN/../raylib' makes the produced binary (build/bin/<target>)
+  # prefer the known-good raylib-bindings gem lib that the Makefile vendors at
+  # build/raylib. Without it the loader falls back to /usr/local/lib's raylib,
+  # whose LoadRenderTexture creates an incomplete FBO (black render textures).
+  # Single quotes are required so the shell preserves $ORIGIN for the linker;
+  # spinel appends ffi_cflags verbatim to the single compile+link cc invocation.
+  ffi_cflags "-I/usr/local/include -Wl,-rpath,'$ORIGIN/../raylib'"
 
   # Positional-construction fills (see the factory block below).
   ffi_func :sp_Vector2Fill, %i[ptr float float], :void
