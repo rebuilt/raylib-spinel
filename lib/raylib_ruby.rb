@@ -145,4 +145,32 @@ module Raylib
       end
     end
   end
+
+  # ---- PI ----
+  # raylib-bindings defines no PI; Spinel's raylib_ffi.rb does. Mirror it so
+  # game code can use Raylib::PI on both backends.
+  PI = 3.141592653589793
+
+  # ---- Positional factories (Vector2/Vector4/Matrix) ----
+  # Twins of the Spinel-side helpers in raylib_ffi.rb. The gem's native ctors
+  # are no-arg out-params too; .new(x, y) would treat the args as an FFI
+  # layout description, so construction goes through these factories on both
+  # backends (Spinel inlines Klass.new for native structs and cannot honor a
+  # .new override).
+  def self.Vector2(x, y)
+    Vector2.allocate.tap { |v| v.set(x, y) }
+  end
+
+  def self.Vector4(x, y, z, w)
+    Vector4.allocate.tap { |v| v.set(x, y, z, w) }
+  end
+
+  def self.Matrix(values)
+    Matrix.allocate.tap do |m|
+      m.m0 = values[0]; m.m4 = values[1]; m.m8 = values[2]; m.m12 = values[3]
+      m.m1 = values[4]; m.m5 = values[5]; m.m9 = values[6]; m.m13 = values[7]
+      m.m2 = values[8]; m.m6 = values[9]; m.m10 = values[10]; m.m14 = values[11]
+      m.m3 = values[12]; m.m7 = values[13]; m.m11 = values[14]; m.m15 = values[15]
+    end
+  end
 end

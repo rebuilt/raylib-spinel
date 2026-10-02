@@ -5,7 +5,15 @@
 module Raylib
   ffi_lib "raylib"
   ffi_cflags "-I/usr/local/include"
-  ffi_cflags "-Wl,-rpath,/usr/local/lib"
+
+  # Positional-construction fills (see the factory block below).
+  ffi_func :sp_Vector2Fill, %i[ptr float float], :void
+  ffi_func :sp_Vector4Fill, %i[ptr float float float float], :void
+  ffi_func :sp_MatrixFill,
+           %i[ptr float float float float
+              float float float float
+              float float float float
+              float float float float], :void
 
 # ====== generated: complete raylib API surface ======
   ffi_func :IsWindowReady, [], :bool
@@ -397,8 +405,63 @@ module Raylib
   ffi_func :GetPixelDataSize, [:int, :int, :int], :int
   ffi_func :sp_GetFontDefault, [], :ptr
   ffi_func :sp_FontBaseSize, [:ptr], :float
+  ffi_func :sp_DirListCount, [:ptr], :int
+  ffi_func :sp_DirListName, %i[ptr int], :str
+  ffi_func :sp_AudioStreamSineReset, [], :void
+  ffi_func :sp_UpdateAudioStreamSine, %i[ptr int float float int], :void
+  ffi_func :sp_FontTexture, [:ptr], :ptr
+  ffi_func :sp_FontGlyphAdvanceX, [:ptr, :int], :int
+  ffi_func :sp_FontGlyphRecWidth, [:ptr, :int], :float
+  ffi_func :sp_LoadFontAtlas, %i[str int int int int int int], :ptr
+  ffi_func :sp_DrawRectangleLinesExF, %i[float float float float float ptr], :void
+  ffi_func :sp_CheckCollisionPointRecF, %i[ptr float float float float], :bool
+  ffi_func :sp_Model_material, [:ptr, :int], :ptr
+  ffi_func :sp_Model_transform, [:ptr, :ptr], :void
+  ffi_func :sp_Model_set_transform, [:ptr, :ptr], :void
+  ffi_func :sp_Model_mesh, [:ptr, :int], :ptr
+  ffi_func :sp_Model_meshCount, [:ptr], :int
+  ffi_func :sp_ModelAnimationAt, [:ptr, :int], :ptr
+  ffi_func :sp_ModelAnimation_frameCount, [:ptr], :int
+  ffi_func :sp_Model_boneCount, [:ptr], :int
+  ffi_func :sp_Model_boneParent, [:ptr, :int], :int
+  ffi_func :sp_Model_bindPoseTranslation, [:ptr, :int, :ptr], :void
+  ffi_func :sp_ModelAnimation_framePoseTranslation, [:ptr, :int, :int, :ptr], :void
+  ffi_func :sp_LoadShaderFS, [:str], :ptr
+  ffi_func :sp_SetShaderValueFloat, [:ptr, :int, :float, :int], :void
+  ffi_func :sp_SetShaderValueVec2, [:ptr, :int, :float, :float, :int], :void
+  ffi_func :sp_SetShaderValueVec3, [:ptr, :int, :float, :float, :float, :int], :void
+  ffi_func :sp_SetShaderValueVec4, [:ptr, :int, :float, :float, :float, :float, :int], :void
+  ffi_func :sp_SetShaderValueInt, [:ptr, :int, :int, :int], :void
+  ffi_func :sp_SetShaderValueColor, [:ptr, :int, :ptr, :int], :void
+  ffi_func :sp_Shader_setLoc, [:ptr, :int, :int], :void
+  ffi_func :sp_Material_set_shader, [:ptr, :ptr], :void
+  ffi_func :sp_RayCollision_point, [:ptr, :ptr], :void
+  ffi_func :sp_RayCollision_normal, [:ptr, :ptr], :void
+  ffi_func :sp_Camera_position_x, [:ptr], :float
+  ffi_func :sp_Camera_position_y, [:ptr], :float
+  ffi_func :sp_Camera_position_z, [:ptr], :float
+  ffi_func :sp_Camera_target_x, [:ptr], :float
+  ffi_func :sp_Camera_target_y, [:ptr], :float
+  ffi_func :sp_Camera_target_z, [:ptr], :float
+  ffi_func :sp_ImageColorR, [:ptr, :int], :int
+  ffi_func :sp_CheckCollisionCircleRecF, %i[ptr float float float float float], :bool
+  ffi_func :sp_MatrixRotateXYZ, [:ptr, :ptr], :void
+  ffi_func :sp_IntAlloc, [], :ptr
+  ffi_func :sp_IntGet, [:ptr], :int
+  ffi_func :sp_IntFree, [:ptr], :void
+  ffi_func :sp_ImageWidth, [:ptr], :int
+  ffi_func :sp_ImageHeight, [:ptr], :int
+  ffi_func :sp_ImageFrameData, [:ptr, :int], :ptr
+  ffi_func :sp_Camera_position_from_bounds, %i[ptr ptr float], :void
+  ffi_func :sp_RenderTexture_texture, [:ptr], :ptr
   ffi_func :sp_TextureWidth, [:ptr], :int
   ffi_func :sp_TextureHeight, [:ptr], :int
+  ffi_func :sp_ImageFromImageF, %i[ptr float float float float], :ptr
+  ffi_func :sp_DrawRectangleProF, %i[float float float float float float float ptr], :void
+  ffi_func :sp_DrawRectangleRoundedF, %i[float float float float float int ptr], :void
+  ffi_func :sp_DrawRectangleRoundedLinesExF, %i[float float float float float int float ptr], :void
+  ffi_func :sp_DrawTextureRecF, %i[ptr float float float float float float ptr], :void
+  ffi_func :sp_DrawTextureProF, %i[ptr float float float float float float float float float float float ptr], :void
   ffi_func :sp_DrawTextureRec4, %i[ptr float float float float ptr ptr], :void
   ffi_func :sp_BeginMode2DF, %i[float float float float float float], :void
   ffi_func :sp_DrawRectangleRecF, %i[float float float float ptr], :void
@@ -406,6 +469,8 @@ module Raylib
   ffi_func :sp_EndMode3D, [], :void
   ffi_func :sp_DrawGrid, [:int, :float], :void
   ffi_func :sp_DrawRenderTexture, [:ptr, :ptr], :void
+  ffi_func :sp_DrawRenderTextureAt, [:ptr, :int, :int, :ptr], :void
+  ffi_func :sp_DrawRenderTexturePro, %i[ptr float ptr], :void
   ffi_func :sp_LoadImageFromRenderTexture, [:ptr], :ptr
   def self.SaveRenderTextureImage(target, path)
     image = Raylib.sp_LoadImageFromRenderTexture(target)
@@ -632,6 +697,8 @@ module Raylib
   native_method :zoom=, [:float], :float, "sp_Camera2D_set_zoom"
   native_struct "BoundingBox", "sp_BoundingBox"
   native_new [], "sp_BoundingBox_new"
+  native_method :with_min, %i[float float float], :self, "sp_BoundingBox_with_min"
+  native_method :with_max, %i[float float float], :self, "sp_BoundingBox_with_max"
   native_struct "Ray", "sp_Ray"
   native_new [], "sp_Ray_new"
   native_struct "RayCollision", "sp_RayCollision"
@@ -708,6 +775,7 @@ module Raylib
   native_new [], "sp_FilePathList_new"
   native_method :count, [], :int, "sp_FilePathList_count"
   native_method :count=, [:int], :int, "sp_FilePathList_set_count"
+  native_method :path, [:int], :str, "sp_FilePathList_path"
   native_struct "AutomationEvent", "sp_AutomationEvent"
   native_new [], "sp_AutomationEvent_new"
   native_method :frame, [], :int, "sp_AutomationEvent_frame"
@@ -786,6 +854,10 @@ module Raylib
   native_method :draw_texture, [:any, :int, :int], :void, "sp_Color_draw_texture"
   native_method :draw_text, [:string, :int, :int, :int], :void, "sp_Color_draw_text"
   native_method :draw_text_int, [:string, :int, :int, :int, :int], :void, "sp_Color_draw_text_int"
+  native_method :r, [], :int, "sp_Color_r"
+  native_method :g, [], :int, "sp_Color_g"
+  native_method :b, [], :int, "sp_Color_b"
+  native_method :a, [], :int, "sp_Color_a"
 
   # Texture (opaque pointer — sp_LoadTexture mallocs Texture2D)
   ffi_func :sp_LoadTexture, [:str], :ptr
@@ -812,10 +884,9 @@ module Raylib
   # pointer; field-read with .x/.y/.z.
   native_struct "Vector3", "sp_Vector3"
   native_new [:float, :float, :float], "sp_Vector3_new"
-  # native_method :x, [], :float, "sp_Vector3_x"
-  # native_method :y, [], :float, "sp_Vector3_y"
-  # native_method :z, [], :float, "sp_Vector3_z"
-  # native_method :pointer, [], :ptr, "sp_Vector3_ptr"
+  native_method :x, [], :float, "sp_Vector3_x"
+  native_method :y, [], :float, "sp_Vector3_y"
+  native_method :z, [], :float, "sp_Vector3_z"
 
   # Camera — native GC object wrapping Camera3D. Built with the with_* chain,
   # mutated by sp_UpdateCamera, passed to sp_BeginMode3D.
@@ -1134,6 +1205,39 @@ module Raylib
           rgba & 0xFF
         )
       end
+    end
+
+    # Positional factories (Vector2/Vector4/Matrix).
+    # The core native ctors for these are no-arg (they are mostly out-params),
+    # and Spinel inlines Klass.new(args) straight to the native ctor, so a Ruby
+    # `.new` override can never carry the values. Positional construction lives
+    # here instead; MRI gets identical helpers in raylib_ruby.rb.
+    #
+    # Construction goes through C fill helpers (sp_*Fill in raylib_adapter.c):
+    # Spinel's type analysis can degrade the accessor writers (v.x = x) to
+    # generic ivar dispatch when other classes share those field names, which
+    # miscompiles against the incomplete native struct in larger programs.
+    # (ffi_func declarations live at the top of the module, with the others.)
+
+    def self.Vector2(x, y)
+      o = Vector2.new
+      Raylib.sp_Vector2Fill(o, x, y)
+      o
+    end
+
+    def self.Vector4(x, y, z, w)
+      o = Vector4.new
+      Raylib.sp_Vector4Fill(o, x, y, z, w)
+      o
+    end
+
+    def self.Matrix(values)
+      m = Matrix.new
+      Raylib.sp_MatrixFill(m, values[0], values[1], values[2], values[3],
+                           values[4], values[5], values[6], values[7],
+                           values[8], values[9], values[10], values[11],
+                           values[12], values[13], values[14], values[15])
+      m
     end
 
     # ====== generated: wrappers + constants ======

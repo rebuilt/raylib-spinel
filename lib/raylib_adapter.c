@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <raymath.h>        /* raymath funcs (RL_* guards swallow duplicated types) */
 #include <stdio.h>
 #include <stdlib.h>
 #include "spinel/runtime.h"
@@ -105,6 +106,23 @@ void sp_DrawRenderTexture(void *target, void *tint) {
   RenderTexture2D *rt = (RenderTexture2D *)target;
   Rectangle src = { 0, 0, (float)rt->texture.width, (float)-rt->texture.height };
   DrawTextureRec(rt->texture, src, (Vector2){ 0, 0 }, ((sp_Color *)tint)->c);
+}
+void sp_DrawRenderTextureAt(void *target, int x, int y, void *tint) {
+  RenderTexture2D *rt = (RenderTexture2D *)target;
+  Rectangle src = { 0, 0, (float)rt->texture.width, (float)-rt->texture.height };
+  DrawTextureRec(rt->texture, src, (Vector2){ (float)x, (float)y }, ((sp_Color *)tint)->c);
+}
+void sp_DrawRenderTexturePro(void *target, float rotation, void *tint) {
+  RenderTexture2D *rt = (RenderTexture2D *)target;
+  DrawTexturePro(rt->texture,
+                 (Rectangle){ 0, 0, (float)rt->texture.width, (float)-rt->texture.height },
+                 (Rectangle){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f,
+                              (float)rt->texture.width, (float)rt->texture.height },
+                 (Vector2){ rt->texture.width/2.0f, rt->texture.height/2.0f },
+                 rotation, ((sp_Color *)tint)->c);
+}
+void *sp_RenderTexture_texture(void *target) {
+  return &((RenderTexture2D *)target)->texture;
 }
 void *sp_LoadImageFromRenderTexture(void *target) {
   RenderTexture2D *rt = (RenderTexture2D *)target;
@@ -386,6 +404,14 @@ sp_BoundingBox *sp_BoundingBox_new(sp_int cls_id) {
   sp_BoundingBox *self = (sp_BoundingBox *)sp_gc_alloc(sizeof(sp_BoundingBox), NULL, sp_BoundingBox_scan);
   self->cls_id = cls_id;
   self->v = (BoundingBox){ 0 };
+  return self;
+}
+sp_BoundingBox *sp_BoundingBox_with_min(sp_BoundingBox *self, double x, double y, double z) {
+  self->v.min = (Vector3){ (float)x, (float)y, (float)z };
+  return self;
+}
+sp_BoundingBox *sp_BoundingBox_with_max(sp_BoundingBox *self, double x, double y, double z) {
+  self->v.max = (Vector3){ (float)x, (float)y, (float)z };
   return self;
 }
 
@@ -688,6 +714,10 @@ int sp_FilePathList_count(sp_FilePathList *self) {
 int sp_FilePathList_set_count(sp_FilePathList *self, int count) {
   self->v.count = count;
   return count;
+}
+const char *sp_FilePathList_path(sp_FilePathList *self, int index) {
+  if (index < 0 || index >= self->v.count) return "";
+  return self->v.paths[index];
 }
 
 /* sp_AutomationEvent — GC-embedded AutomationEvent (see raylib_ffi.rb) */typedef struct sp_AutomationEvent_s {
@@ -2353,3 +2383,363 @@ void sp_DetachAudioMixedProcessor(void * processor) {
 
 
 /* ---- generated shims ---- */
+
+/* ================================================================
+ * raymath demo bindings (hand-written; declared in lib/raymath_ffi.rb).
+ * Same Ruby surface as the gem's raymath.rb (Raylib.Vector2Add & co).
+ * The core native structs (sp_Vector2) are defined above, so these can
+ * live in the raylib adapter object — no separate libraymath exists.
+ * Follows the generator conventions: by-value structs via pointers.
+ * ================================================================ */
+void sp_Vector2Add(sp_Vector2 *a, sp_Vector2 *b, sp_Vector2 *out) {
+  out->v = Vector2Add(a->v, b->v);
+}
+void sp_Vector2Scale(sp_Vector2 *v, double scale, sp_Vector2 *out) {
+  out->v = Vector2Scale(v->v, (float)scale);
+}
+void sp_Vector2Rotate(sp_Vector2 *v, double angle, sp_Vector2 *out) {
+  out->v = Vector2Rotate(v->v, (float)angle);
+}
+void sp_Vector2Normalize(sp_Vector2 *v, sp_Vector2 *out) {
+  out->v = Vector2Normalize(v->v);
+}
+double sp_Vector2Length(sp_Vector2 *v) {
+  return (double)Vector2Length(v->v);
+}
+void sp_Vector2Lerp(sp_Vector2 *a, sp_Vector2 *b, double amount, sp_Vector2 *out) {
+  out->v = Vector2Lerp(a->v, b->v, (float)amount);
+}
+double sp_Vector2Angle(sp_Vector2 *a, sp_Vector2 *b) {
+  return (double)Vector2Angle(a->v, b->v);
+}
+
+/* ---- positional construction fills (Raylib.Vector2/Vector4/Matrix) ----
+ * Spinel inlines Klass.new(args) to the native ctor and its type analysis can
+ * degrade the accessor writers (v.x = x) to generic ivar dispatch in programs
+ * where other classes share x/y/m fields, so construction goes through these
+ * explicit C helpers via ffi_func instead. */
+void sp_Vector2Fill(sp_Vector2 *o, double x, double y) {
+  o->v = (Vector2){ (float)x, (float)y };
+}
+void sp_Vector4Fill(sp_Vector4 *o, double x, double y, double z, double w) {
+  o->v = (Vector4){ (float)x, (float)y, (float)z, (float)w };
+}
+void sp_MatrixFill(sp_Matrix *o, double m0, double m4, double m8, double m12,
+                   double m1, double m5, double m9, double m13,
+                   double m2, double m6, double m10, double m14,
+                   double m3, double m7, double m11, double m15) {
+  o->v = (Matrix){ (float)m0, (float)m4, (float)m8, (float)m12,
+                   (float)m1, (float)m5, (float)m9, (float)m13,
+                   (float)m2, (float)m6, (float)m10, (float)m14,
+                   (float)m3, (float)m7, (float)m11, (float)m15 };
+}
+
+/* ================================================================
+ * Hand-written extras (project additions)
+ *
+ * Opaque resource field accessors and small out-parameter helpers
+ * used by the model/font/animation example scenes.
+ * ================================================================ */
+
+/* Font.texture -> Texture2D* (embedded in the Font struct). */
+void *sp_FontTexture(void *font) {
+  return &((Font *)font)->texture;
+}
+
+/* Model.materials[index] -> Material* (embedded in the Model struct). */
+void *sp_Model_material(void *model, int index) {
+  Model *m = (Model *)model;
+  if (index < 0 || index >= m->materialCount) return NULL;
+  return &m->materials[index];
+}
+
+/* int out-parameter helpers (e.g. LoadImageAnim frame count). */
+int *sp_IntAlloc(void) {
+  int *p = (int *)malloc(sizeof(int));
+  *p = 0;
+  return p;
+}
+int sp_IntGet(int *p) { return *p; }
+void sp_IntFree(int *p) { free(p); }
+
+/* Image field accessors (Image is an opaque heap pointer). */
+int sp_ImageWidth(void *image) { return ((Image *)image)->width; }
+int sp_ImageHeight(void *image) { return ((Image *)image)->height; }
+/* Pointer to the start of a single animation frame's pixel data. */
+void *sp_ImageFrameData(void *image, int frameIndex) {
+  Image *img = (Image *)image;
+  int frameBytes = img->width * img->height * 4;
+  return (unsigned char *)img->data + frameBytes * frameIndex;
+}
+
+/* ---- Model / animation / picking / camera extras ---- */
+
+/* Model.transform accessors (Matrix is a native sp_Matrix). */
+void sp_Model_transform(void *model, void *out) {
+  ((sp_Matrix *)out)->v = ((Model *)model)->transform;
+}
+void sp_Model_set_transform(void *model, void *matrix) {
+  ((Model *)model)->transform = ((sp_Matrix *)matrix)->v;
+}
+
+/* Model.meshes[index] -> Mesh* (embedded in the Model struct). */
+void *sp_Model_mesh(void *model, int index) {
+  Model *m = (Model *)model;
+  if (index < 0 || index >= m->meshCount) return NULL;
+  return &m->meshes[index];
+}
+int sp_Model_meshCount(void *model) { return ((Model *)model)->meshCount; }
+
+/* ModelAnimation array element and frame count. */
+void *sp_ModelAnimationAt(void *anims, int index) {
+  return &((ModelAnimation *)anims)[index];
+}
+int sp_ModelAnimation_frameCount(void *anim) {
+  return ((ModelAnimation *)anim)->keyframeCount;
+}
+
+/* RayCollision point/normal -> native Vector3 out-param. */
+void sp_RayCollision_point(void *self, void *out) {
+  ((sp_Vector3 *)out)->v = ((sp_RayCollision *)self)->v.point;
+}
+void sp_RayCollision_normal(void *self, void *out) {
+  ((sp_Vector3 *)out)->v = ((sp_RayCollision *)self)->v.normal;
+}
+
+/* Camera3D position component reads (native Camera has no field accessors). */
+void sp_Camera_position_from_bounds(void *self, void *box, float pad) {
+  BoundingBox *b = (BoundingBox *)box;
+  ((sp_Camera *)self)->c.position = (Vector3){ b->max.x + pad, b->max.y + pad,
+                                              b->max.z + pad };
+}
+float sp_Camera_position_x(void *self) { return ((sp_Camera *)self)->c.position.x; }
+float sp_Camera_position_y(void *self) { return ((sp_Camera *)self)->c.position.y; }
+float sp_Camera_position_z(void *self) { return ((sp_Camera *)self)->c.position.z; }
+
+/* LoadImageColors array element R channel. */
+int sp_ImageColorR(void *colors, int index) {
+  return ((Color *)colors)[index].r;
+}
+
+/* raymath MatrixRotateXYZ on the raylib adapter object (raymath adapter is not
+ * linked into scenes). */
+void sp_MatrixRotateXYZ(void *angle, void *out) {
+  ((sp_Matrix *)out)->v = MatrixRotateXYZ(((sp_Vector3 *)angle)->v);
+}
+
+/* Circle/rect collision from raw floats (avoids native Rectangle field writes
+ * in the all-in-one TU). center is a native sp_Vector2. */
+_Bool sp_CheckCollisionCircleRecF(void *center, float radius,
+                                  float x, float y, float w, float h) {
+  Rectangle rec = { x, y, w, h };
+  return CheckCollisionCircleRec(((sp_Vector2 *)center)->v, radius, rec);
+}
+
+/* ---- Shader value helpers (SetShaderValue takes a void* value) ---- */
+
+/* Fragment-only shader (NULL vertex shader -> raylib default). */
+void *sp_LoadShaderFS(const char *fsFileName) {
+  Shader *s = (Shader *)malloc(sizeof(Shader));
+  *s = LoadShader(NULL, fsFileName);
+  return s;
+}
+void sp_SetShaderValueFloat(void *shader, int locIndex, float v, int type) {
+  SetShaderValue(*(Shader *)shader, locIndex, &v, type);
+}
+void sp_SetShaderValueVec2(void *shader, int locIndex, float x, float y,
+                           int type) {
+  float v[2] = { x, y };
+  SetShaderValue(*(Shader *)shader, locIndex, v, type);
+}
+void sp_SetShaderValueVec3(void *shader, int locIndex, float x, float y,
+                           float z, int type) {
+  float v[3] = { x, y, z };
+  SetShaderValue(*(Shader *)shader, locIndex, v, type);
+}
+
+/* ---- Model skeleton / animation pose accessors ---- */
+int sp_Model_boneCount(void *model) {
+  return (int)((Model *)model)->skeleton.boneCount;
+}
+int sp_Model_boneParent(void *model, int index) {
+  return ((Model *)model)->skeleton.bones[index].parent;
+}
+void sp_Model_bindPoseTranslation(void *model, int index, void *out) {
+  ((sp_Vector3 *)out)->v =
+    ((Model *)model)->skeleton.bindPose[index].translation;
+}
+void sp_ModelAnimation_framePoseTranslation(void *anim, int frame, int bone,
+                                            void *out) {
+  ((sp_Vector3 *)out)->v =
+    ((ModelAnimation *)anim)->keyframePoses[frame][bone].translation;
+}
+
+/* Camera3D target component reads (for shader uniforms). */
+float sp_Camera_target_x(void *self) { return ((sp_Camera *)self)->c.target.x; }
+float sp_Camera_target_y(void *self) { return ((sp_Camera *)self)->c.target.y; }
+float sp_Camera_target_z(void *self) { return ((sp_Camera *)self)->c.target.z; }
+
+/* ---- Shader location slot / material shader assignment ---- */
+void sp_Shader_setLoc(void *shader, int index, int value) {
+  ((Shader *)shader)->locs[index] = value;
+}
+void sp_Material_set_shader(void *material, void *shader) {
+  ((Material *)material)->shader = *(Shader *)shader;
+}
+void sp_SetShaderValueInt(void *shader, int locIndex, int v, int type) {
+  SetShaderValue(*(Shader *)shader, locIndex, &v, type);
+}
+void sp_SetShaderValueVec4(void *shader, int locIndex, float x, float y,
+                           float z, float w, int type) {
+  float v[4] = { x, y, z, w };
+  SetShaderValue(*(Shader *)shader, locIndex, v, type);
+}
+void sp_SetShaderValueColor(void *shader, int locIndex, void *color, int type) {
+  sp_Color *c = (sp_Color *)color;
+  float v[4] = { c->c.r / 255.0f, c->c.g / 255.0f, c->c.b / 255.0f,
+                 c->c.a / 255.0f };
+  SetShaderValue(*(Shader *)shader, locIndex, v, type);
+}
+
+/* ---- Font glyph internals + float-arg rectangle helpers ---- */
+int sp_FontGlyphAdvanceX(void *font, int index) {
+  return ((Font *)font)->glyphs[index].advanceX;
+}
+float sp_FontGlyphRecWidth(void *font, int index) {
+  return ((Font *)font)->recs[index].width;
+}
+void sp_DrawRectangleLinesExF(float x, float y, float w, float h, float thick,
+                              void *color) {
+  DrawRectangleLinesEx((Rectangle){ x, y, w, h }, thick, ((sp_Color *)color)->c);
+}
+_Bool sp_CheckCollisionPointRecF(void *point, float x, float y, float w,
+                                 float h) {
+  return CheckCollisionPointRec(((sp_Vector2 *)point)->v,
+                                (Rectangle){ x, y, w, h });
+}
+
+/* Build a Font from a TTF file's data via LoadFontData + GenImageFontAtlas
+ * (used by the SDF font example). loadGlyphCount 0 lets raylib use defaults. */
+void *sp_LoadFontAtlas(const char *path, int fontSize, int loadGlyphCount,
+                       int atlasGlyphCount, int padding, int packMethod,
+                       int fontType) {
+  int dataSize = 0;
+  unsigned char *data = LoadFileData(path, &dataSize);
+  int loadedCount = 0;
+  GlyphInfo *glyphs = LoadFontData(data, dataSize, fontSize, NULL,
+                                   loadGlyphCount, fontType, &loadedCount);
+  Rectangle *recs = NULL;
+  Image atlas = GenImageFontAtlas(glyphs, &recs, atlasGlyphCount, fontSize,
+                                  padding, packMethod);
+  Font *font = (Font *)malloc(sizeof(Font));
+  font->baseSize = fontSize;
+  font->glyphCount = atlasGlyphCount;
+  font->glyphPadding = padding;
+  font->texture = LoadTextureFromImage(atlas);
+  font->recs = recs;
+  font->glyphs = glyphs;
+  UnloadImage(atlas);
+  UnloadFileData(data);
+  return font;
+}
+
+/* ---- Color component reads (for rlColor4ub etc.) ---- */
+int sp_Color_r(sp_Color *self) { return self->c.r; }
+int sp_Color_g(sp_Color *self) { return self->c.g; }
+int sp_Color_b(sp_Color *self) { return self->c.b; }
+int sp_Color_a(sp_Color *self) { return self->c.a; }
+
+/* No-arg Vector3 allocator for out-param results (raymath wrappers). */
+sp_Vector3 *sp_Vector3_new0(sp_int cls_id) {
+  sp_Vector3 *self = (sp_Vector3 *)sp_gc_alloc(sizeof(sp_Vector3), NULL, sp_Vector3_scan);
+  self->cls_id = cls_id;
+  self->v = (Vector3){ 0 };
+  return self;
+}
+
+
+/* Pure float/int shims added to bypass Spinel single-TU Rectangle struct-id collision */
+void *sp_ImageFromImageF(void *image, float x, float y, float w, float h) {
+  Image *img = (Image *)image;
+  Image *result = (Image *)malloc(sizeof(Image));
+  *result = ImageFromImage(*img, (Rectangle){ x, y, w, h });
+  return result;
+}
+
+void sp_DrawRectangleProF(float x, float y, float w, float h,
+                          float ox, float oy, float rotation, void *color) {
+  DrawRectanglePro((Rectangle){ x, y, w, h },
+                   (Vector2){ ox, oy },
+                   rotation,
+                   ((sp_Color *)color)->c);
+}
+
+void sp_DrawRectangleRoundedF(float x, float y, float w, float h,
+                              float roundness, int segments, void *color) {
+  DrawRectangleRounded((Rectangle){ x, y, w, h },
+                       roundness, segments,
+                       ((sp_Color *)color)->c);
+}
+
+void sp_DrawRectangleRoundedLinesExF(float x, float y, float w, float h,
+                                    float roundness, int segments, float thick, void *color) {
+  DrawRectangleRoundedLinesEx((Rectangle){ x, y, w, h },
+                              roundness, segments, thick,
+                              ((sp_Color *)color)->c);
+}
+
+void sp_DrawTextureRecF(void *texture, float sx, float sy, float sw, float sh,
+                        float px, float py, void *tint) {
+  DrawTextureRec(*(Texture2D *)texture,
+                 (Rectangle){ sx, sy, sw, sh },
+                 (Vector2){ px, py },
+                 ((sp_Color *)tint)->c);
+}
+
+/* DrawTexturePro with raw float src/dest/origin (avoids native Rectangle/
+ * Vector2 field writes in the all-in-one TU). */
+void sp_DrawTextureProF(void *texture, float sx, float sy, float sw, float sh,
+                        float dx, float dy, float dw, float dh,
+                        float ox, float oy, float rotation, void *tint) {
+  DrawTexturePro(*(Texture2D *)texture,
+                 (Rectangle){ sx, sy, sw, sh },
+                 (Rectangle){ dx, dy, dw, dh },
+                 (Vector2){ ox, oy }, rotation, ((sp_Color *)tint)->c);
+}
+
+/* ================================================================
+ * Shims added for the second Tier-1 example batch.
+ *
+ * - DirList accessors: LoadDirectoryFiles hands back an opaque
+ *   FilePathList, and Spinel cannot read a C struct field, so the
+ *   count / name accessors are re-exported over the handle.
+ * - AudioStreamSine: UpdateAudioStream takes a float* buffer, so the
+ *   440 Hz test tone is generated on the C side from the gain the
+ *   Ruby side (the ADSR envelope) asks for.
+ * ================================================================ */
+
+int sp_DirListCount(void *list) {
+  if (!list) return 0;
+  return ((sp_FilePathList *)list)->v.count;
+}
+const char *sp_DirListName(void *list, int index) {
+  if (!list) return "";
+  sp_FilePathList *fl = (sp_FilePathList *)list;
+  if (index < 0 || index >= fl->v.count) return "";
+  return fl->v.paths[index];
+}
+
+static double sp_sine_time = 0.0;
+
+void sp_AudioStreamSineReset(void) { sp_sine_time = 0.0; }
+void sp_UpdateAudioStreamSine(void *stream, int frames, float gain,
+                              float frequency, int sampleRate) {
+  static float buffer[4096];
+  if (frames > 4096) frames = 4096;
+  if (frames < 0) frames = 0;
+  for (int i = 0; i < frames; i++) {
+    buffer[i] = gain * (float)sinf(2.0f * (float)PI * frequency * sp_sine_time);
+    sp_sine_time += 1.0 / (double)sampleRate;
+  }
+  if (frames > 0) UpdateAudioStream(*(AudioStream *)stream, buffer, frames);
+}
