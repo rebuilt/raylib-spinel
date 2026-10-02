@@ -2,9 +2,8 @@
 # Under MRI, ffi_func/ffi_lib/ffi_cflags are no-ops defined in main.rb
 
 module Rlgl
-  ffi_lib "rlgl"
+  ffi_lib "raylib"
   ffi_cflags "-I/usr/local/include"
-  ffi_cflags "-Wl,-rpath,/usr/local/lib"
 
 # ====== generated: complete rlgl API surface ======
   ffi_func :rlMatrixMode, [:int], :void
@@ -232,36 +231,36 @@ module Rlgl
   # Texture
   ffi_func :LoadTexture, [:str], :ptr
   ffi_func :LoadTextureCubemap, [%i[str int]], :ptr
-  ffi_func :IsTextureValid, [%i[ptr]] :bool
+  ffi_func :IsTextureValid, [:ptr], :bool
   ffi_func :UnloadTexture, [%i[ptr]], :void
-  ffi_func :UpdateTexture, [%i[ptr ptr]]
-  ffi_func :GenTextureMipmaps, [%i[ptr]]
-  ffi_func :SetTextureFilter, [%i[ptr int]]
-  ffi_func :SetTextureWrap, [%i[ptr int]]
+  ffi_func :UpdateTexture, [:ptr, :ptr], :void
+  ffi_func :GenTextureMipmaps, [:ptr], :void
+  ffi_func :SetTextureFilter, [:ptr, :int], :void
+  ffi_func :SetTextureWrap, [:ptr, :int], :void
 
   # Render texture
   ffi_func :LoadRenderTexture, [%i[int int]], :ptr
-  ffi_func :IsRenderTextureValid, [%i[ptr]] :bool
+  ffi_func :IsRenderTextureValid, [:ptr], :bool
   ffi_func :UnloadRenderTexture, [%i[ptr]], :void
-  ffi_func :UpdateTextureRec, [%i[ptr ptr ptr]]
-  ffi_func :DrawRenderTexture, [%i[ptr ptr]]
+  ffi_func :UpdateTextureRec, [:ptr, :ptr, :ptr], :void
+  ffi_func :DrawRenderTexture, [:ptr, :ptr], :void
 
   # Shader
   ffi_func :LoadShader, [%i[str str]], :ptr
   ffi_func :LoadShaderFromMemory, [%i[str str]], :ptr
-  ffi_func :IsShaderValid, [%i[ptr]] :bool
+  ffi_func :IsShaderValid, [:ptr], :bool
   ffi_func :UnloadShader, [%i[ptr]], :void
-  ffi_func :SetShaderValue, [%i[ptr int ptr int]]
-  ffi_func :SetShaderValueV, [%i[ptr int ptr int int]]
-  ffi_func :SetShaderValueMatrix, [%i[ptr int ptr]]
-  ffi_func :SetShaderValueTexture, [%i[ptr int ptr]]
-  ffi_func :GetShaderLocation, [%i[ptr str]] :int
-  ffi_func :GetShaderLocationAttrib, [%i[ptr str]] :int
+  ffi_func :SetShaderValue, [:ptr, :int, :ptr, :int], :void
+  ffi_func :SetShaderValueV, [:ptr, :int, :ptr, :int, :int], :void
+  ffi_func :SetShaderValueMatrix, [:ptr, :int, :ptr], :void
+  ffi_func :SetShaderValueTexture, [:ptr, :int, :ptr], :void
+  ffi_func :GetShaderLocation, [:ptr, :str], :int
+  ffi_func :GetShaderLocationAttrib, [:ptr, :str], :int
 
   # Matrix
   ffi_func :MatrixCreate, [], :ptr
-  ffi_func :MatrixGetElement, [%i[ptr int], :float]
-  ffi_func :MatrixSetElement, [%i[ptr int float], :void]
+  ffi_func :MatrixGetElement, %i[ptr int], :float
+  ffi_func :MatrixSetElement, %i[ptr int float], :void
 
   # Vector2
   ffi_func :Vector2Create, %i[float float], :ptr
@@ -277,47 +276,47 @@ module Rlgl
 
     # ====== generated: wrappers + constants ======
     def self.rlUnloadRenderBatch(batch)
-      Raylib.sp_rlUnloadRenderBatch(batch)
+      Rlgl.sp_rlUnloadRenderBatch(batch)
     end
     def self.rlSetUniformMatrix(locIndex, mat)
-      Raylib.sp_rlSetUniformMatrix(locIndex, mat)
+      Rlgl.sp_rlSetUniformMatrix(locIndex, mat)
     end
     def self.rlGetMatrixModelview()
       _out = Matrix.new
-      Raylib.sp_rlGetMatrixModelview(_out)
+      Rlgl.sp_rlGetMatrixModelview(_out)
       _out
     end
     def self.rlGetMatrixProjection()
       _out = Matrix.new
-      Raylib.sp_rlGetMatrixProjection(_out)
+      Rlgl.sp_rlGetMatrixProjection(_out)
       _out
     end
     def self.rlGetMatrixTransform()
       _out = Matrix.new
-      Raylib.sp_rlGetMatrixTransform(_out)
+      Rlgl.sp_rlGetMatrixTransform(_out)
       _out
     end
     def self.rlGetMatrixProjectionStereo(eye)
       _out = Matrix.new
-      Raylib.sp_rlGetMatrixProjectionStereo(eye, _out)
+      Rlgl.sp_rlGetMatrixProjectionStereo(eye, _out)
       _out
     end
     def self.rlGetMatrixViewOffsetStereo(eye)
       _out = Matrix.new
-      Raylib.sp_rlGetMatrixViewOffsetStereo(eye, _out)
+      Rlgl.sp_rlGetMatrixViewOffsetStereo(eye, _out)
       _out
     end
     def self.rlSetMatrixProjection(proj)
-      Raylib.sp_rlSetMatrixProjection(proj)
+      Rlgl.sp_rlSetMatrixProjection(proj)
     end
     def self.rlSetMatrixModelview(view)
-      Raylib.sp_rlSetMatrixModelview(view)
+      Rlgl.sp_rlSetMatrixModelview(view)
     end
     def self.rlSetMatrixProjectionStereo(right, left)
-      Raylib.sp_rlSetMatrixProjectionStereo(right, left)
+      Rlgl.sp_rlSetMatrixProjectionStereo(right, left)
     end
     def self.rlSetMatrixViewOffsetStereo(right, left)
-      Raylib.sp_rlSetMatrixViewOffsetStereo(right, left)
+      Rlgl.sp_rlSetMatrixViewOffsetStereo(right, left)
     end
     RL_OPENGL_SOFTWARE = 0
     RL_OPENGL_11 = 1
@@ -521,4 +520,3 @@ module Rlgl
     RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS = 8
     RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM = 9
   end
-end

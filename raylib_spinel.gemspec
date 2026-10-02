@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.description = "Raylib spinel bindings"
   s.authors     = ["Nelson Jovel"]
   s.email       = "memoryman51@hotmail.com"
-  s.files       = Dir["lib/**/*", "raylib-spinel.rb", "README.md", "LICENSE*"]
+  s.files       = Dir["lib/**/*", "raylib-spinel.rb", "raylib-spinel/**/*", "README.md", "LICENSE*"]
   s.require_paths = ["."]
   s.homepage    =
     "https://rubygems.org/gems/raylib-spinel"

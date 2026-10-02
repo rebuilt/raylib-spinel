@@ -1,3 +1,5 @@
+#include <raylib.h>
+#include <rlgl.h>
 #include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,23 +20,23 @@
   Vector2 v;
 } sp_Vector2;
 static void sp_Vector2_scan(void *p) { (void)p; }
-sp_Vector2 *sp_Vector2_new(sp_int cls_id) {
+static sp_Vector2 *sp_Vector2_new(sp_int cls_id) {
   sp_Vector2 *self = (sp_Vector2 *)sp_gc_alloc(sizeof(sp_Vector2), NULL, sp_Vector2_scan);
   self->cls_id = cls_id;
   self->v = (Vector2){ 0 };
   return self;
 }
-double sp_Vector2_x(sp_Vector2 *self) {
+static double sp_Vector2_x(sp_Vector2 *self) {
   return (double)self->v.x;
 }
-double sp_Vector2_set_x(sp_Vector2 *self, double x) {
+static double sp_Vector2_set_x(sp_Vector2 *self, double x) {
   self->v.x = (float)x;
   return x;
 }
-double sp_Vector2_y(sp_Vector2 *self) {
+static double sp_Vector2_y(sp_Vector2 *self) {
   return (double)self->v.y;
 }
-double sp_Vector2_set_y(sp_Vector2 *self, double y) {
+static double sp_Vector2_set_y(sp_Vector2 *self, double y) {
   self->v.y = (float)y;
   return y;
 }
@@ -44,27 +46,27 @@ double sp_Vector2_set_y(sp_Vector2 *self, double y) {
   Vector3 v;
 } sp_Vector3;
 static void sp_Vector3_scan(void *p) { (void)p; }
-sp_Vector3 *sp_Vector3_new(sp_int cls_id) {
+static sp_Vector3 *sp_Vector3_new(sp_int cls_id) {
   sp_Vector3 *self = (sp_Vector3 *)sp_gc_alloc(sizeof(sp_Vector3), NULL, sp_Vector3_scan);
   self->cls_id = cls_id;
   self->v = (Vector3){ 0 };
   return self;
 }
-double sp_Vector3_x(sp_Vector3 *self) {
+static double sp_Vector3_x(sp_Vector3 *self) {
   return (double)self->v.x;
 }
 double sp_Vector3_set_x(sp_Vector3 *self, double x) {
   self->v.x = (float)x;
   return x;
 }
-double sp_Vector3_y(sp_Vector3 *self) {
+static double sp_Vector3_y(sp_Vector3 *self) {
   return (double)self->v.y;
 }
 double sp_Vector3_set_y(sp_Vector3 *self, double y) {
   self->v.y = (float)y;
   return y;
 }
-double sp_Vector3_z(sp_Vector3 *self) {
+static double sp_Vector3_z(sp_Vector3 *self) {
   return (double)self->v.z;
 }
 double sp_Vector3_set_z(sp_Vector3 *self, double z) {
@@ -77,37 +79,37 @@ double sp_Vector3_set_z(sp_Vector3 *self, double z) {
   Vector4 v;
 } sp_Vector4;
 static void sp_Vector4_scan(void *p) { (void)p; }
-sp_Vector4 *sp_Vector4_new(sp_int cls_id) {
+static sp_Vector4 *sp_Vector4_new(sp_int cls_id) {
   sp_Vector4 *self = (sp_Vector4 *)sp_gc_alloc(sizeof(sp_Vector4), NULL, sp_Vector4_scan);
   self->cls_id = cls_id;
   self->v = (Vector4){ 0 };
   return self;
 }
-double sp_Vector4_x(sp_Vector4 *self) {
+static double sp_Vector4_x(sp_Vector4 *self) {
   return (double)self->v.x;
 }
-double sp_Vector4_set_x(sp_Vector4 *self, double x) {
+static double sp_Vector4_set_x(sp_Vector4 *self, double x) {
   self->v.x = (float)x;
   return x;
 }
-double sp_Vector4_y(sp_Vector4 *self) {
+static double sp_Vector4_y(sp_Vector4 *self) {
   return (double)self->v.y;
 }
-double sp_Vector4_set_y(sp_Vector4 *self, double y) {
+static double sp_Vector4_set_y(sp_Vector4 *self, double y) {
   self->v.y = (float)y;
   return y;
 }
-double sp_Vector4_z(sp_Vector4 *self) {
+static double sp_Vector4_z(sp_Vector4 *self) {
   return (double)self->v.z;
 }
-double sp_Vector4_set_z(sp_Vector4 *self, double z) {
+static double sp_Vector4_set_z(sp_Vector4 *self, double z) {
   self->v.z = (float)z;
   return z;
 }
-double sp_Vector4_w(sp_Vector4 *self) {
+static double sp_Vector4_w(sp_Vector4 *self) {
   return (double)self->v.w;
 }
-double sp_Vector4_set_w(sp_Vector4 *self, double w) {
+static double sp_Vector4_set_w(sp_Vector4 *self, double w) {
   self->v.w = (float)w;
   return w;
 }
@@ -129,121 +131,121 @@ sp_Quaternion *sp_Quaternion_new(sp_int cls_id) {
   Matrix v;
 } sp_Matrix;
 static void sp_Matrix_scan(void *p) { (void)p; }
-sp_Matrix *sp_Matrix_new(sp_int cls_id) {
+static sp_Matrix *sp_Matrix_new(sp_int cls_id) {
   sp_Matrix *self = (sp_Matrix *)sp_gc_alloc(sizeof(sp_Matrix), NULL, sp_Matrix_scan);
   self->cls_id = cls_id;
   self->v = (Matrix){ 0 };
   return self;
 }
-double sp_Matrix_m0(sp_Matrix *self) {
+static double sp_Matrix_m0(sp_Matrix *self) {
   return (double)self->v.m0;
 }
-double sp_Matrix_set_m0(sp_Matrix *self, double m0) {
+static double sp_Matrix_set_m0(sp_Matrix *self, double m0) {
   self->v.m0 = (float)m0;
   return m0;
 }
-double sp_Matrix_m4(sp_Matrix *self) {
+static double sp_Matrix_m4(sp_Matrix *self) {
   return (double)self->v.m4;
 }
-double sp_Matrix_set_m4(sp_Matrix *self, double m4) {
+static double sp_Matrix_set_m4(sp_Matrix *self, double m4) {
   self->v.m4 = (float)m4;
   return m4;
 }
-double sp_Matrix_m8(sp_Matrix *self) {
+static double sp_Matrix_m8(sp_Matrix *self) {
   return (double)self->v.m8;
 }
-double sp_Matrix_set_m8(sp_Matrix *self, double m8) {
+static double sp_Matrix_set_m8(sp_Matrix *self, double m8) {
   self->v.m8 = (float)m8;
   return m8;
 }
-double sp_Matrix_m12(sp_Matrix *self) {
+static double sp_Matrix_m12(sp_Matrix *self) {
   return (double)self->v.m12;
 }
-double sp_Matrix_set_m12(sp_Matrix *self, double m12) {
+static double sp_Matrix_set_m12(sp_Matrix *self, double m12) {
   self->v.m12 = (float)m12;
   return m12;
 }
-double sp_Matrix_m1(sp_Matrix *self) {
+static double sp_Matrix_m1(sp_Matrix *self) {
   return (double)self->v.m1;
 }
-double sp_Matrix_set_m1(sp_Matrix *self, double m1) {
+static double sp_Matrix_set_m1(sp_Matrix *self, double m1) {
   self->v.m1 = (float)m1;
   return m1;
 }
-double sp_Matrix_m5(sp_Matrix *self) {
+static double sp_Matrix_m5(sp_Matrix *self) {
   return (double)self->v.m5;
 }
-double sp_Matrix_set_m5(sp_Matrix *self, double m5) {
+static double sp_Matrix_set_m5(sp_Matrix *self, double m5) {
   self->v.m5 = (float)m5;
   return m5;
 }
-double sp_Matrix_m9(sp_Matrix *self) {
+static double sp_Matrix_m9(sp_Matrix *self) {
   return (double)self->v.m9;
 }
-double sp_Matrix_set_m9(sp_Matrix *self, double m9) {
+static double sp_Matrix_set_m9(sp_Matrix *self, double m9) {
   self->v.m9 = (float)m9;
   return m9;
 }
-double sp_Matrix_m13(sp_Matrix *self) {
+static double sp_Matrix_m13(sp_Matrix *self) {
   return (double)self->v.m13;
 }
-double sp_Matrix_set_m13(sp_Matrix *self, double m13) {
+static double sp_Matrix_set_m13(sp_Matrix *self, double m13) {
   self->v.m13 = (float)m13;
   return m13;
 }
-double sp_Matrix_m2(sp_Matrix *self) {
+static double sp_Matrix_m2(sp_Matrix *self) {
   return (double)self->v.m2;
 }
-double sp_Matrix_set_m2(sp_Matrix *self, double m2) {
+static double sp_Matrix_set_m2(sp_Matrix *self, double m2) {
   self->v.m2 = (float)m2;
   return m2;
 }
-double sp_Matrix_m6(sp_Matrix *self) {
+static double sp_Matrix_m6(sp_Matrix *self) {
   return (double)self->v.m6;
 }
-double sp_Matrix_set_m6(sp_Matrix *self, double m6) {
+static double sp_Matrix_set_m6(sp_Matrix *self, double m6) {
   self->v.m6 = (float)m6;
   return m6;
 }
-double sp_Matrix_m10(sp_Matrix *self) {
+static double sp_Matrix_m10(sp_Matrix *self) {
   return (double)self->v.m10;
 }
-double sp_Matrix_set_m10(sp_Matrix *self, double m10) {
+static double sp_Matrix_set_m10(sp_Matrix *self, double m10) {
   self->v.m10 = (float)m10;
   return m10;
 }
-double sp_Matrix_m14(sp_Matrix *self) {
+static double sp_Matrix_m14(sp_Matrix *self) {
   return (double)self->v.m14;
 }
-double sp_Matrix_set_m14(sp_Matrix *self, double m14) {
+static double sp_Matrix_set_m14(sp_Matrix *self, double m14) {
   self->v.m14 = (float)m14;
   return m14;
 }
-double sp_Matrix_m3(sp_Matrix *self) {
+static double sp_Matrix_m3(sp_Matrix *self) {
   return (double)self->v.m3;
 }
-double sp_Matrix_set_m3(sp_Matrix *self, double m3) {
+static double sp_Matrix_set_m3(sp_Matrix *self, double m3) {
   self->v.m3 = (float)m3;
   return m3;
 }
-double sp_Matrix_m7(sp_Matrix *self) {
+static double sp_Matrix_m7(sp_Matrix *self) {
   return (double)self->v.m7;
 }
-double sp_Matrix_set_m7(sp_Matrix *self, double m7) {
+static double sp_Matrix_set_m7(sp_Matrix *self, double m7) {
   self->v.m7 = (float)m7;
   return m7;
 }
-double sp_Matrix_m11(sp_Matrix *self) {
+static double sp_Matrix_m11(sp_Matrix *self) {
   return (double)self->v.m11;
 }
-double sp_Matrix_set_m11(sp_Matrix *self, double m11) {
+static double sp_Matrix_set_m11(sp_Matrix *self, double m11) {
   self->v.m11 = (float)m11;
   return m11;
 }
-double sp_Matrix_m15(sp_Matrix *self) {
+static double sp_Matrix_m15(sp_Matrix *self) {
   return (double)self->v.m15;
 }
-double sp_Matrix_set_m15(sp_Matrix *self, double m15) {
+static double sp_Matrix_set_m15(sp_Matrix *self, double m15) {
   self->v.m15 = (float)m15;
   return m15;
 }
@@ -253,7 +255,7 @@ double sp_Matrix_set_m15(sp_Matrix *self, double m15) {
   Color c;
 } sp_Color;
 static void sp_Color_scan(void *p) { (void)p; }
-sp_Color *sp_Color_new(sp_int cls_id) {
+static sp_Color *sp_Color_new(sp_int cls_id) {
   sp_Color *self = (sp_Color *)sp_gc_alloc(sizeof(sp_Color), NULL, sp_Color_scan);
   self->cls_id = cls_id;
   self->c = (Color){ 0 };
@@ -270,7 +272,7 @@ void sp_Vector2One(void * _out) {
   ((sp_Vector2*)_out)->v = Vector2One();
 }
 /** Vector2Add(params: void * v1, void * v2, void * _out -> void) */
-void sp_Vector2Add(void * v1, void * v2, void * _out) {
+static void sp_Vector2Add(void * v1, void * v2, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Add(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v);
 }
 /** Vector2AddValue(params: void * v, float add, void * _out -> void) */
@@ -286,7 +288,7 @@ void sp_Vector2SubtractValue(void * v, float sub, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2SubtractValue(((sp_Vector2*)v)->v, sub);
 }
 /** Vector2Length(params: void * v -> float) */
-float sp_Vector2Length(void * v) {
+static float sp_Vector2Length(void * v) {
   return Vector2Length(((sp_Vector2*)v)->v);
 }
 /** Vector2LengthSqr(params: void * v -> float) */
@@ -310,7 +312,7 @@ float sp_Vector2DistanceSqr(void * v1, void * v2) {
   return Vector2DistanceSqr(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v);
 }
 /** Vector2Angle(params: void * v1, void * v2 -> float) */
-float sp_Vector2Angle(void * v1, void * v2) {
+static float sp_Vector2Angle(void * v1, void * v2) {
   return Vector2Angle(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v);
 }
 /** Vector2LineAngle(params: void * start, void * end -> float) */
@@ -318,7 +320,7 @@ float sp_Vector2LineAngle(void * start, void * end) {
   return Vector2LineAngle(((sp_Vector2*)start)->v, ((sp_Vector2*)end)->v);
 }
 /** Vector2Scale(params: void * v, float scale, void * _out -> void) */
-void sp_Vector2Scale(void * v, float scale, void * _out) {
+static void sp_Vector2Scale(void * v, float scale, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Scale(((sp_Vector2*)v)->v, scale);
 }
 /** Vector2Multiply(params: void * v1, void * v2, void * _out -> void) */
@@ -334,7 +336,7 @@ void sp_Vector2Divide(void * v1, void * v2, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Divide(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v);
 }
 /** Vector2Normalize(params: void * v, void * _out -> void) */
-void sp_Vector2Normalize(void * v, void * _out) {
+static void sp_Vector2Normalize(void * v, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Normalize(((sp_Vector2*)v)->v);
 }
 /** Vector2Transform(params: void * v, void * mat, void * _out -> void) */
@@ -342,7 +344,7 @@ void sp_Vector2Transform(void * v, void * mat, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Transform(((sp_Vector2*)v)->v, ((sp_Matrix*)mat)->v);
 }
 /** Vector2Lerp(params: void * v1, void * v2, float amount, void * _out -> void) */
-void sp_Vector2Lerp(void * v1, void * v2, float amount, void * _out) {
+static void sp_Vector2Lerp(void * v1, void * v2, float amount, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Lerp(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v, amount);
 }
 /** Vector2Reflect(params: void * v, void * normal, void * _out -> void) */
@@ -358,7 +360,7 @@ void sp_Vector2Max(void * v1, void * v2, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Max(((sp_Vector2*)v1)->v, ((sp_Vector2*)v2)->v);
 }
 /** Vector2Rotate(params: void * v, float angle, void * _out -> void) */
-void sp_Vector2Rotate(void * v, float angle, void * _out) {
+static void sp_Vector2Rotate(void * v, float angle, void * _out) {
   ((sp_Vector2*)_out)->v = Vector2Rotate(((sp_Vector2*)v)->v, angle);
 }
 /** Vector2MoveTowards(params: void * v, void * target, float maxDistance, void * _out -> void) */
@@ -688,7 +690,7 @@ void sp_MatrixRotateZ(float angle, void * _out) {
   ((sp_Matrix*)_out)->v = MatrixRotateZ(angle);
 }
 /** MatrixRotateXYZ(params: void * angle, void * _out -> void) */
-void sp_MatrixRotateXYZ(void * angle, void * _out) {
+static void sp_MatrixRotateXYZ(void * angle, void * _out) {
   ((sp_Matrix*)_out)->v = MatrixRotateXYZ(((sp_Vector3*)angle)->v);
 }
 /** MatrixRotateZYX(params: void * angle, void * _out -> void) */
@@ -824,4 +826,26 @@ void sp_MatrixCompose(void * translation, void * rotation, void * scale, void * 
 /** MatrixDecompose(params: void * mat, void * translation, void * rotation, void * scale -> void) */
 void sp_MatrixDecompose(void * mat, void * translation, void * rotation, void * scale) {
   MatrixDecompose(((sp_Matrix*)mat)->v, &((sp_Vector3*)translation)->v, &((sp_Quaternion*)rotation)->v, &((sp_Vector3*)scale)->v);
+}
+
+/* Boid helper: write the 16 floats of QuaternionToMatrix(QuaternionFromVector3ToVector3(+z, dir))
+ * into a caller-provided float array. Also feed the same matrix to rlMultMatrixf. */
+void sp_QuaternionToMatrix3(void *dir, float *out) {
+  Vector3 z = (Vector3){ 0.0f, 0.0f, 1.0f };
+  Quaternion q = QuaternionFromVector3ToVector3(z, ((sp_Vector3 *)dir)->v);
+  Matrix m = QuaternionToMatrix(q);
+  float *f = (float *)&m;
+  for (int i = 0; i < 16; i++) out[i] = f[i];
+}
+void sp_rlMultMatrixfFloats(float *floats, int index) {
+  rlMultMatrixf(floats + index * 16);
+}
+
+/* Boids helper: rotate the model matrix so +z points along dir, then feed it
+ * to rlMultMatrixf (single call from Ruby). */
+void sp_rlMultMatrixfForDir(void *dir) {
+  Vector3 z = (Vector3){ 0.0f, 0.0f, 1.0f };
+  Quaternion q = QuaternionFromVector3ToVector3(z, ((sp_Vector3 *)dir)->v);
+  Matrix m = QuaternionToMatrix(q);
+  rlMultMatrixf((float *)&m);
 }

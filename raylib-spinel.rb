@@ -19,14 +19,16 @@
 # Under MRI, ffi_func/ffi_lib/ffi_cflags are no-ops defined in main.rb.
 
 if $PROGRAM_NAME.end_with?(".rb")
+  puts "raylib-spinel: loading raylib_ruby (CRuby)"
   require_relative File.join("lib","raylib_ruby")
 else
+  puts "raylib-spinel: loading raylib_ffi (Spinel)"
   require_relative "lib/raylib_ffi"
 end
 
 # Load additional library FFI if available (for multi-library support)
 lib_dir = File.join(__dir__, "lib")
-required_libs = ENV.fetch("SPINEL_RAYLIBS", "raylib").split(",")
+required_libs = ENV.fetch("SPINEL_RAYLIBS", "").split(",").reject(&:empty?)
 required_libs.each do |lib_name|
   ffi_path = File.join(lib_dir, "#{lib_name}_ffi.rb")
   if File.exist?(ffi_path)

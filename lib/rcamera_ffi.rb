@@ -4,7 +4,6 @@
 module Rcamera
   ffi_lib "rcamera"
   ffi_cflags "-I/usr/local/include"
-  ffi_cflags "-Wl,-rpath,/usr/local/lib"
 
 # ====== generated: complete rcamera API surface ======
   ffi_func :sp_GetCameraForward, [:ptr, :ptr], :void
