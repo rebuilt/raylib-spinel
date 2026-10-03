@@ -445,6 +445,11 @@ module Raylib
   ffi_func :sp_SetShaderValueColor, [:ptr, :int, :ptr, :int], :void
   ffi_func :sp_Shader_setLoc, [:ptr, :int, :int], :void
   ffi_func :sp_Material_set_shader, [:ptr, :ptr], :void
+  # Diffuse texture poke: Material.maps[] is embedded in the Material struct,
+  # so Ruby cannot reach maps[MAP_DIFFUSE].texture. Both return 1 on success,
+  # 0 on a NULL / out-of-range handle.
+  ffi_func :sp_Material_set_diffuse, [:ptr, :ptr], :int
+  ffi_func :sp_ModelSetDiffuseTexture, %i[ptr int ptr], :int
   ffi_func :sp_RayCollision_point, [:ptr, :ptr], :void
   ffi_func :sp_RayCollision_normal, [:ptr, :ptr], :void
   ffi_func :sp_Camera_position_x, [:ptr], :float
@@ -455,6 +460,12 @@ module Raylib
   ffi_func :sp_Camera_target_z, [:ptr], :float
   ffi_func :sp_ImageColorR, [:ptr, :int], :int
   ffi_func :sp_CheckCollisionCircleRecF, %i[ptr float float float float float], :bool
+  # CheckCollisionBoxes from 12 raw floats, bypassing native BoundingBox/Vector3
+  # construction (single-TU cls_id mismatch; see AGENTS.md section A). Arg order
+  # is (min x,y,z, max x,y,z) for box 1 then box 2.
+  ffi_func :sp_CheckCollisionBoxesF,
+           %i[float float float float float float float float float float float float],
+           :bool
   ffi_func :sp_MatrixRotateXYZ, [:ptr, :ptr], :void
   ffi_func :sp_IntAlloc, [], :ptr
   ffi_func :sp_IntGet, [:ptr], :int

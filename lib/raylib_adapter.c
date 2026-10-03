@@ -2827,3 +2827,60 @@ void sp_UpdateAudioStreamSine(void *stream, int frames, float gain,
   }
   if (frames > 0) UpdateAudioStream(*(AudioStream *)stream, buffer, frames);
 }
+
+/* ================================================================
+ * Shims added for the Raylib-Examples port batch.
+ *
+ * Both exist for the same reason as every other `*F` shim here:
+ * Spinel's single-TU codegen assigns a local `cls_id` to a native
+ * struct literal, so a Ruby-side `Raylib::BoundingBox` /
+ * `Raylib::Vector3` compound literal can reach C with a mismatched id
+ * (the historical `sp_BoundingBox_with_min` "expected double but
+ * argument is of type sp_RbVal" failure). Passing raw floats and
+ * assembling the struct here keeps the Ruby side scalar-only.
+ * ================================================================ */
+
+/* CheckCollisionBoxes from 12 raw floats.
+ *
+ * BoundingBox is { Vector3 min, max }, so the caller supplies
+ * (minX,minY,minZ,maxX,maxY,maxZ) twice. Unused dims may be 0; the
+ * test is a strict per-axis interval overlap. */
+_Bool sp_CheckCollisionBoxesF(float min1_x, float min1_y, float min1_z,
+                              float max1_x, float max1_y, float max1_z,
+                              float min2_x, float min2_y, float min2_z,
+                              float max2_x, float max2_y, float max2_z) {
+  BoundingBox b1;
+  BoundingBox b2;
+  b1.min = (Vector3){ min1_x, min1_y, min1_z };
+  b1.max = (Vector3){ max1_x, max1_y, max1_z };
+  b2.min = (Vector3){ min2_x, min2_y, min2_z };
+  b2.max = (Vector3){ max2_x, max2_y, max2_z };
+  return CheckCollisionBoxes(b1, b2);
+}
+
+/* Assign a texture to a material's MAP_DIFFUSE slot.
+ *
+ * Material.maps[] is embedded in the Material struct, so Ruby cannot
+ * reach `maps[MAP_DIFFUSE].texture` without a shim. Returns 1 on
+ * success, 0 if either handle is NULL -- callers that ignore the
+ * result would otherwise draw an untextured model with no signal. */
+int sp_Material_set_diffuse(void *material, void *texture) {
+  if (!material || !texture) return 0;
+  /* MATERIAL_MAP_DIFFUSE is a #define alias of MATERIAL_MAP_ALBEDO in raylib
+   * 5.5+, so this spelling works across both. Going through the public
+   * SetMaterialTexture also keeps the material's maps[] consistent instead of
+   * writing the slot behind raylib's back. */
+  SetMaterialTexture((Material *)material, MATERIAL_MAP_DIFFUSE,
+                     *(Texture2D *)texture);
+  return 1;
+}
+
+/* sp_Material_set_diffuse over a model's materialIndex, for the
+ * "GenImageChecked -> LoadTextureFromImage -> poke the model's
+ * material" pattern that the raylib 3D cube demos use. */
+int sp_ModelSetDiffuseTexture(void *model, int materialIndex,
+                              void *texture) {
+  Model *m = (Model *)model;
+  if (!m || materialIndex < 0 || materialIndex >= m->materialCount) return 0;
+  return sp_Material_set_diffuse(&m->materials[materialIndex], texture);
+}
