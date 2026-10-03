@@ -54,6 +54,29 @@ sp_Color *sp_Color_new(sp_int cls_id, sp_int r, sp_int g, sp_int b, sp_int a) {
   return self;
 }
 
+/* sp_Vector2 — GC-embedded Vector2 (see raylib_ffi.rb). Declared early so the
+ * generated shims below (and the raw Vector2 helpers) read the embedded `v`
+ * instead of mistaking the cls_id header for the coordinates. */
+typedef struct sp_Vector2_s {
+  sp_int cls_id;
+  Vector2 v;
+} sp_Vector2;
+
+/* Vector2 helper — heap allocates a native-shaped sp_Vector2 and returns a
+ * pointer (matches the ffi_func Vector2Create(:ptr) declaration). Freed is
+ * unnecessary: these are small fixed-size vectors. The struct carries the same
+ * header + embedded Vector2 layout the shims now read via ->v. */
+void *Vector2Create(float x, float y) {
+  sp_Vector2 *v = (sp_Vector2 *)malloc(sizeof(sp_Vector2));
+  v->cls_id = 0;
+  v->v = (Vector2){ x, y };
+  return v;
+}
+float Vector2GetX(void *v) { return ((sp_Vector2 *)v)->v.x; }
+float Vector2GetY(void *v) { return ((sp_Vector2 *)v)->v.y; }
+void Vector2SetX(void *v, float x) { ((sp_Vector2 *)v)->v.x = x; }
+void Vector2SetY(void *v, float y) { ((sp_Vector2 *)v)->v.y = y; }
+
 void sp_ClearBackground(void *color) {
   ClearBackground(((sp_Color *)color)->c);
 }
@@ -72,7 +95,7 @@ int sp_TextureHeight(void *texture) { return (int)((Texture *)texture)->height; 
 void sp_DrawTextureRec4(void *texture, float x, float y, float w, float h,
                         void *position, void *tint) {
   Rectangle src = { x, y, w, h };
-  DrawTextureRec(*(Texture2D *)texture, src, *(Vector2 *)position,
+  DrawTextureRec(*(Texture2D *)texture, src, ((sp_Vector2 *)position)->v,
                  ((sp_Color *)tint)->c);
 }
 void sp_BeginMode2DF(float target_x, float target_y, float offset_x,
@@ -133,6 +156,14 @@ void *sp_LoadImageFromRenderTexture(void *target) {
 void sp_DrawTexture(void *tex, int x, int y, void *color) {
   DrawTexture(*(Texture2D *)tex, x, y, ((sp_Color *)color)->c);
 }
+/* Data-oriented draw: the tint is a packed 0xRRGGBBAA integer, so callers
+ * that keep colors in a flat int array need no sp_Color object per sprite. */
+void sp_DrawTexturePacked(void *tex, int x, int y, int rgba) {
+  unsigned int u = (unsigned int)rgba;
+  DrawTexture(*(Texture2D *)tex, x, y,
+              (Color){ (unsigned char)(u >> 24), (unsigned char)(u >> 16),
+                       (unsigned char)(u >> 8), (unsigned char)u });
+}
 void sp_DrawTextureEx(void *tex, float x, float y, float rotation,
                       float scale, void *color) {
   DrawTextureEx(*(Texture2D *)tex, (Vector2){x, y}, rotation, scale,
@@ -156,13 +187,13 @@ void sp_UnloadTexture(void *tex) {
 
 /* ---- Shape shims: Vector2 and Color passed as pointers ---- */
 void sp_DrawCircleV(void *center, float radius, void *color) {
-  DrawCircleV(*(Vector2 *)center, radius, ((sp_Color *)color)->c);
+  DrawCircleV(((sp_Vector2 *)center)->v, radius, ((sp_Color *)color)->c);
 }
 void sp_DrawPixel(int x, int y, void *color) {
   DrawPixel(x, y, ((sp_Color *)color)->c);
 }
 void sp_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
-  DrawTriangle(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3,
+  DrawTriangle(((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v,
                ((sp_Color *)color)->c);
 }
 
@@ -235,23 +266,6 @@ void *sp_Camera_ptr(sp_Camera *self) { return self; }
 
 
 /* ================================================================
- * Vector2 helper — heap allocates a raylib Vector2 and returns a
- * pointer (matches the ffi_func Vector2Create(:ptr) declaration).
- * Freed is unnecessary: raylib hands out small fixed-size Vec2s.
- * ================================================================ */
-void *Vector2Create(float x, float y) {
-  Vector2 *v = (Vector2 *)malloc(sizeof(Vector2));
-  v->x = x;
-  v->y = y;
-  return v;
-}
-double Vector2GetX(void *v) { return ((Vector2 *)v)->x; }
-double Vector2GetY(void *v) { return ((Vector2 *)v)->y; }
-void Vector2SetX(void *v, float x) { ((Vector2 *)v)->x = x; }
-void Vector2SetY(void *v, float y) { ((Vector2 *)v)->y = y; }
-
-
-/* ================================================================
  * 3D / extra drawing shims for the columns example.
  * Vector3, Vector2, Camera3D and Color are passed as pointers
  * (spinel cannot pass structs by value; see header).
@@ -268,7 +282,7 @@ void sp_UpdateCamera(void *camera, int mode) {
   UpdateCamera(&((sp_Camera *)camera)->c, mode);
 }
 void sp_DrawPlane(void *pos, void *size, void *color) {
-  DrawPlane(((sp_Vector3 *)pos)->v, *(Vector2 *)size, ((sp_Color *)color)->c);
+  DrawPlane(((sp_Vector3 *)pos)->v, ((sp_Vector2 *)size)->v, ((sp_Color *)color)->c);
 }
 void sp_DrawCube(void *pos, float w, float h, float l, void *color) {
   DrawCube(((sp_Vector3 *)pos)->v, w, h, l, ((sp_Color *)color)->c);
@@ -772,10 +786,7 @@ int sp_AutomationEventList_set_count(sp_AutomationEventList *self, int count) {
   return count;
 }
 
-/* sp_Vector2 — GC-embedded Vector2 (see raylib_ffi.rb) */typedef struct sp_Vector2_s {
-  sp_int cls_id;
-  Vector2 v;
-} sp_Vector2;
+/* sp_Vector2 runtime methods (struct declared near the top) */
 static void sp_Vector2_scan(void *p) { (void)p; }
 sp_Vector2 *sp_Vector2_new(sp_int cls_id) {
   sp_Vector2 *self = (sp_Vector2 *)sp_gc_alloc(sizeof(sp_Vector2), NULL, sp_Vector2_scan);
@@ -893,11 +904,11 @@ void sp_UnloadShader(void * shader) {
 }
 /** GetScreenToWorldRay(params: void * position, void * camera, void * _out -> void) */
 void sp_GetScreenToWorldRay(void * position, void * camera, void * _out) {
-  ((sp_Ray*)_out)->v = GetScreenToWorldRay(*(Vector2 *)position, ((sp_Camera*)camera)->c);
+  ((sp_Ray*)_out)->v = GetScreenToWorldRay(((sp_Vector2 *)position)->v, ((sp_Camera*)camera)->c);
 }
 /** GetScreenToWorldRayEx(params: void * position, void * camera, int width, int height, void * _out -> void) */
 void sp_GetScreenToWorldRayEx(void * position, void * camera, int width, int height, void * _out) {
-  ((sp_Ray*)_out)->v = GetScreenToWorldRayEx(*(Vector2 *)position, ((sp_Camera*)camera)->c, width, height);
+  ((sp_Ray*)_out)->v = GetScreenToWorldRayEx(((sp_Vector2 *)position)->v, ((sp_Camera*)camera)->c, width, height);
 }
 /** GetWorldToScreen(params: void * position, void * camera, void * _out -> void) */
 void sp_GetWorldToScreen(void * position, void * camera, void * _out) {
@@ -909,11 +920,11 @@ void sp_GetWorldToScreenEx(void * position, void * camera, int width, int height
 }
 /** GetWorldToScreen2D(params: void * position, void * camera, void * _out -> void) */
 void sp_GetWorldToScreen2D(void * position, void * camera, void * _out) {
-  ((sp_Vector2*)_out)->v = GetWorldToScreen2D(*(Vector2 *)position, ((sp_Camera2D*)camera)->v);
+  ((sp_Vector2*)_out)->v = GetWorldToScreen2D(((sp_Vector2 *)position)->v, ((sp_Camera2D*)camera)->v);
 }
 /** GetScreenToWorld2D(params: void * position, void * camera, void * _out -> void) */
 void sp_GetScreenToWorld2D(void * position, void * camera, void * _out) {
-  ((sp_Vector2*)_out)->v = GetScreenToWorld2D(*(Vector2 *)position, ((sp_Camera2D*)camera)->v);
+  ((sp_Vector2*)_out)->v = GetScreenToWorld2D(((sp_Vector2 *)position)->v, ((sp_Camera2D*)camera)->v);
 }
 /** GetCameraMatrix(params: void * camera, void * _out -> void) */
 void sp_GetCameraMatrix(void * camera, void * _out) {
@@ -1027,7 +1038,7 @@ void sp_GetShapesTextureRectangle(void * _out) {
 }
 /** DrawPixelV(params: void * position, void * color -> void) */
 void sp_DrawPixelV(void * position, void * color) {
-  DrawPixelV(*(Vector2 *)position, ((sp_Color*)color)->c);
+  DrawPixelV(((sp_Vector2 *)position)->v, ((sp_Color*)color)->c);
 }
 /** DrawLine(params: int startPosX, int startPosY, int endPosX, int endPosY, void * color -> void) */
 void sp_DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, void * color) {
@@ -1035,11 +1046,11 @@ void sp_DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, void * 
 }
 /** DrawLineV(params: void * startPos, void * endPos, void * color -> void) */
 void sp_DrawLineV(void * startPos, void * endPos, void * color) {
-  DrawLineV(*(Vector2 *)startPos, *(Vector2 *)endPos, ((sp_Color*)color)->c);
+  DrawLineV(((sp_Vector2 *)startPos)->v, ((sp_Vector2 *)endPos)->v, ((sp_Color*)color)->c);
 }
 /** DrawLineEx(params: void * startPos, void * endPos, float thick, void * color -> void) */
 void sp_DrawLineEx(void * startPos, void * endPos, float thick, void * color) {
-  DrawLineEx(*(Vector2 *)startPos, *(Vector2 *)endPos, thick, ((sp_Color*)color)->c);
+  DrawLineEx(((sp_Vector2 *)startPos)->v, ((sp_Vector2 *)endPos)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawLineStrip(params: void * points, int pointCount, void * color -> void) */
 void sp_DrawLineStrip(void * points, int pointCount, void * color) {
@@ -1047,23 +1058,23 @@ void sp_DrawLineStrip(void * points, int pointCount, void * color) {
 }
 /** DrawLineBezier(params: void * startPos, void * endPos, float thick, void * color -> void) */
 void sp_DrawLineBezier(void * startPos, void * endPos, float thick, void * color) {
-  DrawLineBezier(*(Vector2 *)startPos, *(Vector2 *)endPos, thick, ((sp_Color*)color)->c);
+  DrawLineBezier(((sp_Vector2 *)startPos)->v, ((sp_Vector2 *)endPos)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawLineDashed(params: void * startPos, void * endPos, int dashSize, int spaceSize, void * color -> void) */
 void sp_DrawLineDashed(void * startPos, void * endPos, int dashSize, int spaceSize, void * color) {
-  DrawLineDashed(*(Vector2 *)startPos, *(Vector2 *)endPos, dashSize, spaceSize, ((sp_Color*)color)->c);
+  DrawLineDashed(((sp_Vector2 *)startPos)->v, ((sp_Vector2 *)endPos)->v, dashSize, spaceSize, ((sp_Color*)color)->c);
 }
 /** DrawTriangleGradient(params: void * v1, void * v2, void * v3, void * c1, void * c2, void * c3 -> void) */
 void sp_DrawTriangleGradient(void * v1, void * v2, void * v3, void * c1, void * c2, void * c3) {
-  DrawTriangleGradient(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, ((sp_Color*)c1)->c, ((sp_Color*)c2)->c, ((sp_Color*)c3)->c);
+  DrawTriangleGradient(((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, ((sp_Color*)c1)->c, ((sp_Color*)c2)->c, ((sp_Color*)c3)->c);
 }
 /** DrawTriangleLines(params: void * v1, void * v2, void * v3, void * color -> void) */
 void sp_DrawTriangleLines(void * v1, void * v2, void * v3, void * color) {
-  DrawTriangleLines(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, ((sp_Color*)color)->c);
+  DrawTriangleLines(((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, ((sp_Color*)color)->c);
 }
 /** DrawTriangleLinesEx(params: void * v1, void * v2, void * v3, float thick, void * color -> void) */
 void sp_DrawTriangleLinesEx(void * v1, void * v2, void * v3, float thick, void * color) {
-  DrawTriangleLinesEx(*(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, thick, ((sp_Color*)color)->c);
+  DrawTriangleLinesEx(((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawTriangleFan(params: void * points, int pointCount, void * color -> void) */
 void sp_DrawTriangleFan(void * points, int pointCount, void * color) {
@@ -1075,7 +1086,7 @@ void sp_DrawTriangleStrip(void * points, int pointCount, void * color) {
 }
 /** DrawRectangleV(params: void * position, void * size, void * color -> void) */
 void sp_DrawRectangleV(void * position, void * size, void * color) {
-  DrawRectangleV(*(Vector2 *)position, *(Vector2 *)size, ((sp_Color*)color)->c);
+  DrawRectangleV(((sp_Vector2 *)position)->v, ((sp_Vector2 *)size)->v, ((sp_Color*)color)->c);
 }
 /** DrawRectangleRec(params: void * rec, void * color -> void) */
 void sp_DrawRectangleRec(void * rec, void * color) {
@@ -1083,7 +1094,7 @@ void sp_DrawRectangleRec(void * rec, void * color) {
 }
 /** DrawRectanglePro(params: void * rec, void * origin, float rotation, void * color -> void) */
 void sp_DrawRectanglePro(void * rec, void * origin, float rotation, void * color) {
-  DrawRectanglePro(((sp_Rectangle*)rec)->v, *(Vector2 *)origin, rotation, ((sp_Color*)color)->c);
+  DrawRectanglePro(((sp_Rectangle*)rec)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)color)->c);
 }
 /** DrawRectangleGradientV(params: int posX, int posY, int width, int height, void * top, void * bottom -> void) */
 void sp_DrawRectangleGradientV(int posX, int posY, int width, int height, void * top, void * bottom) {
@@ -1115,15 +1126,15 @@ void sp_DrawRectangleRoundedLinesEx(void * rec, float roundness, int segments, f
 }
 /** DrawPoly(params: void * center, int sides, float radius, float rotation, void * color -> void) */
 void sp_DrawPoly(void * center, int sides, float radius, float rotation, void * color) {
-  DrawPoly(*(Vector2 *)center, sides, radius, rotation, ((sp_Color*)color)->c);
+  DrawPoly(((sp_Vector2 *)center)->v, sides, radius, rotation, ((sp_Color*)color)->c);
 }
 /** DrawPolyLines(params: void * center, int sides, float radius, float rotation, void * color -> void) */
 void sp_DrawPolyLines(void * center, int sides, float radius, float rotation, void * color) {
-  DrawPolyLines(*(Vector2 *)center, sides, radius, rotation, ((sp_Color*)color)->c);
+  DrawPolyLines(((sp_Vector2 *)center)->v, sides, radius, rotation, ((sp_Color*)color)->c);
 }
 /** DrawPolyLinesEx(params: void * center, int sides, float radius, float rotation, float thick, void * color -> void) */
 void sp_DrawPolyLinesEx(void * center, int sides, float radius, float rotation, float thick, void * color) {
-  DrawPolyLinesEx(*(Vector2 *)center, sides, radius, rotation, thick, ((sp_Color*)color)->c);
+  DrawPolyLinesEx(((sp_Vector2 *)center)->v, sides, radius, rotation, thick, ((sp_Color*)color)->c);
 }
 /** DrawCircle(params: int centerX, int centerY, float radius, void * color -> void) */
 void sp_DrawCircle(int centerX, int centerY, float radius, void * color) {
@@ -1131,19 +1142,19 @@ void sp_DrawCircle(int centerX, int centerY, float radius, void * color) {
 }
 /** DrawCircleGradient(params: void * center, float radius, void * inner, void * outer -> void) */
 void sp_DrawCircleGradient(void * center, float radius, void * inner, void * outer) {
-  DrawCircleGradient(*(Vector2 *)center, radius, ((sp_Color*)inner)->c, ((sp_Color*)outer)->c);
+  DrawCircleGradient(((sp_Vector2 *)center)->v, radius, ((sp_Color*)inner)->c, ((sp_Color*)outer)->c);
 }
 /** DrawCircleSector(params: void * center, float radius, float startAngle, float endAngle, int segments, void * color -> void) */
 void sp_DrawCircleSector(void * center, float radius, float startAngle, float endAngle, int segments, void * color) {
-  DrawCircleSector(*(Vector2 *)center, radius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
+  DrawCircleSector(((sp_Vector2 *)center)->v, radius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
 }
 /** DrawCircleSectorLines(params: void * center, float radius, float startAngle, float endAngle, int segments, void * color -> void) */
 void sp_DrawCircleSectorLines(void * center, float radius, float startAngle, float endAngle, int segments, void * color) {
-  DrawCircleSectorLines(*(Vector2 *)center, radius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
+  DrawCircleSectorLines(((sp_Vector2 *)center)->v, radius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
 }
 /** DrawCircleSectorLinesEx(params: void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void sp_DrawCircleSectorLinesEx(void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawCircleSectorLinesEx(*(Vector2 *)center, radius, startAngle, endAngle, segments, thick, ((sp_Color*)color)->c);
+  DrawCircleSectorLinesEx(((sp_Vector2 *)center)->v, radius, startAngle, endAngle, segments, thick, ((sp_Color*)color)->c);
 }
 /** DrawCircleLines(params: int centerX, int centerY, float radius, void * color -> void) */
 void sp_DrawCircleLines(int centerX, int centerY, float radius, void * color) {
@@ -1151,11 +1162,11 @@ void sp_DrawCircleLines(int centerX, int centerY, float radius, void * color) {
 }
 /** DrawCircleLinesV(params: void * center, float radius, void * color -> void) */
 void sp_DrawCircleLinesV(void * center, float radius, void * color) {
-  DrawCircleLinesV(*(Vector2 *)center, radius, ((sp_Color*)color)->c);
+  DrawCircleLinesV(((sp_Vector2 *)center)->v, radius, ((sp_Color*)color)->c);
 }
 /** DrawCircleLinesEx(params: void * center, float radius, float thick, void * color -> void) */
 void sp_DrawCircleLinesEx(void * center, float radius, float thick, void * color) {
-  DrawCircleLinesEx(*(Vector2 *)center, radius, thick, ((sp_Color*)color)->c);
+  DrawCircleLinesEx(((sp_Vector2 *)center)->v, radius, thick, ((sp_Color*)color)->c);
 }
 /** DrawEllipse(params: int centerX, int centerY, float radiusH, float radiusV, void * color -> void) */
 void sp_DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, void * color) {
@@ -1163,7 +1174,7 @@ void sp_DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, void
 }
 /** DrawEllipseV(params: void * center, float radiusH, float radiusV, void * color -> void) */
 void sp_DrawEllipseV(void * center, float radiusH, float radiusV, void * color) {
-  DrawEllipseV(*(Vector2 *)center, radiusH, radiusV, ((sp_Color*)color)->c);
+  DrawEllipseV(((sp_Vector2 *)center)->v, radiusH, radiusV, ((sp_Color*)color)->c);
 }
 /** DrawEllipseLines(params: int centerX, int centerY, float radiusH, float radiusV, void * color -> void) */
 void sp_DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, void * color) {
@@ -1171,23 +1182,23 @@ void sp_DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV,
 }
 /** DrawEllipseLinesV(params: void * center, float radiusH, float radiusV, void * color -> void) */
 void sp_DrawEllipseLinesV(void * center, float radiusH, float radiusV, void * color) {
-  DrawEllipseLinesV(*(Vector2 *)center, radiusH, radiusV, ((sp_Color*)color)->c);
+  DrawEllipseLinesV(((sp_Vector2 *)center)->v, radiusH, radiusV, ((sp_Color*)color)->c);
 }
 /** DrawEllipseLinesEx(params: void * center, float radiusH, float radiusV, float thick, void * color -> void) */
 void sp_DrawEllipseLinesEx(void * center, float radiusH, float radiusV, float thick, void * color) {
-  DrawEllipseLinesEx(*(Vector2 *)center, radiusH, radiusV, thick, ((sp_Color*)color)->c);
+  DrawEllipseLinesEx(((sp_Vector2 *)center)->v, radiusH, radiusV, thick, ((sp_Color*)color)->c);
 }
 /** DrawRing(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color -> void) */
 void sp_DrawRing(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color) {
-  DrawRing(*(Vector2 *)center, innerRadius, outerRadius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
+  DrawRing(((sp_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
 }
 /** DrawRingLines(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color -> void) */
 void sp_DrawRingLines(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color) {
-  DrawRingLines(*(Vector2 *)center, innerRadius, outerRadius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
+  DrawRingLines(((sp_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, ((sp_Color*)color)->c);
 }
 /** DrawRingLinesEx(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void sp_DrawRingLinesEx(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawRingLinesEx(*(Vector2 *)center, innerRadius, outerRadius, startAngle, endAngle, segments, thick, ((sp_Color*)color)->c);
+  DrawRingLinesEx(((sp_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, thick, ((sp_Color*)color)->c);
 }
 /** DrawSplineLinear(params: void * points, int pointCount, float thick, void * color -> void) */
 void sp_DrawSplineLinear(void * points, int pointCount, float thick, void * color) {
@@ -1211,43 +1222,43 @@ void sp_DrawSplineBezierCubic(void * points, int pointCount, float thick, void *
 }
 /** DrawSplineSegmentLinear(params: void * p1, void * p2, float thick, void * color -> void) */
 void sp_DrawSplineSegmentLinear(void * p1, void * p2, float thick, void * color) {
-  DrawSplineSegmentLinear(*(Vector2 *)p1, *(Vector2 *)p2, thick, ((sp_Color*)color)->c);
+  DrawSplineSegmentLinear(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawSplineSegmentBasis(params: void * p1, void * p2, void * p3, void * p4, float thick, void * color -> void) */
 void sp_DrawSplineSegmentBasis(void * p1, void * p2, void * p3, void * p4, float thick, void * color) {
-  DrawSplineSegmentBasis(*(Vector2 *)p1, *(Vector2 *)p2, *(Vector2 *)p3, *(Vector2 *)p4, thick, ((sp_Color*)color)->c);
+  DrawSplineSegmentBasis(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, ((sp_Vector2 *)p3)->v, ((sp_Vector2 *)p4)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawSplineSegmentCatmullRom(params: void * p1, void * p2, void * p3, void * p4, float thick, void * color -> void) */
 void sp_DrawSplineSegmentCatmullRom(void * p1, void * p2, void * p3, void * p4, float thick, void * color) {
-  DrawSplineSegmentCatmullRom(*(Vector2 *)p1, *(Vector2 *)p2, *(Vector2 *)p3, *(Vector2 *)p4, thick, ((sp_Color*)color)->c);
+  DrawSplineSegmentCatmullRom(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, ((sp_Vector2 *)p3)->v, ((sp_Vector2 *)p4)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawSplineSegmentBezierQuadratic(params: void * p1, void * c2, void * p3, float thick, void * color -> void) */
 void sp_DrawSplineSegmentBezierQuadratic(void * p1, void * c2, void * p3, float thick, void * color) {
-  DrawSplineSegmentBezierQuadratic(*(Vector2 *)p1, *(Vector2 *)c2, *(Vector2 *)p3, thick, ((sp_Color*)color)->c);
+  DrawSplineSegmentBezierQuadratic(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)c2)->v, ((sp_Vector2 *)p3)->v, thick, ((sp_Color*)color)->c);
 }
 /** DrawSplineSegmentBezierCubic(params: void * p1, void * c2, void * c3, void * p4, float thick, void * color -> void) */
 void sp_DrawSplineSegmentBezierCubic(void * p1, void * c2, void * c3, void * p4, float thick, void * color) {
-  DrawSplineSegmentBezierCubic(*(Vector2 *)p1, *(Vector2 *)c2, *(Vector2 *)c3, *(Vector2 *)p4, thick, ((sp_Color*)color)->c);
+  DrawSplineSegmentBezierCubic(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)c2)->v, ((sp_Vector2 *)c3)->v, ((sp_Vector2 *)p4)->v, thick, ((sp_Color*)color)->c);
 }
 /** GetSplinePointLinear(params: void * startPos, void * endPos, float t, void * _out -> void) */
 void sp_GetSplinePointLinear(void * startPos, void * endPos, float t, void * _out) {
-  ((sp_Vector2*)_out)->v = GetSplinePointLinear(*(Vector2 *)startPos, *(Vector2 *)endPos, t);
+  ((sp_Vector2*)_out)->v = GetSplinePointLinear(((sp_Vector2 *)startPos)->v, ((sp_Vector2 *)endPos)->v, t);
 }
 /** GetSplinePointBasis(params: void * p1, void * p2, void * p3, void * p4, float t, void * _out -> void) */
 void sp_GetSplinePointBasis(void * p1, void * p2, void * p3, void * p4, float t, void * _out) {
-  ((sp_Vector2*)_out)->v = GetSplinePointBasis(*(Vector2 *)p1, *(Vector2 *)p2, *(Vector2 *)p3, *(Vector2 *)p4, t);
+  ((sp_Vector2*)_out)->v = GetSplinePointBasis(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, ((sp_Vector2 *)p3)->v, ((sp_Vector2 *)p4)->v, t);
 }
 /** GetSplinePointCatmullRom(params: void * p1, void * p2, void * p3, void * p4, float t, void * _out -> void) */
 void sp_GetSplinePointCatmullRom(void * p1, void * p2, void * p3, void * p4, float t, void * _out) {
-  ((sp_Vector2*)_out)->v = GetSplinePointCatmullRom(*(Vector2 *)p1, *(Vector2 *)p2, *(Vector2 *)p3, *(Vector2 *)p4, t);
+  ((sp_Vector2*)_out)->v = GetSplinePointCatmullRom(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, ((sp_Vector2 *)p3)->v, ((sp_Vector2 *)p4)->v, t);
 }
 /** GetSplinePointBezierQuadratic(params: void * p1, void * c2, void * p3, float t, void * _out -> void) */
 void sp_GetSplinePointBezierQuadratic(void * p1, void * c2, void * p3, float t, void * _out) {
-  ((sp_Vector2*)_out)->v = GetSplinePointBezierQuadratic(*(Vector2 *)p1, *(Vector2 *)c2, *(Vector2 *)p3, t);
+  ((sp_Vector2*)_out)->v = GetSplinePointBezierQuadratic(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)c2)->v, ((sp_Vector2 *)p3)->v, t);
 }
 /** GetSplinePointBezierCubic(params: void * p1, void * c2, void * c3, void * p4, float t, void * _out -> void) */
 void sp_GetSplinePointBezierCubic(void * p1, void * c2, void * c3, void * p4, float t, void * _out) {
-  ((sp_Vector2*)_out)->v = GetSplinePointBezierCubic(*(Vector2 *)p1, *(Vector2 *)c2, *(Vector2 *)c3, *(Vector2 *)p4, t);
+  ((sp_Vector2*)_out)->v = GetSplinePointBezierCubic(((sp_Vector2 *)p1)->v, ((sp_Vector2 *)c2)->v, ((sp_Vector2 *)c3)->v, ((sp_Vector2 *)p4)->v, t);
 }
 /** CheckCollisionRecs(params: void * rec1, void * rec2 -> _Bool) */
 _Bool sp_CheckCollisionRecs(void * rec1, void * rec2) {
@@ -1255,39 +1266,39 @@ _Bool sp_CheckCollisionRecs(void * rec1, void * rec2) {
 }
 /** CheckCollisionCircles(params: void * center1, float radius1, void * center2, float radius2 -> _Bool) */
 _Bool sp_CheckCollisionCircles(void * center1, float radius1, void * center2, float radius2) {
-  return CheckCollisionCircles(*(Vector2 *)center1, radius1, *(Vector2 *)center2, radius2);
+  return CheckCollisionCircles(((sp_Vector2 *)center1)->v, radius1, ((sp_Vector2 *)center2)->v, radius2);
 }
 /** CheckCollisionCircleRec(params: void * center, float radius, void * rec -> _Bool) */
 _Bool sp_CheckCollisionCircleRec(void * center, float radius, void * rec) {
-  return CheckCollisionCircleRec(*(Vector2 *)center, radius, ((sp_Rectangle*)rec)->v);
+  return CheckCollisionCircleRec(((sp_Vector2 *)center)->v, radius, ((sp_Rectangle*)rec)->v);
 }
 /** CheckCollisionCircleLine(params: void * center, float radius, void * p1, void * p2 -> _Bool) */
 _Bool sp_CheckCollisionCircleLine(void * center, float radius, void * p1, void * p2) {
-  return CheckCollisionCircleLine(*(Vector2 *)center, radius, *(Vector2 *)p1, *(Vector2 *)p2);
+  return CheckCollisionCircleLine(((sp_Vector2 *)center)->v, radius, ((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v);
 }
 /** CheckCollisionPointRec(params: void * point, void * rec -> _Bool) */
 _Bool sp_CheckCollisionPointRec(void * point, void * rec) {
-  return CheckCollisionPointRec(*(Vector2 *)point, ((sp_Rectangle*)rec)->v);
+  return CheckCollisionPointRec(((sp_Vector2 *)point)->v, ((sp_Rectangle*)rec)->v);
 }
 /** CheckCollisionPointCircle(params: void * point, void * center, float radius -> _Bool) */
 _Bool sp_CheckCollisionPointCircle(void * point, void * center, float radius) {
-  return CheckCollisionPointCircle(*(Vector2 *)point, *(Vector2 *)center, radius);
+  return CheckCollisionPointCircle(((sp_Vector2 *)point)->v, ((sp_Vector2 *)center)->v, radius);
 }
 /** CheckCollisionPointTriangle(params: void * point, void * p1, void * p2, void * p3 -> _Bool) */
 _Bool sp_CheckCollisionPointTriangle(void * point, void * p1, void * p2, void * p3) {
-  return CheckCollisionPointTriangle(*(Vector2 *)point, *(Vector2 *)p1, *(Vector2 *)p2, *(Vector2 *)p3);
+  return CheckCollisionPointTriangle(((sp_Vector2 *)point)->v, ((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, ((sp_Vector2 *)p3)->v);
 }
 /** CheckCollisionPointLine(params: void * point, void * p1, void * p2, int threshold -> _Bool) */
 _Bool sp_CheckCollisionPointLine(void * point, void * p1, void * p2, int threshold) {
-  return CheckCollisionPointLine(*(Vector2 *)point, *(Vector2 *)p1, *(Vector2 *)p2, threshold);
+  return CheckCollisionPointLine(((sp_Vector2 *)point)->v, ((sp_Vector2 *)p1)->v, ((sp_Vector2 *)p2)->v, threshold);
 }
 /** CheckCollisionPointPoly(params: void * point, void * points, int pointCount -> _Bool) */
 _Bool sp_CheckCollisionPointPoly(void * point, void * points, int pointCount) {
-  return CheckCollisionPointPoly(*(Vector2 *)point, points, pointCount);
+  return CheckCollisionPointPoly(((sp_Vector2 *)point)->v, points, pointCount);
 }
 /** CheckCollisionLines(params: void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint -> _Bool) */
 _Bool sp_CheckCollisionLines(void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint) {
-  return CheckCollisionLines(*(Vector2 *)startPos1, *(Vector2 *)endPos1, *(Vector2 *)startPos2, *(Vector2 *)endPos2, collisionPoint);
+  return CheckCollisionLines(((sp_Vector2 *)startPos1)->v, ((sp_Vector2 *)endPos1)->v, ((sp_Vector2 *)startPos2)->v, ((sp_Vector2 *)endPos2)->v, collisionPoint);
 }
 /** GetCollisionRec(params: void * rec1, void * rec2, void * _out -> void) */
 void sp_GetCollisionRec(void * rec1, void * rec2, void * _out) {
@@ -1522,7 +1533,7 @@ void sp_ImageDrawPixel(void * dst, int posX, int posY, void * color) {
 }
 /** ImageDrawPixelV(params: void * dst, void * position, void * color -> void) */
 void sp_ImageDrawPixelV(void * dst, void * position, void * color) {
-  ImageDrawPixelV(dst, *(Vector2 *)position, ((sp_Color*)color)->c);
+  ImageDrawPixelV(dst, ((sp_Vector2 *)position)->v, ((sp_Color*)color)->c);
 }
 /** ImageDrawLine(params: void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color -> void) */
 void sp_ImageDrawLine(void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color) {
@@ -1530,11 +1541,11 @@ void sp_ImageDrawLine(void * dst, int startPosX, int startPosY, int endPosX, int
 }
 /** ImageDrawLineV(params: void * dst, void * start, void * end, void * color -> void) */
 void sp_ImageDrawLineV(void * dst, void * start, void * end, void * color) {
-  ImageDrawLineV(dst, *(Vector2 *)start, *(Vector2 *)end, ((sp_Color*)color)->c);
+  ImageDrawLineV(dst, ((sp_Vector2 *)start)->v, ((sp_Vector2 *)end)->v, ((sp_Color*)color)->c);
 }
 /** ImageDrawLineEx(params: void * dst, void * start, void * end, int thick, void * color -> void) */
 void sp_ImageDrawLineEx(void * dst, void * start, void * end, int thick, void * color) {
-  ImageDrawLineEx(dst, *(Vector2 *)start, *(Vector2 *)end, thick, ((sp_Color*)color)->c);
+  ImageDrawLineEx(dst, ((sp_Vector2 *)start)->v, ((sp_Vector2 *)end)->v, thick, ((sp_Color*)color)->c);
 }
 /** ImageDrawLineStrip(params: void * dst, void * points, int pointCount, void * color -> void) */
 void sp_ImageDrawLineStrip(void * dst, void * points, int pointCount, void * color) {
@@ -1542,15 +1553,15 @@ void sp_ImageDrawLineStrip(void * dst, void * points, int pointCount, void * col
 }
 /** ImageDrawTriangle(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void sp_ImageDrawTriangle(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangle(dst, *(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, ((sp_Color*)color)->c);
+  ImageDrawTriangle(dst, ((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, ((sp_Color*)color)->c);
 }
 /** ImageDrawTriangleGradient(params: void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3 -> void) */
 void sp_ImageDrawTriangleGradient(void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3) {
-  ImageDrawTriangleGradient(dst, *(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, ((sp_Color*)c1)->c, ((sp_Color*)c2)->c, ((sp_Color*)c3)->c);
+  ImageDrawTriangleGradient(dst, ((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, ((sp_Color*)c1)->c, ((sp_Color*)c2)->c, ((sp_Color*)c3)->c);
 }
 /** ImageDrawTriangleLines(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void sp_ImageDrawTriangleLines(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangleLines(dst, *(Vector2 *)v1, *(Vector2 *)v2, *(Vector2 *)v3, ((sp_Color*)color)->c);
+  ImageDrawTriangleLines(dst, ((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v, ((sp_Color*)color)->c);
 }
 /** ImageDrawTriangleFan(params: void * dst, void * points, int pointCount, void * color -> void) */
 void sp_ImageDrawTriangleFan(void * dst, void * points, int pointCount, void * color) {
@@ -1566,7 +1577,7 @@ void sp_ImageDrawRectangle(void * dst, int posX, int posY, int width, int height
 }
 /** ImageDrawRectangleV(params: void * dst, void * position, void * size, void * color -> void) */
 void sp_ImageDrawRectangleV(void * dst, void * position, void * size, void * color) {
-  ImageDrawRectangleV(dst, *(Vector2 *)position, *(Vector2 *)size, ((sp_Color*)color)->c);
+  ImageDrawRectangleV(dst, ((sp_Vector2 *)position)->v, ((sp_Vector2 *)size)->v, ((sp_Color*)color)->c);
 }
 /** ImageDrawRectangleRec(params: void * dst, void * rec, void * color -> void) */
 void sp_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
@@ -1574,7 +1585,7 @@ void sp_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
 }
 /** ImageDrawRectanglePro(params: void * dst, void * rec, void * origin, float rotation, void * color -> void) */
 void sp_ImageDrawRectanglePro(void * dst, void * rec, void * origin, float rotation, void * color) {
-  ImageDrawRectanglePro(dst, ((sp_Rectangle*)rec)->v, *(Vector2 *)origin, rotation, ((sp_Color*)color)->c);
+  ImageDrawRectanglePro(dst, ((sp_Rectangle*)rec)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)color)->c);
 }
 /** ImageDrawRectangleLines(params: void * dst, int posX, int posY, int width, int height, void * color -> void) */
 void sp_ImageDrawRectangleLines(void * dst, int posX, int posY, int width, int height, void * color) {
@@ -1594,7 +1605,7 @@ void sp_ImageDrawCircle(void * dst, int centerX, int centerY, int radius, void *
 }
 /** ImageDrawCircleV(params: void * dst, void * center, int radius, void * color -> void) */
 void sp_ImageDrawCircleV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleV(dst, *(Vector2 *)center, radius, ((sp_Color*)color)->c);
+  ImageDrawCircleV(dst, ((sp_Vector2 *)center)->v, radius, ((sp_Color*)color)->c);
 }
 /** ImageDrawCircleLines(params: void * dst, int centerX, int centerY, int radius, void * color -> void) */
 void sp_ImageDrawCircleLines(void * dst, int centerX, int centerY, int radius, void * color) {
@@ -1602,11 +1613,11 @@ void sp_ImageDrawCircleLines(void * dst, int centerX, int centerY, int radius, v
 }
 /** ImageDrawCircleLinesV(params: void * dst, void * center, int radius, void * color -> void) */
 void sp_ImageDrawCircleLinesV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleLinesV(dst, *(Vector2 *)center, radius, ((sp_Color*)color)->c);
+  ImageDrawCircleLinesV(dst, ((sp_Vector2 *)center)->v, radius, ((sp_Color*)color)->c);
 }
 /** ImageDrawCircleGradient(params: void * dst, void * center, float radius, void * inner, void * outer -> void) */
 void sp_ImageDrawCircleGradient(void * dst, void * center, float radius, void * inner, void * outer) {
-  ImageDrawCircleGradient(dst, *(Vector2 *)center, radius, ((sp_Color*)inner)->c, ((sp_Color*)outer)->c);
+  ImageDrawCircleGradient(dst, ((sp_Vector2 *)center)->v, radius, ((sp_Color*)inner)->c, ((sp_Color*)outer)->c);
 }
 /** ImageDrawImage(params: void * dst, void * src, int posX, int posY, void * tint -> void) */
 void sp_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) {
@@ -1614,15 +1625,15 @@ void sp_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) 
 }
 /** ImageDrawImageEx(params: void * dst, void * src, void * position, float rotation, float scale, void * tint -> void) */
 void sp_ImageDrawImageEx(void * dst, void * src, void * position, float rotation, float scale, void * tint) {
-  ImageDrawImageEx(dst, *(Image *)src, *(Vector2 *)position, rotation, scale, ((sp_Color*)tint)->c);
+  ImageDrawImageEx(dst, *(Image *)src, ((sp_Vector2 *)position)->v, rotation, scale, ((sp_Color*)tint)->c);
 }
 /** ImageDrawImageRec(params: void * dst, void * src, void * srcRec, void * position, void * tint -> void) */
 void sp_ImageDrawImageRec(void * dst, void * src, void * srcRec, void * position, void * tint) {
-  ImageDrawImageRec(dst, *(Image *)src, ((sp_Rectangle*)srcRec)->v, *(Vector2 *)position, ((sp_Color*)tint)->c);
+  ImageDrawImageRec(dst, *(Image *)src, ((sp_Rectangle*)srcRec)->v, ((sp_Vector2 *)position)->v, ((sp_Color*)tint)->c);
 }
 /** ImageDrawImagePro(params: void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint -> void) */
 void sp_ImageDrawImagePro(void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint) {
-  ImageDrawImagePro(dst, *(Image *)src, ((sp_Rectangle*)srcRec)->v, ((sp_Rectangle*)dstRec)->v, *(Vector2 *)origin, rotation, ((sp_Color*)tint)->c);
+  ImageDrawImagePro(dst, *(Image *)src, ((sp_Rectangle*)srcRec)->v, ((sp_Rectangle*)dstRec)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)tint)->c);
 }
 /** ImageDrawText(params: void * dst, const char * text, int posX, int posY, int fontSize, void * color -> void) */
 void sp_ImageDrawText(void * dst, const char * text, int posX, int posY, int fontSize, void * color) {
@@ -1630,11 +1641,11 @@ void sp_ImageDrawText(void * dst, const char * text, int posX, int posY, int fon
 }
 /** ImageDrawTextEx(params: void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void sp_ImageDrawTextEx(void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  ImageDrawTextEx(dst, *(Font *)font, text, *(Vector2 *)position, fontSize, spacing, ((sp_Color*)tint)->c);
+  ImageDrawTextEx(dst, *(Font *)font, text, ((sp_Vector2 *)position)->v, fontSize, spacing, ((sp_Color*)tint)->c);
 }
 /** ImageDrawTextPro(params: void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void sp_ImageDrawTextPro(void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  ImageDrawTextPro(dst, *(Font *)font, text, *(Vector2 *)position, *(Vector2 *)origin, rotation, fontSize, spacing, ((sp_Color*)tint)->c);
+  ImageDrawTextPro(dst, *(Font *)font, text, ((sp_Vector2 *)position)->v, ((sp_Vector2 *)origin)->v, rotation, fontSize, spacing, ((sp_Color*)tint)->c);
 }
 /** LoadTextureFromImage(params: void * image -> void *) */
 void * sp_LoadTextureFromImage(void * image) {
@@ -1690,19 +1701,19 @@ void sp_SetTextureWrap(void * texture, int wrap) {
 }
 /** DrawTextureV(params: void * texture, void * position, void * tint -> void) */
 void sp_DrawTextureV(void * texture, void * position, void * tint) {
-  DrawTextureV(*(Texture2D *)texture, *(Vector2 *)position, ((sp_Color*)tint)->c);
+  DrawTextureV(*(Texture2D *)texture, ((sp_Vector2 *)position)->v, ((sp_Color*)tint)->c);
 }
 /** DrawTextureRec(params: void * texture, void * rec, void * position, void * tint -> void) */
 void sp_DrawTextureRec(void * texture, void * rec, void * position, void * tint) {
-  DrawTextureRec(*(Texture2D *)texture, ((sp_Rectangle*)rec)->v, *(Vector2 *)position, ((sp_Color*)tint)->c);
+  DrawTextureRec(*(Texture2D *)texture, ((sp_Rectangle*)rec)->v, ((sp_Vector2 *)position)->v, ((sp_Color*)tint)->c);
 }
 /** DrawTexturePro(params: void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void sp_DrawTexturePro(void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTexturePro(*(Texture2D *)texture, ((sp_Rectangle*)srcrec)->v, ((sp_Rectangle*)dstrec)->v, *(Vector2 *)origin, rotation, ((sp_Color*)tint)->c);
+  DrawTexturePro(*(Texture2D *)texture, ((sp_Rectangle*)srcrec)->v, ((sp_Rectangle*)dstrec)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)tint)->c);
 }
 /** DrawTextureNPatch(params: void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void sp_DrawTextureNPatch(void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTextureNPatch(*(Texture2D *)texture, ((sp_NPatchInfo*)nPatchInfo)->v, ((sp_Rectangle*)dstrec)->v, *(Vector2 *)origin, rotation, ((sp_Color*)tint)->c);
+  DrawTextureNPatch(*(Texture2D *)texture, ((sp_NPatchInfo*)nPatchInfo)->v, ((sp_Rectangle*)dstrec)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)tint)->c);
 }
 /** ColorIsEqual(params: void * col1, void * col2 -> _Bool) */
 _Bool sp_ColorIsEqual(void * col1, void * col2) {
@@ -1820,19 +1831,19 @@ _Bool sp_ExportFontAsCode(void * font, const char * fileName) {
 }
 /** DrawTextEx(params: void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void sp_DrawTextEx(void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextEx(*(Font *)font, text, *(Vector2 *)position, fontSize, spacing, ((sp_Color*)tint)->c);
+  DrawTextEx(*(Font *)font, text, ((sp_Vector2 *)position)->v, fontSize, spacing, ((sp_Color*)tint)->c);
 }
 /** DrawTextPro(params: void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void sp_DrawTextPro(void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  DrawTextPro(*(Font *)font, text, *(Vector2 *)position, *(Vector2 *)origin, rotation, fontSize, spacing, ((sp_Color*)tint)->c);
+  DrawTextPro(*(Font *)font, text, ((sp_Vector2 *)position)->v, ((sp_Vector2 *)origin)->v, rotation, fontSize, spacing, ((sp_Color*)tint)->c);
 }
 /** DrawTextCodepoint(params: void * font, int codepoint, void * position, float fontSize, void * tint -> void) */
 void sp_DrawTextCodepoint(void * font, int codepoint, void * position, float fontSize, void * tint) {
-  DrawTextCodepoint(*(Font *)font, codepoint, *(Vector2 *)position, fontSize, ((sp_Color*)tint)->c);
+  DrawTextCodepoint(*(Font *)font, codepoint, ((sp_Vector2 *)position)->v, fontSize, ((sp_Color*)tint)->c);
 }
 /** DrawTextCodepoints(params: void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint -> void) */
 void sp_DrawTextCodepoints(void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextCodepoints(*(Font *)font, codepoints, codepointCount, *(Vector2 *)position, fontSize, spacing, ((sp_Color*)tint)->c);
+  DrawTextCodepoints(*(Font *)font, codepoints, codepointCount, ((sp_Vector2 *)position)->v, fontSize, spacing, ((sp_Color*)tint)->c);
 }
 /** MeasureTextEx(params: void * font, const char * text, float fontSize, float spacing, void * _out -> void) */
 void sp_MeasureTextEx(void * font, const char * text, float fontSize, float spacing, void * _out) {
@@ -1976,11 +1987,11 @@ void sp_DrawBillboard(void * camera, void * texture, void * position, float scal
 }
 /** DrawBillboardRec(params: void * camera, void * texture, void * rec, void * position, void * size, void * tint -> void) */
 void sp_DrawBillboardRec(void * camera, void * texture, void * rec, void * position, void * size, void * tint) {
-  DrawBillboardRec(((sp_Camera*)camera)->c, *(Texture2D *)texture, ((sp_Rectangle*)rec)->v, ((sp_Vector3*)position)->v, *(Vector2 *)size, ((sp_Color*)tint)->c);
+  DrawBillboardRec(((sp_Camera*)camera)->c, *(Texture2D *)texture, ((sp_Rectangle*)rec)->v, ((sp_Vector3*)position)->v, ((sp_Vector2 *)size)->v, ((sp_Color*)tint)->c);
 }
 /** DrawBillboardPro(params: void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint -> void) */
 void sp_DrawBillboardPro(void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint) {
-  DrawBillboardPro(((sp_Camera*)camera)->c, *(Texture2D *)texture, ((sp_Rectangle*)rec)->v, ((sp_Vector3*)position)->v, ((sp_Vector3*)up)->v, *(Vector2 *)size, *(Vector2 *)origin, rotation, ((sp_Color*)tint)->c);
+  DrawBillboardPro(((sp_Camera*)camera)->c, *(Texture2D *)texture, ((sp_Rectangle*)rec)->v, ((sp_Vector3*)position)->v, ((sp_Vector3*)up)->v, ((sp_Vector2 *)size)->v, ((sp_Vector2 *)origin)->v, rotation, ((sp_Color*)tint)->c);
 }
 /** UpdateMeshBuffer(params: void * mesh, int index, void * data, int dataSize, int offset -> void) */
 void sp_UpdateMeshBuffer(void * mesh, int index, void * data, int dataSize, int offset) {
@@ -2437,20 +2448,23 @@ double sp_Vector2Angle(sp_Vector2 *a, sp_Vector2 *b) {
  * degrade the accessor writers (v.x = x) to generic ivar dispatch in programs
  * where other classes share x/y/m fields, so construction goes through these
  * explicit C helpers via ffi_func instead. */
-void sp_Vector2Fill(sp_Vector2 *o, double x, double y) {
-  o->v = (Vector2){ (float)x, (float)y };
+/* NOTE: the ffi_func declarations type these as :float, so the generated
+ * externs pass C float — the definitions must be float too (a double callee
+ * reading a float arg sees zeroed upper bits and loses the value). */
+void sp_Vector2Fill(sp_Vector2 *o, float x, float y) {
+  o->v = (Vector2){ x, y };
 }
-void sp_Vector4Fill(sp_Vector4 *o, double x, double y, double z, double w) {
-  o->v = (Vector4){ (float)x, (float)y, (float)z, (float)w };
+void sp_Vector4Fill(sp_Vector4 *o, float x, float y, float z, float w) {
+  o->v = (Vector4){ x, y, z, w };
 }
-void sp_MatrixFill(sp_Matrix *o, double m0, double m4, double m8, double m12,
-                   double m1, double m5, double m9, double m13,
-                   double m2, double m6, double m10, double m14,
-                   double m3, double m7, double m11, double m15) {
-  o->v = (Matrix){ (float)m0, (float)m4, (float)m8, (float)m12,
-                   (float)m1, (float)m5, (float)m9, (float)m13,
-                   (float)m2, (float)m6, (float)m10, (float)m14,
-                   (float)m3, (float)m7, (float)m11, (float)m15 };
+void sp_MatrixFill(sp_Matrix *o, float m0, float m4, float m8, float m12,
+                   float m1, float m5, float m9, float m13,
+                   float m2, float m6, float m10, float m14,
+                   float m3, float m7, float m11, float m15) {
+  o->v = (Matrix){ m0, m4, m8, m12,
+                   m1, m5, m9, m13,
+                   m2, m6, m10, m14,
+                   m3, m7, m11, m15 };
 }
 
 /* ================================================================
