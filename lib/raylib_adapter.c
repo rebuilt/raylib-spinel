@@ -77,6 +77,14 @@ float Vector2GetY(void *v) { return ((sp_Vector2 *)v)->v.y; }
 void Vector2SetX(void *v, float x) { ((sp_Vector2 *)v)->v.x = x; }
 void Vector2SetY(void *v, float y) { ((sp_Vector2 *)v)->v.y = y; }
 
+/* sp_Camera — GC-embedded Camera3D (see raylib_ffi.rb). Declared early so
+ * sp_Camera3DCreate returns the same header+embedded layout the
+ * sp_BeginMode3D / sp_UpdateCamera / sp_GetWorldToScreen shims read via ->c. */
+typedef struct sp_Camera_s {
+  sp_int cls_id;
+  Camera3D c;
+} sp_Camera;
+
 void sp_ClearBackground(void *color) {
   ClearBackground(((sp_Color *)color)->c);
 }
@@ -115,12 +123,15 @@ void sp_DrawRectangleRecF(float x, float y, float w, float h, void *color) {
 void *sp_Camera3DCreate(float px, float py, float pz, float tx, float ty,
                         float tz, float ux, float uy, float uz, float fovy,
                         int projection) {
-  Camera3D *cam = (Camera3D *)malloc(sizeof(Camera3D));
-  cam->position = (Vector3){ px, py, pz };
-  cam->target = (Vector3){ tx, ty, tz };
-  cam->up = (Vector3){ ux, uy, uz };
-  cam->fovy = fovy;
-  cam->projection = projection;
+  /* Native-shaped so the sp_BeginMode3D / sp_UpdateCamera / GetWorldToScreen
+   * shims (which read ((sp_Camera*)p)->c) see the camera, not the cls_id. */
+  sp_Camera *cam = (sp_Camera *)malloc(sizeof(sp_Camera));
+  cam->cls_id = 0;
+  cam->c.position = (Vector3){ px, py, pz };
+  cam->c.target = (Vector3){ tx, ty, tz };
+  cam->c.up = (Vector3){ ux, uy, uz };
+  cam->c.fovy = fovy;
+  cam->c.projection = projection;
   return cam;
 }
 void sp_EndMode3D(void) { EndMode3D(); }
@@ -228,12 +239,8 @@ void *sp_Vector3_ptr(sp_Vector3 *self) { return self; }
  * Embeds raylib's Camera3D. Built with the with_* chain, mutated in
  * place by UpdateCamera (via sp_UpdateCamera), and handed to
  * BeginMode3D (via sp_BeginMode3D). Both take this object's pointer.
+ * (struct declared near the top, shared with sp_Camera3DCreate.)
  * ================================================================ */
-typedef struct sp_Camera_s {
-  sp_int cls_id;
-  Camera3D c;
-} sp_Camera;
-
 static void sp_Camera_scan(void *p) { (void)p; }
 
 sp_Camera *sp_Camera_new(sp_int cls_id) {
