@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <rlgl.h>           /* immediate-mode batch for sp_DrawPixelsPacked */
 #include <raymath.h>        /* raymath funcs (RL_* guards swallow duplicated types) */
 #include <stdio.h>
 #include <stdlib.h>
@@ -202,6 +203,49 @@ void sp_DrawCircleV(void *center, float radius, void *color) {
 }
 void sp_DrawPixel(int x, int y, void *color) {
   DrawPixel(x, y, ((sp_Color *)color)->c);
+}
+/* Data-oriented draw: the color is a packed 0xRRGGBBAA integer, so callers
+ * that keep colors in a flat int array need no sp_Color object per pixel. */
+void sp_DrawPixelPacked(int x, int y, int rgba) {
+  unsigned int u = (unsigned int)rgba;
+  DrawPixel(x, y,
+            (Color){ (unsigned char)(u >> 24), (unsigned char)(u >> 16),
+                     (unsigned char)(u >> 8), (unsigned char)u });
+}
+/* Batch-draw `count` 1x1 pixels from parallel packed pools in ONE immediate-mode
+ * batch. raylib's DrawPixel opens/colors/emits/closes a batch per pixel, so
+ * 120k particles meant ~700k Ruby->C calls + a batch flush per pixel; this does
+ * one call and one rlBegin..rlEnd for the whole pool. The FFI passes the flat
+ * data pointers (sp_*Array_ffi_data), so no per-element access on the Ruby side.
+ * Coordinates arrive as doubles (sp_FloatArray stores doubles). */
+void sp_DrawPixelsPacked(const double *xs, const double *ys,
+                         const int64_t *colors, int count) {
+  /* Mirror raylib's DrawPixelV: bind the 1x1 shapes texture for the whole
+   * batch (without it the quads do not draw), then emit every pixel between a
+   * single rlBegin/rlEnd. */
+  Texture2D tex = GetShapesTexture();
+  Rectangle sr = GetShapesTextureRectangle();
+  float u0 = sr.x / (float)tex.width;
+  float v0 = sr.y / (float)tex.height;
+  float u1 = (sr.x + sr.width) / (float)tex.width;
+  float v1 = (sr.y + sr.height) / (float)tex.height;
+
+  rlSetTexture(tex.id);
+  rlBegin(RL_QUADS);
+  for (int i = 0; i < count; i++) {
+    unsigned int u = (unsigned int)colors[i];
+    rlNormal3f(0.0f, 0.0f, 1.0f);
+    rlColor4ub((unsigned char)(u >> 24), (unsigned char)(u >> 16),
+               (unsigned char)(u >> 8), (unsigned char)u);
+    float x = (float)xs[i];
+    float y = (float)ys[i];
+    rlTexCoord2f(u0, v0); rlVertex2f(x, y);
+    rlTexCoord2f(u0, v1); rlVertex2f(x, y + 1.0f);
+    rlTexCoord2f(u1, v1); rlVertex2f(x + 1.0f, y + 1.0f);
+    rlTexCoord2f(u1, v0); rlVertex2f(x + 1.0f, y);
+  }
+  rlEnd();
+  rlSetTexture(0);
 }
 void sp_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
   DrawTriangle(((sp_Vector2 *)v1)->v, ((sp_Vector2 *)v2)->v, ((sp_Vector2 *)v3)->v,

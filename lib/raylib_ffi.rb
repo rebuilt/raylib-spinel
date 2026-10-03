@@ -891,6 +891,11 @@ module Raylib
   ffi_func :sp_DrawRectangle, %i[int int int int ptr], :void
   ffi_func :sp_DrawRectangleLines, %i[int int int int ptr], :void
   ffi_func :sp_DrawPixel, %i[int int ptr], :void
+  # Color passed as a packed 0xRRGGBBAA int (data-oriented particle pools).
+  ffi_func :sp_DrawPixelPacked, %i[int int int], :void
+  # Batch-draw a whole pool in one call: parallel x/y FloatArrays and a packed
+  # color IntArray (passed as their flat data pointers by the FFI).
+  ffi_func :sp_DrawPixelsPacked, %i[float_array float_array int_array int], :void
 
   # Vector3 — native GC object (mirrors Color). Passed to the 3D shims as its
   # pointer; field-read with .x/.y/.z.
@@ -1143,6 +1148,14 @@ module Raylib
 
     def self.DrawRectangleLines(x, y, width, height, color)
       Raylib.sp_DrawRectangleLines(x, y, width, height, color)
+    end
+
+    def self.DrawPixelPacked(x, y, rgba)
+      Raylib.sp_DrawPixelPacked(x, y, rgba)
+    end
+
+    def self.DrawPixelsPacked(xs, ys, colors, count)
+      Raylib.sp_DrawPixelsPacked(xs, ys, colors, count)
     end
 
     def self.DrawPixel(x, y, color)
