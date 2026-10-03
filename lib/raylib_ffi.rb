@@ -872,6 +872,8 @@ module Raylib
   # Texture (opaque pointer — sp_LoadTexture mallocs Texture2D)
   ffi_func :sp_LoadTexture, [:str], :ptr
   ffi_func :sp_DrawTexture, %i[ptr int int ptr], :void
+  # Tint passed as a packed 0xRRGGBBAA int (data-oriented sprite pools).
+  ffi_func :sp_DrawTexturePacked, %i[ptr int int int], :void
   ffi_func :sp_DrawTextureEx, %i[ptr float float float float ptr], :void
   ffi_func :sp_UnloadTexture, [:ptr], :void
 
