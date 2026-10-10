@@ -7,7 +7,7 @@
 #     part of `require "raylib-spinel"`.
 #   - Spinel: the literal require_relative below is spliced at compile time and
 #     drags in lib/raymath_ffi.rb, whose module Raylib blocks declare the same
-#     PascalCase surface (the sp_* pointer shims live in raylib_adapter.c).
+#     PascalCase surface (the rl_* pointer shims live in raylib_adapter.c).
 if $PROGRAM_NAME.end_with?(".rb")
   # no-op under CRuby
 else

@@ -100,7 +100,7 @@ module Rlgl
   ffi_func :rlGetShaderIdDefault, [], :uint
   ffi_func :rlGetShaderLocsDefault, [], :ptr
   ffi_func :rlLoadRenderBatch, [:int, :int], :void
-  ffi_func :sp_rlUnloadRenderBatch, [:ptr], :void
+  ffi_func :rl_rlUnloadRenderBatch, [:ptr], :void
   ffi_func :rlDrawRenderBatch, [:ptr], :void
   ffi_func :rlSetRenderBatchActive, [:ptr], :void
   ffi_func :rlDrawRenderBatchActive, [], :void
@@ -145,7 +145,7 @@ module Rlgl
   ffi_func :rlGetLocationUniform, [:uint, :str], :int
   ffi_func :rlGetLocationAttrib, [:uint, :str], :int
   ffi_func :rlSetUniform, [:int, :ptr, :int, :int], :void
-  ffi_func :sp_rlSetUniformMatrix, [:int, :ptr], :void
+  ffi_func :rl_rlSetUniformMatrix, [:int, :ptr], :void
   ffi_func :rlSetUniformMatrices, [:int, :ptr, :int], :void
   ffi_func :rlSetUniformSampler, [:int, :uint], :void
   ffi_func :rlSetShader, [:uint, :ptr], :void
@@ -158,75 +158,75 @@ module Rlgl
   ffi_func :rlCopyShaderBuffer, [:uint, :uint, :uint, :uint, :uint], :void
   ffi_func :rlGetShaderBufferSize, [:uint], :uint
   ffi_func :rlBindImageTexture, [:uint, :uint, :int, :bool], :void
-  ffi_func :sp_rlGetMatrixModelview, [:ptr], :void
-  ffi_func :sp_rlGetMatrixProjection, [:ptr], :void
-  ffi_func :sp_rlGetMatrixTransform, [:ptr], :void
-  ffi_func :sp_rlGetMatrixProjectionStereo, [:int, :ptr], :void
-  ffi_func :sp_rlGetMatrixViewOffsetStereo, [:int, :ptr], :void
-  ffi_func :sp_rlSetMatrixProjection, [:ptr], :void
-  ffi_func :sp_rlSetMatrixModelview, [:ptr], :void
-  ffi_func :sp_rlSetMatrixProjectionStereo, [:ptr, :ptr], :void
-  ffi_func :sp_rlSetMatrixViewOffsetStereo, [:ptr, :ptr], :void
+  ffi_func :rl_rlGetMatrixModelview, [:ptr], :void
+  ffi_func :rl_rlGetMatrixProjection, [:ptr], :void
+  ffi_func :rl_rlGetMatrixTransform, [:ptr], :void
+  ffi_func :rl_rlGetMatrixProjectionStereo, [:int, :ptr], :void
+  ffi_func :rl_rlGetMatrixViewOffsetStereo, [:int, :ptr], :void
+  ffi_func :rl_rlSetMatrixProjection, [:ptr], :void
+  ffi_func :rl_rlSetMatrixModelview, [:ptr], :void
+  ffi_func :rl_rlSetMatrixProjectionStereo, [:ptr, :ptr], :void
+  ffi_func :rl_rlSetMatrixViewOffsetStereo, [:ptr, :ptr], :void
   ffi_func :rlLoadDrawCube, [], :void
   ffi_func :rlLoadDrawQuad, [], :void
-  native_struct "Vector2", "sp_Vector2"
-  native_new [], "sp_Vector2_new"
-  native_struct "Vector3", "sp_Vector3"
-  native_new [], "sp_Vector3_new"
-  native_struct "Vector4", "sp_Vector4"
-  native_new [], "sp_Vector4_new"
-  native_struct "Matrix", "sp_Matrix"
-  native_new [], "sp_Matrix_new"
-  native_method :m0, [], :float, "sp_Matrix_m0"
-  native_method :m0=, [:float], :float, "sp_Matrix_set_m0"
-  native_method :m4, [], :float, "sp_Matrix_m4"
-  native_method :m4=, [:float], :float, "sp_Matrix_set_m4"
-  native_method :m8, [], :float, "sp_Matrix_m8"
-  native_method :m8=, [:float], :float, "sp_Matrix_set_m8"
-  native_method :m12, [], :float, "sp_Matrix_m12"
-  native_method :m12=, [:float], :float, "sp_Matrix_set_m12"
-  native_method :m1, [], :float, "sp_Matrix_m1"
-  native_method :m1=, [:float], :float, "sp_Matrix_set_m1"
-  native_method :m5, [], :float, "sp_Matrix_m5"
-  native_method :m5=, [:float], :float, "sp_Matrix_set_m5"
-  native_method :m9, [], :float, "sp_Matrix_m9"
-  native_method :m9=, [:float], :float, "sp_Matrix_set_m9"
-  native_method :m13, [], :float, "sp_Matrix_m13"
-  native_method :m13=, [:float], :float, "sp_Matrix_set_m13"
-  native_method :m2, [], :float, "sp_Matrix_m2"
-  native_method :m2=, [:float], :float, "sp_Matrix_set_m2"
-  native_method :m6, [], :float, "sp_Matrix_m6"
-  native_method :m6=, [:float], :float, "sp_Matrix_set_m6"
-  native_method :m10, [], :float, "sp_Matrix_m10"
-  native_method :m10=, [:float], :float, "sp_Matrix_set_m10"
-  native_method :m14, [], :float, "sp_Matrix_m14"
-  native_method :m14=, [:float], :float, "sp_Matrix_set_m14"
-  native_method :m3, [], :float, "sp_Matrix_m3"
-  native_method :m3=, [:float], :float, "sp_Matrix_set_m3"
-  native_method :m7, [], :float, "sp_Matrix_m7"
-  native_method :m7=, [:float], :float, "sp_Matrix_set_m7"
-  native_method :m11, [], :float, "sp_Matrix_m11"
-  native_method :m11=, [:float], :float, "sp_Matrix_set_m11"
-  native_method :m15, [], :float, "sp_Matrix_m15"
-  native_method :m15=, [:float], :float, "sp_Matrix_set_m15"
-  native_struct "Color", "sp_Color"
-  native_new [], "sp_Color_new"
-  native_struct "Rectangle", "sp_Rectangle"
-  native_new [], "sp_Rectangle_new"
-  native_struct "Camera2D", "sp_Camera2D"
-  native_new [], "sp_Camera2D_new"
-  native_struct "BoundingBox", "sp_BoundingBox"
-  native_new [], "sp_BoundingBox_new"
-  native_struct "Ray", "sp_Ray"
-  native_new [], "sp_Ray_new"
-  native_struct "RayCollision", "sp_RayCollision"
-  native_new [], "sp_RayCollision_new"
-  native_struct "NPatchInfo", "sp_NPatchInfo"
-  native_new [], "sp_NPatchInfo_new"
-  native_struct "VrDeviceInfo", "sp_VrDeviceInfo"
-  native_new [], "sp_VrDeviceInfo_new"
-  native_struct "VrStereoConfig", "sp_VrStereoConfig"
-  native_new [], "sp_VrStereoConfig_new"
+  native_struct "Vector2", "rl_Vector2"
+  native_new [], "rl_Vector2_new"
+  native_struct "Vector3", "rl_Vector3"
+  native_new [], "rl_Vector3_new"
+  native_struct "Vector4", "rl_Vector4"
+  native_new [], "rl_Vector4_new"
+  native_struct "Matrix", "rl_Matrix"
+  native_new [], "rl_Matrix_new"
+  native_method :m0, [], :float, "rl_Matrix_m0"
+  native_method :m0=, [:float], :float, "rl_Matrix_set_m0"
+  native_method :m4, [], :float, "rl_Matrix_m4"
+  native_method :m4=, [:float], :float, "rl_Matrix_set_m4"
+  native_method :m8, [], :float, "rl_Matrix_m8"
+  native_method :m8=, [:float], :float, "rl_Matrix_set_m8"
+  native_method :m12, [], :float, "rl_Matrix_m12"
+  native_method :m12=, [:float], :float, "rl_Matrix_set_m12"
+  native_method :m1, [], :float, "rl_Matrix_m1"
+  native_method :m1=, [:float], :float, "rl_Matrix_set_m1"
+  native_method :m5, [], :float, "rl_Matrix_m5"
+  native_method :m5=, [:float], :float, "rl_Matrix_set_m5"
+  native_method :m9, [], :float, "rl_Matrix_m9"
+  native_method :m9=, [:float], :float, "rl_Matrix_set_m9"
+  native_method :m13, [], :float, "rl_Matrix_m13"
+  native_method :m13=, [:float], :float, "rl_Matrix_set_m13"
+  native_method :m2, [], :float, "rl_Matrix_m2"
+  native_method :m2=, [:float], :float, "rl_Matrix_set_m2"
+  native_method :m6, [], :float, "rl_Matrix_m6"
+  native_method :m6=, [:float], :float, "rl_Matrix_set_m6"
+  native_method :m10, [], :float, "rl_Matrix_m10"
+  native_method :m10=, [:float], :float, "rl_Matrix_set_m10"
+  native_method :m14, [], :float, "rl_Matrix_m14"
+  native_method :m14=, [:float], :float, "rl_Matrix_set_m14"
+  native_method :m3, [], :float, "rl_Matrix_m3"
+  native_method :m3=, [:float], :float, "rl_Matrix_set_m3"
+  native_method :m7, [], :float, "rl_Matrix_m7"
+  native_method :m7=, [:float], :float, "rl_Matrix_set_m7"
+  native_method :m11, [], :float, "rl_Matrix_m11"
+  native_method :m11=, [:float], :float, "rl_Matrix_set_m11"
+  native_method :m15, [], :float, "rl_Matrix_m15"
+  native_method :m15=, [:float], :float, "rl_Matrix_set_m15"
+  native_struct "Color", "rl_Color"
+  native_new [], "rl_Color_new"
+  native_struct "Rectangle", "rl_Rectangle"
+  native_new [], "rl_Rectangle_new"
+  native_struct "Camera2D", "rl_Camera2D"
+  native_new [], "rl_Camera2D_new"
+  native_struct "BoundingBox", "rl_BoundingBox"
+  native_new [], "rl_BoundingBox_new"
+  native_struct "Ray", "rl_Ray"
+  native_new [], "rl_Ray_new"
+  native_struct "RayCollision", "rl_RayCollision"
+  native_new [], "rl_RayCollision_new"
+  native_struct "NPatchInfo", "rl_NPatchInfo"
+  native_new [], "rl_NPatchInfo_new"
+  native_struct "VrDeviceInfo", "rl_VrDeviceInfo"
+  native_new [], "rl_VrDeviceInfo_new"
+  native_struct "VrStereoConfig", "rl_VrStereoConfig"
+  native_new [], "rl_VrStereoConfig_new"
 
   # Texture
   ffi_func :LoadTexture, [:str], :ptr
@@ -276,47 +276,47 @@ module Rlgl
 
     # ====== generated: wrappers + constants ======
     def self.rlUnloadRenderBatch(batch)
-      Rlgl.sp_rlUnloadRenderBatch(batch)
+      Rlgl.rl_rlUnloadRenderBatch(batch)
     end
     def self.rlSetUniformMatrix(locIndex, mat)
-      Rlgl.sp_rlSetUniformMatrix(locIndex, mat)
+      Rlgl.rl_rlSetUniformMatrix(locIndex, mat)
     end
     def self.rlGetMatrixModelview()
       _out = Matrix.new
-      Rlgl.sp_rlGetMatrixModelview(_out)
+      Rlgl.rl_rlGetMatrixModelview(_out)
       _out
     end
     def self.rlGetMatrixProjection()
       _out = Matrix.new
-      Rlgl.sp_rlGetMatrixProjection(_out)
+      Rlgl.rl_rlGetMatrixProjection(_out)
       _out
     end
     def self.rlGetMatrixTransform()
       _out = Matrix.new
-      Rlgl.sp_rlGetMatrixTransform(_out)
+      Rlgl.rl_rlGetMatrixTransform(_out)
       _out
     end
     def self.rlGetMatrixProjectionStereo(eye)
       _out = Matrix.new
-      Rlgl.sp_rlGetMatrixProjectionStereo(eye, _out)
+      Rlgl.rl_rlGetMatrixProjectionStereo(eye, _out)
       _out
     end
     def self.rlGetMatrixViewOffsetStereo(eye)
       _out = Matrix.new
-      Rlgl.sp_rlGetMatrixViewOffsetStereo(eye, _out)
+      Rlgl.rl_rlGetMatrixViewOffsetStereo(eye, _out)
       _out
     end
     def self.rlSetMatrixProjection(proj)
-      Rlgl.sp_rlSetMatrixProjection(proj)
+      Rlgl.rl_rlSetMatrixProjection(proj)
     end
     def self.rlSetMatrixModelview(view)
-      Rlgl.sp_rlSetMatrixModelview(view)
+      Rlgl.rl_rlSetMatrixModelview(view)
     end
     def self.rlSetMatrixProjectionStereo(right, left)
-      Rlgl.sp_rlSetMatrixProjectionStereo(right, left)
+      Rlgl.rl_rlSetMatrixProjectionStereo(right, left)
     end
     def self.rlSetMatrixViewOffsetStereo(right, left)
-      Rlgl.sp_rlSetMatrixViewOffsetStereo(right, left)
+      Rlgl.rl_rlSetMatrixViewOffsetStereo(right, left)
     end
     RL_OPENGL_SOFTWARE = 0
     RL_OPENGL_11 = 1

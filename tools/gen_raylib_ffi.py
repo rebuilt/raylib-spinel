@@ -7,13 +7,13 @@ Reads three inputs:
     lib/raylib_adapter.c      (existing hand-written shims, kept, de-duped)
 
 Rewrites lib/raylib_ffi.rb + lib/raylib_adapter.c by appending a generated
-section. Existing declarations / wrappers / constants / sp_ symbols are never
+section. Existing declarations / wrappers / constants / rl_ symbols are never
 duplicated.
 
 Conventions shared with the hand-written layer:
   * flat signatures (scalar / string / opaque-pointer params and returns) are
     declared `ffi_func :Name, [...], ret` straight against libraylib;
-  * by-value struct params / returns go through compiled `sp_Name` shims
+  * by-value struct params / returns go through compiled `rl_Name` shims
     (Spinel FFI cannot pass or return C structs by value);
   * opaque resource structs (Texture2D, Image, Font, Sound, Music, Wave, Mesh,
     Model, Shader, Material, AudioStream, RenderTexture2D, GlyphInfo, ...) and
@@ -291,11 +291,11 @@ def existing_set(pattern, path, lst=False):
 
 effi = existing_set(r"ffi_func\s+:(\w+)", FFI_PATH)
 enative = existing_set(r'native_struct\s+"(\w+)"', FFI_PATH)
-enmethod = existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(sp_[A-Za-z0-9_]+)"',
+enmethod = existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(rl_[A-Za-z0-9_]+)"',
                         FFI_PATH)
 ewrap = existing_set(r"def self\.(\w+)", FFI_PATH)
 econst = existing_set(r"(?m)^[ \t]*([A-Z][A-Za-z0-9_]*)\s*=[ \t]", FFI_PATH, True)
-esp = existing_set(r"\bsp_[A-Za-z0-9_]+", ADAPTER_PATH)
+esp = existing_set(r"\brl_[A-Za-z0-9_]+", ADAPTER_PATH)
 
 
 def _classify_param_t(t):
@@ -317,9 +317,9 @@ def _classify_param_t(t):
 
 
 # A `Color *` argument is normally a by-value Color handed through a GC object
-# (`sp_Color`), but some functions take a raw Color* ARRAY produced elsewhere
+# (`rl_Color`), but some functions take a raw Color* ARRAY produced elsewhere
 # (LoadImageColors / LoadImagePalette). Those must be passed straight through,
-# not unwrapped with `&((sp_Color*)colors)->c`, or free() gets an interior
+# not unwrapped with `&((rl_Color*)colors)->c`, or free() gets an interior
 # pointer and aborts. Keyed fn name -> arg name.
 PARAM_AS_RAW = {
     "UnloadImageColors": {"colors"},
@@ -377,10 +377,10 @@ gen_wrap = []         # wrappers (inside Spinel guard)
 def shim_expr(kind, aname, base=None):
     if kind == "gc":
         klass, emb = gc_of(base)
-        return "((sp_%s*)%s)->%s" % (klass, aname, emb)
+        return "((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "gcp":
         klass, emb = gc_of(base)
-        return "&((sp_%s*)%s)->%s" % (klass, aname, emb)
+        return "&((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "raw":
         return "*(%s *)%s" % (base, aname)
     if kind == "cb":
@@ -404,7 +404,7 @@ def emit_shim(fn):
     if fn.name in effi:
         report["dup_name"] += 1
         return
-    sp = "sp_" + fn.name
+    sp = "rl_" + fn.name
     if sp in esp:
         report["dup_sp"] += 1
         return
@@ -481,7 +481,7 @@ def emit_shim(fn):
         body_lines.append("  return %s;" % ret_expr)
     elif out_class is not None:
         klass, emb = gc_of(ret_base)
-        body_lines.append("  ((sp_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
+        body_lines.append("  ((rl_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
         c_ret = "void"
         ffi_ret = ":void"
     elif c_ret == "void *":
@@ -493,7 +493,7 @@ def emit_shim(fn):
         body_lines.append("  return r;")
     else:
         # Unload<Kind>(Kind): release both the raylib resource and the heap
-        # copy produced by the matching Load<Kind> shim, like sp_UnloadTexture.
+        # copy produced by the matching Load<Kind> shim, like rl_UnloadTexture.
         m = re.fullmatch(r"Unload(\w+)", fn.name)
         if m and len(fn.args) == 1 and ret_base == "void" \
                 and base_of(fn.args[0][1]) == m.group(1) \
@@ -507,7 +507,7 @@ def emit_shim(fn):
         else:
             body_lines.append("  return %s;" % ret_expr)
 
-    gen_shim_c.append("/** %s(params: %s -> %s) */\n%s sp_%s(%s) {\n%s\n}\n" %
+    gen_shim_c.append("/** %s(params: %s -> %s) */\n%s rl_%s(%s) {\n%s\n}\n" %
                  (fn.name, sig, c_ret, c_ret, fn.name, sig,
                   "\n".join(body_lines)))
     gen_ffi.append("  ffi_func :%s, [%s], %s\n" % (sp, ", ".join(ffi_args), ffi_ret))
@@ -525,7 +525,7 @@ def wrapper_simple(fn, wrapper_args):
         return ""
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
-    return ("    def self.%s(%s)\n      Raylib.sp_%s(%s)\n    end\n"
+    return ("    def self.%s(%s)\n      Raylib.rl_%s(%s)\n    end\n"
             % (name, a, name, a))
 
 
@@ -536,7 +536,7 @@ def wrapper_out(fn, wrapper_args, out_class):
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
     fwd = (a + ", _out") if a else "_out"
-    # Native structs whose sp_<K>_new requires positional args cannot be
+    # Native structs whose rl_<K>_new requires positional args cannot be
     # zero-arg-constructed; default them so the out-param write has storage.
     if out_class == "Color":
         init = "Color.new(0, 0, 0, 0)"
@@ -545,7 +545,7 @@ def wrapper_out(fn, wrapper_args, out_class):
     else:
         init = "%s.new" % out_class
     return ("    def self.%s(%s)\n      _out = %s\n"
-            "      Raylib.sp_%s(%s)\n      _out\n    end\n"
+            "      Raylib.rl_%s(%s)\n      _out\n    end\n"
             % (name, a, init, name, fwd))
 
 
@@ -585,17 +585,17 @@ report["new_gc"] = new_gc
 
 for base, klass, emb in new_gc:
     fields = struct_fields.get(base, [])
-    gen_c.append("\n/* sp_%s — GC-embedded %s (see raylib_ffi.rb) */" % (klass, base))
-    gen_c.append("typedef struct sp_%s_s {\n  sp_int cls_id;\n  %s %s;\n} sp_%s;\n"
+    gen_c.append("\n/* rl_%s — GC-embedded %s (see raylib_ffi.rb) */" % (klass, base))
+    gen_c.append("typedef struct rl_%s_s {\n  sp_int cls_id;\n  %s %s;\n} rl_%s;\n"
                  % (klass, base, emb, klass))
-    gen_c.append("static void sp_%s_scan(void *p) { (void)p; }\n" % klass)
+    gen_c.append("static void rl_%s_scan(void *p) { (void)p; }\n" % klass)
     init = "  self->%s = (%s){ 0 };\n" % (emb, base)
-    gen_c.append("sp_%s *sp_%s_new(sp_int cls_id) {\n"
-                 "  sp_%s *self = (sp_%s *)sp_gc_alloc(sizeof(sp_%s), NULL, sp_%s_scan);\n"
+    gen_c.append("rl_%s *rl_%s_new(sp_int cls_id) {\n"
+                 "  rl_%s *self = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);\n"
                  "  self->cls_id = cls_id;\n%s  return self;\n}\n"
                  % (klass, klass, klass, klass, klass, klass, init))
-    gen_ffi.append(f'  native_struct "{klass}", "sp_{klass}"\n')
-    gen_ffi.append(f'  native_new [], "sp_{klass}_new"\n')
+    gen_ffi.append(f'  native_struct "{klass}", "rl_{klass}"\n')
+    gen_ffi.append(f'  native_new [], "rl_{klass}_new"\n')
 
     for f in fields:
         if is_ptr(f["type"]):
@@ -608,22 +608,22 @@ for base, klass, emb in new_gc:
         ftok, ctype = FIELD_TOK[ft]
         fname = f["name"]
         if ft == "bool":
-            gen_c.append(f"int sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"int rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return self->{emb}.{fname} ? 1 : 0;\n}}\n")
-            gen_c.append(f"int sp_{klass}_set_{fname}(sp_{klass} *self, int {fname}) {{\n"
+            gen_c.append(f"int rl_{klass}_set_{fname}(rl_{klass} *self, int {fname}) {{\n"
                          f"  self->{emb}.{fname} = {fname} != 0;\n  return {fname};\n}}\n")
         elif ctype == "double":
-            gen_c.append(f"double sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"double rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return (double)self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"double sp_{klass}_set_{fname}(sp_{klass} *self, double {fname}) {{\n"
+            gen_c.append(f"double rl_{klass}_set_{fname}(rl_{klass} *self, double {fname}) {{\n"
                          f"  self->{emb}.{fname} = (float){fname};\n  return {fname};\n}}\n")
         else:
-            gen_c.append(f"{ctype} sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"{ctype} rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"{ctype} sp_{klass}_set_{fname}(sp_{klass} *self, {ctype} {fname}) {{\n"
+            gen_c.append(f"{ctype} rl_{klass}_set_{fname}(rl_{klass} *self, {ctype} {fname}) {{\n"
                          f"  self->{emb}.{fname} = {fname};\n  return {fname};\n}}\n")
-        nmx = f"sp_{klass}_{fname}"
-        nms = f"sp_{klass}_set_{fname}"
+        nmx = f"rl_{klass}_{fname}"
+        nms = f"rl_{klass}_set_{fname}"
         if nmx not in enmethod and nms not in enmethod:
             gen_ffi.append(f'  native_method :{fname}, [], {ftok}, "{nmx}"\n')
             gen_ffi.append(f'  native_method :{fname}=, [:{ftok[1:]}], {ftok}, "{nms}"\n')
@@ -633,8 +633,9 @@ for base, klass, emb in new_gc:
 # ------------------------------------------------------------------ output --
 
 ffi_text = open(FFI_PATH).read()
-anchor = '  ffi_cflags "-Wl,-rpath,/usr/local/lib"\n'
-assert anchor in ffi_text
+_m = re.search(r'^  ffi_cflags "[^"]*"\n', ffi_text, re.M)
+assert _m, "no ffi_cflags anchor line in the ffi file"
+anchor = _m.group(0)
 top = "".join(gen_ffi)
 if top:
     ffi_text = ffi_text.replace(

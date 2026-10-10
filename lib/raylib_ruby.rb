@@ -72,7 +72,7 @@ module Raylib
   end
 
 
-  # ---- DrawTextInt (custom — adapter has sp_DrawTextInt, gem doesn't) ----
+  # ---- DrawTextInt (custom — adapter has rl_DrawTextInt, gem doesn't) ----
   def self.DrawTextInt(prefix, value, x, y, size, color)
     DrawText("#{prefix}#{value}", x, y, size, color)
   end
@@ -101,7 +101,7 @@ module Raylib
   end
 
   # ---- Vector3 helper (mirror of the Color.new override above) ----
-  # Under Spinel, Vector3.new(x,y,z) lowers to the native sp_Vector3_new.
+  # Under Spinel, Vector3.new(x,y,z) lowers to the native rl_Vector3_new.
   # Under MRI, Vector3 is an FFI::Struct whose positional-arg new is treated
   # as a layout array, so accept the 3-float x/y/z form to match Spinel.
   class Vector3
@@ -117,7 +117,7 @@ module Raylib
   end
 
   # ---- Color helper ----
-  # Under Spinel, Color.new(r,g,b,a) lowers to the native sp_Color_new. Under
+  # Under Spinel, Color.new(r,g,b,a) lowers to the native rl_Color_new. Under
   # MRI, Raylib::Color is an FFI::Struct whose default .new treats positional
   # args as a layout array, so accept the 4-int RGBA form to match Spinel.
   class Color

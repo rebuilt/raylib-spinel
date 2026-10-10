@@ -180,10 +180,17 @@ def existing_set(pattern, path, lst=False):
 
 effi = existing_set(r"ffi_func\s+:(\w+)", FFI_PATH)
 enative = existing_set(r'native_struct\s+"(\w+)"', FFI_PATH)
-emethod = existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(sp_[A-Za-z0-9_]+)"',
+emethod = existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(rl_[A-Za-z0-9_]+)"',
                        FFI_PATH)
 ewrap = existing_set(r"def self\.(\w+)", FFI_PATH)
-esp = existing_set(r"\bsp_[A-Za-z0-9_]+", ADAPTER_PATH)
+esp = existing_set(r"\brl_[A-Za-z0-9_]+", ADAPTER_PATH)
+# The primary raylib adapter is linked into every app, so GC structs and
+# shims it already provides must not be re-emitted here (duplicate native_struct
+# at the Ruby splice level, multiple definition at link time).
+PRIMARY_FFI = os.path.join(LIB, "raylib_ffi.rb")
+PRIMARY_ADAPTER = os.path.join(LIB, "raylib_adapter.c")
+enative |= existing_set(r'native_struct\s+"(\w+)"', PRIMARY_FFI)
+esp |= existing_set(r"\brl_[A-Za-z0-9_]+", PRIMARY_ADAPTER)
 
 
 def classify_param(t):
@@ -223,10 +230,10 @@ report = {"direct": 0, "shim": 0, "out": 0, "heap_in_shim": 0,
 def shim_expr(kind, aname, base=None):
     if kind == "gc":
         klass, emb = gc_of(base)
-        return "((sp_%s*)%s)->%s" % (klass, aname, emb)
+        return "((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "gcp":
         klass, emb = gc_of(base)
-        return "&((sp_%s*)%s)->%s" % (klass, aname, emb)
+        return "&((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "raw":
         return "*(%s *)%s" % (base, aname)
     if kind == "cb":
@@ -252,7 +259,7 @@ def emit_shim(fn):
     if fn.name in effi:
         report["dup_name"] += 1
         return
-    sp = "sp_" + fn.name
+    sp = "rl_" + fn.name
     if sp in esp:
         report["dup_sp"] += 1
         return
@@ -322,7 +329,7 @@ def emit_shim(fn):
         body_lines.append("  return %s;" % ret_expr)
     elif out_class is not None:
         klass, emb = gc_of(ret_base)
-        body_lines.append("  ((sp_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
+        body_lines.append("  ((rl_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
         c_ret = "void"
         ffi_ret = ":void"
     elif c_ret == "void *":
@@ -344,7 +351,7 @@ def emit_shim(fn):
         else:
             body_lines.append("  return %s;" % ret_expr)
 
-    gen_shim_c.append("/** %s(params: %s -> %s) */\n%s sp_%s(%s) {\n%s\n}\n" %
+    gen_shim_c.append("/** %s(params: %s -> %s) */\n%s rl_%s(%s) {\n%s\n}\n" %
                      (fn.name, sig, c_ret, c_ret, fn.name, sig,
                       "\n".join(body_lines)))
     gen_ffi.append("  ffi_func :%s, [%s], %s\n" % (sp, ", ".join(ffi_args), ffi_ret))
@@ -362,7 +369,7 @@ def wrapper_simple(fn, wrapper_args):
         return ""
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
-    return ("    def self.%s(%s)\n      Raylib.sp_%s(%s)\n    end\n"
+    return ("    def self.%s(%s)\n      Raylib.rl_%s(%s)\n    end\n"
             % (name, a, name, a))
 
 
@@ -380,7 +387,7 @@ def wrapper_out(fn, wrapper_args, out_class):
     else:
         init = "%s.new" % out_class
     return ("    def self.%s(%s)\n      _out = %s\n"
-            "      Raylib.sp_%s(%s)\n      _out\n    end\n"
+            "      Raylib.rl_%s(%s)\n      _out\n    end\n"
             % (name, a, init, name, fwd))
 
 
@@ -407,7 +414,7 @@ for j in api["functions"]:
 new_gc = []
 seen_klass = set()
 for base, (klass, emb) in list(GC_STRUCTS.items()) + list(GC_RETURN_ONLY.items()):
-    if klass in enative or base in enative:
+    if klass in enative or base in enative or ("rl_" + klass) in esp:
         continue
     if klass in seen_klass:
         continue
@@ -417,17 +424,17 @@ report["new_gc"] = new_gc
 
 for base, klass, emb in new_gc:
     fields = struct_fields.get(base, [])
-    gen_c.append("\n/* sp_%s — GC-embedded %s (see rcamera_ffi.rb) */" % (klass, base))
-    gen_c.append("typedef struct sp_%s_s {\n  sp_int cls_id;\n  %s %s;\n} sp_%s;\n"
+    gen_c.append("\n/* rl_%s — GC-embedded %s (see rcamera_ffi.rb) */" % (klass, base))
+    gen_c.append("typedef struct rl_%s_s {\n  sp_int cls_id;\n  %s %s;\n} rl_%s;\n"
                  % (klass, base, emb, klass))
-    gen_c.append("static void sp_%s_scan(void *p) { (void)p; }\n" % klass)
+    gen_c.append("static void rl_%s_scan(void *p) { (void)p; }\n" % klass)
     init = "  self->%s = (%s){ 0 };\n" % (emb, base)
-    gen_c.append("sp_%s *sp_%s_new(sp_int cls_id) {\n"
-                 "  sp_%s *self = (sp_%s *)sp_gc_alloc(sizeof(sp_%s), NULL, sp_%s_scan);\n"
+    gen_c.append("rl_%s *rl_%s_new(sp_int cls_id) {\n"
+                 "  rl_%s *self = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);\n"
                  "  self->cls_id = cls_id;\n%s  return self;\n}\n"
                  % (klass, klass, klass, klass, klass, klass, init))
-    gen_ffi.append(f'  native_struct "{klass}", "sp_{klass}"\n')
-    gen_ffi.append(f'  native_new [], "sp_{klass}_new"\n')
+    gen_ffi.append(f'  native_struct "{klass}", "rl_{klass}"\n')
+    gen_ffi.append(f'  native_new [], "rl_{klass}_new"\n')
 
     for f in fields:
         if is_ptr(f["type"]):
@@ -440,22 +447,22 @@ for base, klass, emb in new_gc:
         ftok, ctype = FIELD_TOK[ft]
         fname = f["name"]
         if ft == "bool":
-            gen_c.append(f"int sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"int rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return self->{emb}.{fname} ? 1 : 0;\n}}\n")
-            gen_c.append(f"int sp_{klass}_set_{fname}(sp_{klass} *self, int {fname}) {{\n"
+            gen_c.append(f"int rl_{klass}_set_{fname}(rl_{klass} *self, int {fname}) {{\n"
                          f"  self->{emb}.{fname} = {fname} != 0;\n  return {fname};\n}}\n")
         elif ctype == "double":
-            gen_c.append(f"double sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"double rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return (double)self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"double sp_{klass}_set_{fname}(sp_{klass} *self, double {fname}) {{\n"
+            gen_c.append(f"double rl_{klass}_set_{fname}(rl_{klass} *self, double {fname}) {{\n"
                          f"  self->{emb}.{fname} = (float){fname};\n  return {fname};\n}}\n")
         else:
-            gen_c.append(f"{ctype} sp_{klass}_{fname}(sp_{klass} *self) {{\n"
+            gen_c.append(f"{ctype} rl_{klass}_{fname}(rl_{klass} *self) {{\n"
                          f"  return self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"{ctype} sp_{klass}_set_{fname}(sp_{klass} *self, {ctype} {fname}) {{\n"
+            gen_c.append(f"{ctype} rl_{klass}_set_{fname}(rl_{klass} *self, {ctype} {fname}) {{\n"
                          f"  self->{emb}.{fname} = {fname};\n  return {fname};\n}}\n")
-        nmx = f"sp_{klass}_{fname}"
-        nms = f"sp_{klass}_set_{fname}"
+        nmx = f"rl_{klass}_{fname}"
+        nms = f"rl_{klass}_set_{fname}"
         if nmx not in emethod and nms not in emethod:
             gen_ffi.append(f'  native_method :{fname}, [], {ftok}, "{nmx}"\n')
             gen_ffi.append(f'  native_method :{fname}=, [:{ftok[1:]}], {ftok}, "{nms}"\n')
@@ -465,16 +472,23 @@ for base, klass, emb in new_gc:
 # ------------------------------------------------------------------ output --
 
 ffi_text = open(FFI_PATH).read()
-anchor = '  ffi_cflags "-Wl,-rpath,/usr/local/lib"\n'
-assert anchor in ffi_text
+if not ffi_text.endswith("\n"):
+    ffi_text += "\n"   # the wrappers-insert guard needs a final newline
+_m = re.search(r'^  ffi_cflags "[^"]*"\n', ffi_text, re.M)
+assert _m, "no ffi_cflags anchor line in the ffi file"
+anchor = _m.group(0)
 top = "".join(gen_ffi)
 if top:
     ffi_text = ffi_text.replace(
         anchor, anchor + "\n# ====== generated: complete rcamera API surface ======\n" + top, 1)
 
 consts = []
+econst = existing_set(r"(?m)^\s+([A-Z][A-Za-z0-9_]*) =", FFI_PATH)
 for e in api.get("enums", []):
     for v in e.get("values", []):
+        if v["name"] in econst:
+            continue
+        econst.add(v["name"])
         consts.append("    %s = %d\n" % (v["name"], v["value"]))
 for df in api.get("defines", []):
     val = df["value"]
@@ -483,16 +497,23 @@ for df in api.get("defines", []):
         float(val.strip())
     except ValueError:
         continue
+    if df["name"] in econst:
+        continue
+    econst.add(df["name"])
     consts.append("    %s = %s\n" % (df["name"], val.strip()))
 
 wrappers_out = "".join(g for g in gen_wrap if g)
 constants_out = "".join(consts)
 
-assert ffi_text.endswith("  end\nend\n"), ffi_text[-40:]
+# Insert before the file's LAST end (the outer module close); the old
+# fixed-suffix assumption broke once files stopped ending "  end\nend\n".
+_ends = list(re.finditer(r"(?m)^[ \t]*end[ \t]*$", ffi_text))
+assert _ends, "no closing end in ffi file"
 if wrappers_out or constants_out:
     guard_insert = ("\n    # ====== generated: wrappers + constants ======\n"
                     + wrappers_out + constants_out)
-    ffi_text = ffi_text[: -len("  end\nend\n")] + guard_insert + "  end\nend\n"
+    _pos = _ends[-1].start()
+    ffi_text = ffi_text[:_pos] + guard_insert + ffi_text[_pos:]
 open(FFI_PATH, "w").write(ffi_text)
 
 adapter_text = open(ADAPTER_PATH).read()
