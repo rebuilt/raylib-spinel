@@ -173,4 +173,21 @@ module Raylib
       m.m3 = values[12]; m.m7 = values[13]; m.m11 = values[14]; m.m15 = values[15]
     end
   end
+
+  # ---- snake_case aliases (MRI gem :snake_case naming) ----
+  # The *_ffi.rb files carry static alias blocks for Spinel; derive the same
+  # names at runtime here so gem-style snake_case code runs identically under
+  # CRuby. Conversion mirrors raylib_main.rb's entries loop.
+  class << self
+    Raylib.singleton_methods.each do |m|
+      s = m.to_s.gsub(/([A-Z]+)([A-Z0-9][a-z])/, '\1_\2')
+                .gsub(/([a-z\d])([A-Z0-9])/, '\1_\2')
+                .downcase
+      s = s.gsub('vector_3', 'vector3_') if s.include?('vector_3')
+      s = s.gsub('vector_2', 'vector2_') if s.include?('vector_2')
+      s = s.chop if s.end_with?('_')
+      next if s == m.to_s || Raylib.respond_to?(s)
+      alias_method s, m
+    end
+  end
 end

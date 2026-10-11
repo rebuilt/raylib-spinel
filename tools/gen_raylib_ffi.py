@@ -663,11 +663,67 @@ for df in api["defines"]:
 wrappers_out = "".join(g for g in gen_wrap if g)
 constants_out = "".join(consts)
 
+# ------------------------------------------------------- snake_case aliases --
+# MRI gem :snake_case naming — same conversion as raylib_main.rb's entries loop.
+def snake_case(name):
+    s = re.sub(r"([A-Z]+)([A-Z0-9][a-z])", r"\1_\2", name)
+    s = re.sub(r"([a-z\d])([A-Z0-9])", r"\1_\2", s)
+    s = s.lower()
+    if "vector_3" in s:
+        s = s.replace("vector_3", "vector3_")
+    if "vector_2" in s:
+        s = s.replace("vector_2", "vector2_")
+    if s.endswith("_"):
+        s = s[:-1]
+    return s
+
+ealias = existing_set(r"alias_method :(\w+),", FFI_PATH)
+taken = effi | ewrap | ealias
+aliases = []
+fwd = []
+for fn in api.get("functions", []):
+    name = fn["name"]
+    if name in ewrap:
+        target = name
+    elif "rl_" + name in effi:
+        target = "rl_" + name
+    elif name in effi:
+        target = name
+    elif "rl_" + name in ewrap:
+        target = "rl_" + name
+    else:
+        continue
+    sn = snake_case(name)
+    if sn == target or sn in taken:
+        continue
+    taken.add(sn)
+    ealias.add(sn)
+    if target in effi and target not in ewrap:
+        # Spinel codegen cannot call an aliased ffi_func declaration (the
+        # alias table only rewrites def-ed methods), so emit a forwarding
+        # wrapper instead of an alias for ffi_func targets.
+        a = ", ".join("p%d" % i for i in range(len(fn.get("params", []))))
+        fwd.append("  def self.%s(%s)\n    Raylib.%s(%s)\n  end\n" % (sn, a, target, a))
+    else:
+        aliases.append("    alias_method :%s, :%s\n" % (sn, target))
+report["aliases"] = len(aliases) + len(fwd)
+alias_block = ""
+if aliases or fwd:
+    alias_block = ("\n  # ====== generated: snake_case aliases (MRI gem naming) ======\n"
+                   + "".join(fwd)
+                   + ("  class << self\n" + "".join(aliases) + "  end\n" if aliases else ""))
+
 assert ffi_text.endswith("  end\nend\n"), ffi_text[-40:]
 if wrappers_out or constants_out:
     guard_insert = ("\n    # ====== generated: wrappers + constants ======\n"
                     + wrappers_out + constants_out)
     ffi_text = ffi_text[: -len("  end\nend\n")] + guard_insert + "  end\nend\n"
+# The alias block goes at module level (before the module's final end), NOT
+# inside the hand-written `unless $PROGRAM_NAME...` constants guard: Spinel's
+# static alias collection does not see class << self inside a conditional.
+if alias_block:
+    assert ffi_text.endswith("end\n")
+    ffi_text = ffi_text[: -len("end\n")] + alias_block + "end\n"
 open(FFI_PATH, "w").write(ffi_text)
 
 adapter_text = open(ADAPTER_PATH).read()
@@ -685,7 +741,7 @@ if gen_c_out or gen_shim_c_out:
 open(ADAPTER_PATH, "w").write(adapter_text)
 
 print("=== gen_raylib_ffi summary ===")
-for k in ("direct", "shim", "out", "heap_in_shim", "dup_name", "dup_sp"):
+for k in ("direct", "shim", "out", "heap_in_shim", "dup_name", "dup_sp", "aliases"):
     print("  %-14s %d" % (k, report[k]))
 print("  varargs skipped:", sorted(report["varargs"]))
 print("  not in installed libraylib (skipped):", len(report["not_in_installed"]))

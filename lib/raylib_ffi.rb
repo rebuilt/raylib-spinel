@@ -2622,4 +2622,1097 @@ module Raylib
     RAYLIB_VERSION_PATCH = 0
     PI = 3.141592653589793
   end
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  def self.init_window(p0, p1, p2)
+    Raylib.InitWindow(p0, p1, p2)
+  end
+  def self.close_window()
+    Raylib.CloseWindow()
+  end
+  def self.is_window_ready()
+    Raylib.IsWindowReady()
+  end
+  def self.is_window_fullscreen()
+    Raylib.IsWindowFullscreen()
+  end
+  def self.is_window_hidden()
+    Raylib.IsWindowHidden()
+  end
+  def self.is_window_minimized()
+    Raylib.IsWindowMinimized()
+  end
+  def self.is_window_maximized()
+    Raylib.IsWindowMaximized()
+  end
+  def self.is_window_focused()
+    Raylib.IsWindowFocused()
+  end
+  def self.is_window_resized()
+    Raylib.IsWindowResized()
+  end
+  def self.is_window_state(p0)
+    Raylib.IsWindowState(p0)
+  end
+  def self.set_window_state(p0)
+    Raylib.SetWindowState(p0)
+  end
+  def self.clear_window_state(p0)
+    Raylib.ClearWindowState(p0)
+  end
+  def self.toggle_fullscreen()
+    Raylib.ToggleFullscreen()
+  end
+  def self.toggle_borderless_windowed()
+    Raylib.ToggleBorderlessWindowed()
+  end
+  def self.maximize_window()
+    Raylib.MaximizeWindow()
+  end
+  def self.minimize_window()
+    Raylib.MinimizeWindow()
+  end
+  def self.restore_window()
+    Raylib.RestoreWindow()
+  end
+  def self.set_window_icons(p0, p1)
+    Raylib.SetWindowIcons(p0, p1)
+  end
+  def self.set_window_title(p0)
+    Raylib.SetWindowTitle(p0)
+  end
+  def self.set_window_position(p0, p1)
+    Raylib.SetWindowPosition(p0, p1)
+  end
+  def self.set_window_monitor(p0)
+    Raylib.SetWindowMonitor(p0)
+  end
+  def self.set_window_min_size(p0, p1)
+    Raylib.SetWindowMinSize(p0, p1)
+  end
+  def self.set_window_max_size(p0, p1)
+    Raylib.SetWindowMaxSize(p0, p1)
+  end
+  def self.set_window_size(p0, p1)
+    Raylib.SetWindowSize(p0, p1)
+  end
+  def self.set_window_opacity(p0)
+    Raylib.SetWindowOpacity(p0)
+  end
+  def self.set_window_focused()
+    Raylib.SetWindowFocused()
+  end
+  def self.get_window_handle()
+    Raylib.GetWindowHandle()
+  end
+  def self.get_screen_width()
+    Raylib.GetScreenWidth()
+  end
+  def self.get_screen_height()
+    Raylib.GetScreenHeight()
+  end
+  def self.get_render_width()
+    Raylib.GetRenderWidth()
+  end
+  def self.get_render_height()
+    Raylib.GetRenderHeight()
+  end
+  def self.get_monitor_count()
+    Raylib.GetMonitorCount()
+  end
+  def self.get_current_monitor()
+    Raylib.GetCurrentMonitor()
+  end
+  def self.get_monitor_width(p0)
+    Raylib.GetMonitorWidth(p0)
+  end
+  def self.get_monitor_height(p0)
+    Raylib.GetMonitorHeight(p0)
+  end
+  def self.get_monitor_physical_width(p0)
+    Raylib.GetMonitorPhysicalWidth(p0)
+  end
+  def self.get_monitor_physical_height(p0)
+    Raylib.GetMonitorPhysicalHeight(p0)
+  end
+  def self.get_monitor_refresh_rate(p0)
+    Raylib.GetMonitorRefreshRate(p0)
+  end
+  def self.get_monitor_name(p0)
+    Raylib.GetMonitorName(p0)
+  end
+  def self.set_clipboard_text(p0)
+    Raylib.SetClipboardText(p0)
+  end
+  def self.get_clipboard_text()
+    Raylib.GetClipboardText()
+  end
+  def self.enable_event_waiting()
+    Raylib.EnableEventWaiting()
+  end
+  def self.disable_event_waiting()
+    Raylib.DisableEventWaiting()
+  end
+  def self.show_cursor()
+    Raylib.ShowCursor()
+  end
+  def self.hide_cursor()
+    Raylib.HideCursor()
+  end
+  def self.is_cursor_hidden()
+    Raylib.IsCursorHidden()
+  end
+  def self.enable_cursor()
+    Raylib.EnableCursor()
+  end
+  def self.disable_cursor()
+    Raylib.DisableCursor()
+  end
+  def self.is_cursor_on_screen()
+    Raylib.IsCursorOnScreen()
+  end
+  def self.begin_drawing()
+    Raylib.BeginDrawing()
+  end
+  def self.end_drawing()
+    Raylib.EndDrawing()
+  end
+  def self.end_mode_2d()
+    Raylib.EndMode2D()
+  end
+  def self.end_mode_3d()
+    Raylib.rl_EndMode3D()
+  end
+  def self.end_texture_mode()
+    Raylib.EndTextureMode()
+  end
+  def self.end_shader_mode()
+    Raylib.EndShaderMode()
+  end
+  def self.begin_blend_mode(p0)
+    Raylib.BeginBlendMode(p0)
+  end
+  def self.end_blend_mode()
+    Raylib.EndBlendMode()
+  end
+  def self.begin_scissor_mode(p0, p1, p2, p3)
+    Raylib.BeginScissorMode(p0, p1, p2, p3)
+  end
+  def self.end_scissor_mode()
+    Raylib.EndScissorMode()
+  end
+  def self.end_vr_stereo_mode()
+    Raylib.EndVrStereoMode()
+  end
+  def self.set_target_fps(p0)
+    Raylib.SetTargetFPS(p0)
+  end
+  def self.get_frame_time()
+    Raylib.GetFrameTime()
+  end
+  def self.get_time()
+    Raylib.GetTime()
+  end
+  def self.get_fps()
+    Raylib.GetFPS()
+  end
+  def self.swap_screen_buffer()
+    Raylib.SwapScreenBuffer()
+  end
+  def self.poll_input_events()
+    Raylib.PollInputEvents()
+  end
+  def self.wait_time(p0)
+    Raylib.WaitTime(p0)
+  end
+  def self.set_random_seed(p0)
+    Raylib.SetRandomSeed(p0)
+  end
+  def self.get_random_value(p0, p1)
+    Raylib.GetRandomValue(p0, p1)
+  end
+  def self.load_random_sequence(p0, p1, p2)
+    Raylib.LoadRandomSequence(p0, p1, p2)
+  end
+  def self.unload_random_sequence(p0)
+    Raylib.UnloadRandomSequence(p0)
+  end
+  def self.take_screenshot(p0)
+    Raylib.TakeScreenshot(p0)
+  end
+  def self.set_config_flags(p0)
+    Raylib.SetConfigFlags(p0)
+  end
+  def self.open_url(p0)
+    Raylib.OpenURL(p0)
+  end
+  def self.set_trace_log_level(p0)
+    Raylib.SetTraceLogLevel(p0)
+  end
+  def self.mem_alloc(p0)
+    Raylib.MemAlloc(p0)
+  end
+  def self.mem_realloc(p0, p1)
+    Raylib.MemRealloc(p0, p1)
+  end
+  def self.mem_free(p0)
+    Raylib.MemFree(p0)
+  end
+  def self.load_file_data(p0, p1)
+    Raylib.LoadFileData(p0, p1)
+  end
+  def self.unload_file_data(p0)
+    Raylib.UnloadFileData(p0)
+  end
+  def self.save_file_data(p0, p1, p2)
+    Raylib.SaveFileData(p0, p1, p2)
+  end
+  def self.export_data_as_code(p0, p1, p2)
+    Raylib.ExportDataAsCode(p0, p1, p2)
+  end
+  def self.load_file_text(p0)
+    Raylib.LoadFileText(p0)
+  end
+  def self.unload_file_text(p0)
+    Raylib.UnloadFileText(p0)
+  end
+  def self.save_file_text(p0, p1)
+    Raylib.SaveFileText(p0, p1)
+  end
+  def self.file_rename(p0, p1)
+    Raylib.FileRename(p0, p1)
+  end
+  def self.file_remove(p0)
+    Raylib.FileRemove(p0)
+  end
+  def self.file_copy(p0, p1)
+    Raylib.FileCopy(p0, p1)
+  end
+  def self.file_move(p0, p1)
+    Raylib.FileMove(p0, p1)
+  end
+  def self.file_text_replace(p0, p1, p2)
+    Raylib.FileTextReplace(p0, p1, p2)
+  end
+  def self.file_text_find_index(p0, p1)
+    Raylib.FileTextFindIndex(p0, p1)
+  end
+  def self.file_exists(p0)
+    Raylib.FileExists(p0)
+  end
+  def self.directory_exists(p0)
+    Raylib.DirectoryExists(p0)
+  end
+  def self.is_file_extension(p0, p1)
+    Raylib.IsFileExtension(p0, p1)
+  end
+  def self.is_file_hidden(p0)
+    Raylib.IsFileHidden(p0)
+  end
+  def self.get_file_length(p0)
+    Raylib.GetFileLength(p0)
+  end
+  def self.get_file_mod_time(p0)
+    Raylib.GetFileModTime(p0)
+  end
+  def self.get_file_extension(p0)
+    Raylib.GetFileExtension(p0)
+  end
+  def self.get_file_name(p0)
+    Raylib.GetFileName(p0)
+  end
+  def self.get_file_name_without_ext(p0)
+    Raylib.GetFileNameWithoutExt(p0)
+  end
+  def self.get_directory_path(p0)
+    Raylib.GetDirectoryPath(p0)
+  end
+  def self.get_prev_directory_path(p0)
+    Raylib.GetPrevDirectoryPath(p0)
+  end
+  def self.get_working_directory()
+    Raylib.GetWorkingDirectory()
+  end
+  def self.get_application_directory()
+    Raylib.GetApplicationDirectory()
+  end
+  def self.make_directory(p0)
+    Raylib.MakeDirectory(p0)
+  end
+  def self.change_directory(p0)
+    Raylib.ChangeDirectory(p0)
+  end
+  def self.is_path_file(p0)
+    Raylib.IsPathFile(p0)
+  end
+  def self.is_path_directory(p0)
+    Raylib.IsPathDirectory(p0)
+  end
+  def self.is_path_absolute(p0)
+    Raylib.IsPathAbsolute(p0)
+  end
+  def self.is_file_name_valid(p0)
+    Raylib.IsFileNameValid(p0)
+  end
+  def self.is_file_dropped()
+    Raylib.IsFileDropped()
+  end
+  def self.get_directory_file_count(p0)
+    Raylib.GetDirectoryFileCount(p0)
+  end
+  def self.get_directory_file_count_ex(p0, p1, p2)
+    Raylib.GetDirectoryFileCountEx(p0, p1, p2)
+  end
+  def self.compress_data(p0, p1, p2)
+    Raylib.CompressData(p0, p1, p2)
+  end
+  def self.decompress_data(p0, p1, p2)
+    Raylib.DecompressData(p0, p1, p2)
+  end
+  def self.encode_data_base_64(p0, p1, p2)
+    Raylib.EncodeDataBase64(p0, p1, p2)
+  end
+  def self.decode_data_base_64(p0, p1)
+    Raylib.DecodeDataBase64(p0, p1)
+  end
+  def self.compute_crc3_2(p0, p1)
+    Raylib.ComputeCRC32(p0, p1)
+  end
+  def self.compute_md5(p0, p1)
+    Raylib.ComputeMD5(p0, p1)
+  end
+  def self.compute_sha1(p0, p1)
+    Raylib.ComputeSHA1(p0, p1)
+  end
+  def self.compute_sha2_56(p0, p1)
+    Raylib.ComputeSHA256(p0, p1)
+  end
+  def self.set_automation_event_base_frame(p0)
+    Raylib.SetAutomationEventBaseFrame(p0)
+  end
+  def self.start_automation_event_recording()
+    Raylib.StartAutomationEventRecording()
+  end
+  def self.stop_automation_event_recording()
+    Raylib.StopAutomationEventRecording()
+  end
+  def self.is_key_pressed_repeat(p0)
+    Raylib.IsKeyPressedRepeat(p0)
+  end
+  def self.is_key_released(p0)
+    Raylib.IsKeyReleased(p0)
+  end
+  def self.is_key_up(p0)
+    Raylib.IsKeyUp(p0)
+  end
+  def self.get_key_pressed()
+    Raylib.GetKeyPressed()
+  end
+  def self.get_char_pressed()
+    Raylib.GetCharPressed()
+  end
+  def self.get_key_name(p0)
+    Raylib.GetKeyName(p0)
+  end
+  def self.set_exit_key(p0)
+    Raylib.SetExitKey(p0)
+  end
+  def self.is_gamepad_available(p0)
+    Raylib.IsGamepadAvailable(p0)
+  end
+  def self.get_gamepad_name(p0)
+    Raylib.GetGamepadName(p0)
+  end
+  def self.is_gamepad_button_pressed(p0, p1)
+    Raylib.IsGamepadButtonPressed(p0, p1)
+  end
+  def self.is_gamepad_button_released(p0, p1)
+    Raylib.IsGamepadButtonReleased(p0, p1)
+  end
+  def self.is_gamepad_button_up(p0, p1)
+    Raylib.IsGamepadButtonUp(p0, p1)
+  end
+  def self.get_gamepad_button_pressed()
+    Raylib.GetGamepadButtonPressed()
+  end
+  def self.get_gamepad_axis_count(p0)
+    Raylib.GetGamepadAxisCount(p0)
+  end
+  def self.get_gamepad_axis_movement(p0, p1)
+    Raylib.GetGamepadAxisMovement(p0, p1)
+  end
+  def self.set_gamepad_mappings(p0)
+    Raylib.SetGamepadMappings(p0)
+  end
+  def self.set_gamepad_vibration(p0, p1, p2, p3)
+    Raylib.SetGamepadVibration(p0, p1, p2, p3)
+  end
+  def self.is_mouse_button_pressed(p0)
+    Raylib.IsMouseButtonPressed(p0)
+  end
+  def self.is_mouse_button_released(p0)
+    Raylib.IsMouseButtonReleased(p0)
+  end
+  def self.is_mouse_button_up(p0)
+    Raylib.IsMouseButtonUp(p0)
+  end
+  def self.get_mouse_x()
+    Raylib.GetMouseX()
+  end
+  def self.get_mouse_y()
+    Raylib.GetMouseY()
+  end
+  def self.set_mouse_position(p0, p1)
+    Raylib.SetMousePosition(p0, p1)
+  end
+  def self.set_mouse_offset(p0, p1)
+    Raylib.SetMouseOffset(p0, p1)
+  end
+  def self.set_mouse_scale(p0, p1)
+    Raylib.SetMouseScale(p0, p1)
+  end
+  def self.get_mouse_wheel_move()
+    Raylib.GetMouseWheelMove()
+  end
+  def self.set_mouse_cursor(p0)
+    Raylib.SetMouseCursor(p0)
+  end
+  def self.get_touch_x()
+    Raylib.GetTouchX()
+  end
+  def self.get_touch_y()
+    Raylib.GetTouchY()
+  end
+  def self.get_touch_point_id(p0)
+    Raylib.GetTouchPointId(p0)
+  end
+  def self.get_touch_point_count()
+    Raylib.GetTouchPointCount()
+  end
+  def self.set_gestures_enabled(p0)
+    Raylib.SetGesturesEnabled(p0)
+  end
+  def self.is_gesture_detected(p0)
+    Raylib.IsGestureDetected(p0)
+  end
+  def self.get_gesture_detected()
+    Raylib.GetGestureDetected()
+  end
+  def self.get_gesture_hold_duration()
+    Raylib.GetGestureHoldDuration()
+  end
+  def self.get_gesture_drag_angle()
+    Raylib.GetGestureDragAngle()
+  end
+  def self.get_gesture_pinch_angle()
+    Raylib.GetGesturePinchAngle()
+  end
+  def self.image_format(p0, p1)
+    Raylib.ImageFormat(p0, p1)
+  end
+  def self.image_alpha_crop(p0, p1)
+    Raylib.ImageAlphaCrop(p0, p1)
+  end
+  def self.image_alpha_premultiply(p0)
+    Raylib.ImageAlphaPremultiply(p0)
+  end
+  def self.image_blur_gaussian(p0, p1)
+    Raylib.ImageBlurGaussian(p0, p1)
+  end
+  def self.image_kernel_convolution(p0, p1, p2)
+    Raylib.ImageKernelConvolution(p0, p1, p2)
+  end
+  def self.image_resize(p0, p1, p2)
+    Raylib.ImageResize(p0, p1, p2)
+  end
+  def self.image_resize_nn(p0, p1, p2)
+    Raylib.ImageResizeNN(p0, p1, p2)
+  end
+  def self.image_mipmaps(p0)
+    Raylib.ImageMipmaps(p0)
+  end
+  def self.image_dither(p0, p1, p2, p3, p4)
+    Raylib.ImageDither(p0, p1, p2, p3, p4)
+  end
+  def self.image_flip_vertical(p0)
+    Raylib.ImageFlipVertical(p0)
+  end
+  def self.image_flip_horizontal(p0)
+    Raylib.ImageFlipHorizontal(p0)
+  end
+  def self.image_rotate(p0, p1)
+    Raylib.ImageRotate(p0, p1)
+  end
+  def self.image_rotate_cw(p0)
+    Raylib.ImageRotateCW(p0)
+  end
+  def self.image_rotate_ccw(p0)
+    Raylib.ImageRotateCCW(p0)
+  end
+  def self.image_color_invert(p0)
+    Raylib.ImageColorInvert(p0)
+  end
+  def self.image_color_grayscale(p0)
+    Raylib.ImageColorGrayscale(p0)
+  end
+  def self.image_color_contrast(p0, p1)
+    Raylib.ImageColorContrast(p0, p1)
+  end
+  def self.image_color_brightness(p0, p1)
+    Raylib.ImageColorBrightness(p0, p1)
+  end
+  def self.gen_texture_mipmaps(p0)
+    Raylib.GenTextureMipmaps(p0)
+  end
+  def self.get_pixel_data_size(p0, p1, p2)
+    Raylib.GetPixelDataSize(p0, p1, p2)
+  end
+  def self.load_font_data(p0, p1, p2, p3, p4, p5, p6)
+    Raylib.LoadFontData(p0, p1, p2, p3, p4, p5, p6)
+  end
+  def self.unload_font_data(p0, p1)
+    Raylib.UnloadFontData(p0, p1)
+  end
+  def self.draw_fps(p0, p1)
+    Raylib.DrawFPS(p0, p1)
+  end
+  def self.set_text_line_spacing(p0)
+    Raylib.SetTextLineSpacing(p0)
+  end
+  def self.measure_text(p0, p1)
+    Raylib.MeasureText(p0, p1)
+  end
+  def self.load_utf8(p0, p1)
+    Raylib.LoadUTF8(p0, p1)
+  end
+  def self.unload_utf8(p0)
+    Raylib.UnloadUTF8(p0)
+  end
+  def self.load_codepoints(p0, p1)
+    Raylib.LoadCodepoints(p0, p1)
+  end
+  def self.unload_codepoints(p0)
+    Raylib.UnloadCodepoints(p0)
+  end
+  def self.get_codepoint_count(p0)
+    Raylib.GetCodepointCount(p0)
+  end
+  def self.get_codepoint(p0, p1)
+    Raylib.GetCodepoint(p0, p1)
+  end
+  def self.get_codepoint_next(p0, p1)
+    Raylib.GetCodepointNext(p0, p1)
+  end
+  def self.get_codepoint_previous(p0, p1)
+    Raylib.GetCodepointPrevious(p0, p1)
+  end
+  def self.codepoint_to_utf8(p0, p1)
+    Raylib.CodepointToUTF8(p0, p1)
+  end
+  def self.load_text_lines(p0, p1)
+    Raylib.LoadTextLines(p0, p1)
+  end
+  def self.unload_text_lines(p0, p1)
+    Raylib.UnloadTextLines(p0, p1)
+  end
+  def self.text_copy(p0, p1)
+    Raylib.TextCopy(p0, p1)
+  end
+  def self.text_is_equal(p0, p1)
+    Raylib.TextIsEqual(p0, p1)
+  end
+  def self.text_length(p0)
+    Raylib.TextLength(p0)
+  end
+  def self.text_subtext(p0, p1, p2)
+    Raylib.TextSubtext(p0, p1, p2)
+  end
+  def self.text_remove_spaces(p0)
+    Raylib.TextRemoveSpaces(p0)
+  end
+  def self.get_text_between(p0, p1, p2)
+    Raylib.GetTextBetween(p0, p1, p2)
+  end
+  def self.text_replace(p0, p1, p2)
+    Raylib.TextReplace(p0, p1, p2)
+  end
+  def self.text_replace_alloc(p0, p1, p2)
+    Raylib.TextReplaceAlloc(p0, p1, p2)
+  end
+  def self.text_replace_between(p0, p1, p2, p3)
+    Raylib.TextReplaceBetween(p0, p1, p2, p3)
+  end
+  def self.text_replace_between_alloc(p0, p1, p2, p3)
+    Raylib.TextReplaceBetweenAlloc(p0, p1, p2, p3)
+  end
+  def self.text_insert(p0, p1, p2)
+    Raylib.TextInsert(p0, p1, p2)
+  end
+  def self.text_insert_alloc(p0, p1, p2)
+    Raylib.TextInsertAlloc(p0, p1, p2)
+  end
+  def self.text_join(p0, p1, p2)
+    Raylib.TextJoin(p0, p1, p2)
+  end
+  def self.text_split(p0, p1, p2)
+    Raylib.TextSplit(p0, p1, p2)
+  end
+  def self.text_append(p0, p1, p2)
+    Raylib.TextAppend(p0, p1, p2)
+  end
+  def self.text_find_index(p0, p1)
+    Raylib.TextFindIndex(p0, p1)
+  end
+  def self.text_to_upper(p0)
+    Raylib.TextToUpper(p0)
+  end
+  def self.text_to_lower(p0)
+    Raylib.TextToLower(p0)
+  end
+  def self.text_to_pascal(p0)
+    Raylib.TextToPascal(p0)
+  end
+  def self.text_to_snake(p0)
+    Raylib.TextToSnake(p0)
+  end
+  def self.text_to_camel(p0)
+    Raylib.TextToCamel(p0)
+  end
+  def self.text_to_integer(p0)
+    Raylib.TextToInteger(p0)
+  end
+  def self.text_to_float(p0)
+    Raylib.TextToFloat(p0)
+  end
+  def self.draw_grid(p0, p1)
+    Raylib.rl_DrawGrid(p0, p1)
+  end
+  def self.upload_mesh(p0, p1)
+    Raylib.UploadMesh(p0, p1)
+  end
+  def self.gen_mesh_tangents(p0)
+    Raylib.GenMeshTangents(p0)
+  end
+  def self.load_materials(p0, p1)
+    Raylib.LoadMaterials(p0, p1)
+  end
+  def self.set_model_mesh_material(p0, p1, p2)
+    Raylib.SetModelMeshMaterial(p0, p1, p2)
+  end
+  def self.load_model_animations(p0, p1)
+    Raylib.LoadModelAnimations(p0, p1)
+  end
+  def self.unload_model_animations(p0, p1)
+    Raylib.UnloadModelAnimations(p0, p1)
+  end
+  def self.init_audio_device()
+    Raylib.InitAudioDevice()
+  end
+  def self.close_audio_device()
+    Raylib.CloseAudioDevice()
+  end
+  def self.is_audio_device_ready()
+    Raylib.IsAudioDeviceReady()
+  end
+  def self.set_master_volume(p0)
+    Raylib.SetMasterVolume(p0)
+  end
+  def self.get_master_volume()
+    Raylib.GetMasterVolume()
+  end
+  def self.wave_crop(p0, p1, p2)
+    Raylib.WaveCrop(p0, p1, p2)
+  end
+  def self.wave_format(p0, p1, p2, p3)
+    Raylib.WaveFormat(p0, p1, p2, p3)
+  end
+  def self.unload_wave_samples(p0)
+    Raylib.UnloadWaveSamples(p0)
+  end
+  def self.set_audio_stream_buffer_size_default(p0)
+    Raylib.SetAudioStreamBufferSizeDefault(p0)
+  end
+  class << self
+    alias_method :window_should_close, :WindowShouldClose
+    alias_method :set_window_icon, :SetWindowIcon
+    alias_method :get_monitor_position, :GetMonitorPosition
+    alias_method :get_window_position, :GetWindowPosition
+    alias_method :get_window_scale_dpi, :GetWindowScaleDPI
+    alias_method :get_clipboard_image, :GetClipboardImage
+    alias_method :clear_background, :ClearBackground
+    alias_method :begin_mode_2d, :BeginMode2D
+    alias_method :begin_mode_3d, :BeginMode3D
+    alias_method :begin_texture_mode, :BeginTextureMode
+    alias_method :begin_shader_mode, :BeginShaderMode
+    alias_method :begin_vr_stereo_mode, :BeginVrStereoMode
+    alias_method :load_vr_stereo_config, :LoadVrStereoConfig
+    alias_method :unload_vr_stereo_config, :UnloadVrStereoConfig
+    alias_method :load_shader, :LoadShader
+    alias_method :load_shader_from_memory, :LoadShaderFromMemory
+    alias_method :is_shader_valid, :IsShaderValid
+    alias_method :get_shader_location, :GetShaderLocation
+    alias_method :get_shader_location_attrib, :GetShaderLocationAttrib
+    alias_method :set_shader_value, :SetShaderValue
+    alias_method :set_shader_value_v, :SetShaderValueV
+    alias_method :set_shader_value_matrix, :SetShaderValueMatrix
+    alias_method :set_shader_value_texture, :SetShaderValueTexture
+    alias_method :unload_shader, :UnloadShader
+    alias_method :get_screen_to_world_ray, :GetScreenToWorldRay
+    alias_method :get_screen_to_world_ray_ex, :GetScreenToWorldRayEx
+    alias_method :get_world_to_screen, :GetWorldToScreen
+    alias_method :get_world_to_screen_ex, :GetWorldToScreenEx
+    alias_method :get_world_to_screen_2d, :GetWorldToScreen2D
+    alias_method :get_screen_to_world_2d, :GetScreenToWorld2D
+    alias_method :get_camera_matrix, :GetCameraMatrix
+    alias_method :get_camera_matrix_2d, :GetCameraMatrix2D
+    alias_method :set_trace_log_callback, :SetTraceLogCallback
+    alias_method :set_load_file_data_callback, :SetLoadFileDataCallback
+    alias_method :set_save_file_data_callback, :SetSaveFileDataCallback
+    alias_method :set_load_file_text_callback, :SetLoadFileTextCallback
+    alias_method :set_save_file_text_callback, :SetSaveFileTextCallback
+    alias_method :load_directory_files, :LoadDirectoryFiles
+    alias_method :load_directory_files_ex, :LoadDirectoryFilesEx
+    alias_method :unload_directory_files, :UnloadDirectoryFiles
+    alias_method :load_dropped_files, :LoadDroppedFiles
+    alias_method :unload_dropped_files, :UnloadDroppedFiles
+    alias_method :load_automation_event_list, :LoadAutomationEventList
+    alias_method :unload_automation_event_list, :UnloadAutomationEventList
+    alias_method :export_automation_event_list, :ExportAutomationEventList
+    alias_method :set_automation_event_list, :SetAutomationEventList
+    alias_method :play_automation_event, :PlayAutomationEvent
+    alias_method :is_key_pressed, :IsKeyPressed
+    alias_method :is_key_down, :IsKeyDown
+    alias_method :is_gamepad_button_down, :IsGamepadButtonDown
+    alias_method :is_mouse_button_down, :IsMouseButtonDown
+    alias_method :get_mouse_position, :GetMousePosition
+    alias_method :get_mouse_delta, :GetMouseDelta
+    alias_method :get_mouse_wheel_move_v, :GetMouseWheelMoveV
+    alias_method :get_touch_position, :GetTouchPosition
+    alias_method :get_gesture_drag_vector, :GetGestureDragVector
+    alias_method :get_gesture_pinch_vector, :GetGesturePinchVector
+    alias_method :update_camera, :UpdateCamera
+    alias_method :update_camera_pro, :UpdateCameraPro
+    alias_method :set_shapes_texture, :SetShapesTexture
+    alias_method :get_shapes_texture, :GetShapesTexture
+    alias_method :get_shapes_texture_rectangle, :GetShapesTextureRectangle
+    alias_method :draw_pixel, :DrawPixel
+    alias_method :draw_pixel_v, :DrawPixelV
+    alias_method :draw_line, :DrawLine
+    alias_method :draw_line_v, :DrawLineV
+    alias_method :draw_line_ex, :DrawLineEx
+    alias_method :draw_line_strip, :DrawLineStrip
+    alias_method :draw_line_bezier, :DrawLineBezier
+    alias_method :draw_line_dashed, :DrawLineDashed
+    alias_method :draw_triangle, :DrawTriangle
+    alias_method :draw_triangle_gradient, :DrawTriangleGradient
+    alias_method :draw_triangle_lines, :DrawTriangleLines
+    alias_method :draw_triangle_lines_ex, :DrawTriangleLinesEx
+    alias_method :draw_triangle_fan, :DrawTriangleFan
+    alias_method :draw_triangle_strip, :DrawTriangleStrip
+    alias_method :draw_rectangle, :DrawRectangle
+    alias_method :draw_rectangle_v, :DrawRectangleV
+    alias_method :draw_rectangle_rec, :DrawRectangleRec
+    alias_method :draw_rectangle_pro, :DrawRectanglePro
+    alias_method :draw_rectangle_gradient_v, :DrawRectangleGradientV
+    alias_method :draw_rectangle_gradient_h, :DrawRectangleGradientH
+    alias_method :draw_rectangle_gradient_ex, :DrawRectangleGradientEx
+    alias_method :draw_rectangle_lines, :DrawRectangleLines
+    alias_method :draw_rectangle_lines_ex, :DrawRectangleLinesEx
+    alias_method :draw_rectangle_rounded, :DrawRectangleRounded
+    alias_method :draw_rectangle_rounded_lines, :DrawRectangleRoundedLines
+    alias_method :draw_rectangle_rounded_lines_ex, :DrawRectangleRoundedLinesEx
+    alias_method :draw_poly, :DrawPoly
+    alias_method :draw_poly_lines, :DrawPolyLines
+    alias_method :draw_poly_lines_ex, :DrawPolyLinesEx
+    alias_method :draw_circle, :DrawCircle
+    alias_method :draw_circle_v, :DrawCircleV
+    alias_method :draw_circle_gradient, :DrawCircleGradient
+    alias_method :draw_circle_sector, :DrawCircleSector
+    alias_method :draw_circle_sector_lines, :DrawCircleSectorLines
+    alias_method :draw_circle_sector_lines_ex, :DrawCircleSectorLinesEx
+    alias_method :draw_circle_lines, :DrawCircleLines
+    alias_method :draw_circle_lines_v, :DrawCircleLinesV
+    alias_method :draw_circle_lines_ex, :DrawCircleLinesEx
+    alias_method :draw_ellipse, :DrawEllipse
+    alias_method :draw_ellipse_v, :DrawEllipseV
+    alias_method :draw_ellipse_lines, :DrawEllipseLines
+    alias_method :draw_ellipse_lines_v, :DrawEllipseLinesV
+    alias_method :draw_ellipse_lines_ex, :DrawEllipseLinesEx
+    alias_method :draw_ring, :DrawRing
+    alias_method :draw_ring_lines, :DrawRingLines
+    alias_method :draw_ring_lines_ex, :DrawRingLinesEx
+    alias_method :draw_spline_linear, :DrawSplineLinear
+    alias_method :draw_spline_basis, :DrawSplineBasis
+    alias_method :draw_spline_catmull_rom, :DrawSplineCatmullRom
+    alias_method :draw_spline_bezier_quadratic, :DrawSplineBezierQuadratic
+    alias_method :draw_spline_bezier_cubic, :DrawSplineBezierCubic
+    alias_method :draw_spline_segment_linear, :DrawSplineSegmentLinear
+    alias_method :draw_spline_segment_basis, :DrawSplineSegmentBasis
+    alias_method :draw_spline_segment_catmull_rom, :DrawSplineSegmentCatmullRom
+    alias_method :draw_spline_segment_bezier_quadratic, :DrawSplineSegmentBezierQuadratic
+    alias_method :draw_spline_segment_bezier_cubic, :DrawSplineSegmentBezierCubic
+    alias_method :get_spline_point_linear, :GetSplinePointLinear
+    alias_method :get_spline_point_basis, :GetSplinePointBasis
+    alias_method :get_spline_point_catmull_rom, :GetSplinePointCatmullRom
+    alias_method :get_spline_point_bezier_quadratic, :GetSplinePointBezierQuadratic
+    alias_method :get_spline_point_bezier_cubic, :GetSplinePointBezierCubic
+    alias_method :check_collision_recs, :CheckCollisionRecs
+    alias_method :check_collision_circles, :CheckCollisionCircles
+    alias_method :check_collision_circle_rec, :CheckCollisionCircleRec
+    alias_method :check_collision_circle_line, :CheckCollisionCircleLine
+    alias_method :check_collision_point_rec, :CheckCollisionPointRec
+    alias_method :check_collision_point_circle, :CheckCollisionPointCircle
+    alias_method :check_collision_point_triangle, :CheckCollisionPointTriangle
+    alias_method :check_collision_point_line, :CheckCollisionPointLine
+    alias_method :check_collision_point_poly, :CheckCollisionPointPoly
+    alias_method :check_collision_lines, :CheckCollisionLines
+    alias_method :get_collision_rec, :GetCollisionRec
+    alias_method :load_image, :LoadImage
+    alias_method :load_image_raw, :LoadImageRaw
+    alias_method :load_image_anim, :LoadImageAnim
+    alias_method :load_image_anim_from_memory, :LoadImageAnimFromMemory
+    alias_method :load_image_from_memory, :LoadImageFromMemory
+    alias_method :load_image_from_texture, :LoadImageFromTexture
+    alias_method :load_image_from_screen, :LoadImageFromScreen
+    alias_method :is_image_valid, :IsImageValid
+    alias_method :unload_image, :UnloadImage
+    alias_method :export_image, :ExportImage
+    alias_method :export_image_to_memory, :ExportImageToMemory
+    alias_method :export_image_as_code, :ExportImageAsCode
+    alias_method :gen_image_color, :GenImageColor
+    alias_method :gen_image_gradient_linear, :GenImageGradientLinear
+    alias_method :gen_image_gradient_radial, :GenImageGradientRadial
+    alias_method :gen_image_gradient_square, :GenImageGradientSquare
+    alias_method :gen_image_checked, :GenImageChecked
+    alias_method :gen_image_white_noise, :GenImageWhiteNoise
+    alias_method :gen_image_perlin_noise, :GenImagePerlinNoise
+    alias_method :gen_image_cellular, :GenImageCellular
+    alias_method :gen_image_text, :GenImageText
+    alias_method :image_copy, :ImageCopy
+    alias_method :image_from_image, :ImageFromImage
+    alias_method :image_from_channel, :ImageFromChannel
+    alias_method :image_text, :ImageText
+    alias_method :image_text_ex, :ImageTextEx
+    alias_method :image_to_pot, :ImageToPOT
+    alias_method :image_crop, :ImageCrop
+    alias_method :image_alpha_clear, :ImageAlphaClear
+    alias_method :image_alpha_mask, :ImageAlphaMask
+    alias_method :image_resize_canvas, :ImageResizeCanvas
+    alias_method :image_color_tint, :ImageColorTint
+    alias_method :image_color_replace, :ImageColorReplace
+    alias_method :load_image_colors, :LoadImageColors
+    alias_method :load_image_palette, :LoadImagePalette
+    alias_method :unload_image_colors, :UnloadImageColors
+    alias_method :unload_image_palette, :UnloadImagePalette
+    alias_method :get_image_alpha_border, :GetImageAlphaBorder
+    alias_method :get_image_color, :GetImageColor
+    alias_method :image_clear_background, :ImageClearBackground
+    alias_method :image_draw_pixel, :ImageDrawPixel
+    alias_method :image_draw_pixel_v, :ImageDrawPixelV
+    alias_method :image_draw_line, :ImageDrawLine
+    alias_method :image_draw_line_v, :ImageDrawLineV
+    alias_method :image_draw_line_ex, :ImageDrawLineEx
+    alias_method :image_draw_line_strip, :ImageDrawLineStrip
+    alias_method :image_draw_triangle, :ImageDrawTriangle
+    alias_method :image_draw_triangle_gradient, :ImageDrawTriangleGradient
+    alias_method :image_draw_triangle_lines, :ImageDrawTriangleLines
+    alias_method :image_draw_triangle_fan, :ImageDrawTriangleFan
+    alias_method :image_draw_triangle_strip, :ImageDrawTriangleStrip
+    alias_method :image_draw_rectangle, :ImageDrawRectangle
+    alias_method :image_draw_rectangle_v, :ImageDrawRectangleV
+    alias_method :image_draw_rectangle_rec, :ImageDrawRectangleRec
+    alias_method :image_draw_rectangle_pro, :ImageDrawRectanglePro
+    alias_method :image_draw_rectangle_lines, :ImageDrawRectangleLines
+    alias_method :image_draw_rectangle_lines_ex, :ImageDrawRectangleLinesEx
+    alias_method :image_draw_rectangle_gradient_ex, :ImageDrawRectangleGradientEx
+    alias_method :image_draw_circle, :ImageDrawCircle
+    alias_method :image_draw_circle_v, :ImageDrawCircleV
+    alias_method :image_draw_circle_lines, :ImageDrawCircleLines
+    alias_method :image_draw_circle_lines_v, :ImageDrawCircleLinesV
+    alias_method :image_draw_circle_gradient, :ImageDrawCircleGradient
+    alias_method :image_draw_image, :ImageDrawImage
+    alias_method :image_draw_image_ex, :ImageDrawImageEx
+    alias_method :image_draw_image_rec, :ImageDrawImageRec
+    alias_method :image_draw_image_pro, :ImageDrawImagePro
+    alias_method :image_draw_text, :ImageDrawText
+    alias_method :image_draw_text_ex, :ImageDrawTextEx
+    alias_method :image_draw_text_pro, :ImageDrawTextPro
+    alias_method :load_texture, :LoadTexture
+    alias_method :load_texture_from_image, :LoadTextureFromImage
+    alias_method :load_texture_cubemap, :LoadTextureCubemap
+    alias_method :load_render_texture, :LoadRenderTexture
+    alias_method :load_render_texture_ex, :LoadRenderTextureEx
+    alias_method :is_texture_valid, :IsTextureValid
+    alias_method :unload_texture, :UnloadTexture
+    alias_method :is_render_texture_valid, :IsRenderTextureValid
+    alias_method :unload_render_texture, :UnloadRenderTexture
+    alias_method :update_texture, :UpdateTexture
+    alias_method :update_texture_rec, :UpdateTextureRec
+    alias_method :set_texture_filter, :SetTextureFilter
+    alias_method :set_texture_wrap, :SetTextureWrap
+    alias_method :draw_texture, :DrawTexture
+    alias_method :draw_texture_v, :DrawTextureV
+    alias_method :draw_texture_ex, :DrawTextureEx
+    alias_method :draw_texture_rec, :DrawTextureRec
+    alias_method :draw_texture_pro, :DrawTexturePro
+    alias_method :draw_texture_n_patch, :DrawTextureNPatch
+    alias_method :color_is_equal, :ColorIsEqual
+    alias_method :fade, :Fade
+    alias_method :color_to_int, :ColorToInt
+    alias_method :color_normalize, :ColorNormalize
+    alias_method :color_from_normalized, :ColorFromNormalized
+    alias_method :color_to_hsv, :ColorToHSV
+    alias_method :color_from_hsv, :ColorFromHSV
+    alias_method :color_tint, :ColorTint
+    alias_method :color_brightness, :ColorBrightness
+    alias_method :color_contrast, :ColorContrast
+    alias_method :color_alpha, :ColorAlpha
+    alias_method :color_alpha_blend, :ColorAlphaBlend
+    alias_method :color_lerp, :ColorLerp
+    alias_method :get_color, :GetColor
+    alias_method :get_pixel_color, :GetPixelColor
+    alias_method :set_pixel_color, :SetPixelColor
+    alias_method :get_font_default, :GetFontDefault
+    alias_method :load_font, :LoadFont
+    alias_method :load_font_ex, :LoadFontEx
+    alias_method :load_font_from_image, :LoadFontFromImage
+    alias_method :load_font_from_memory, :LoadFontFromMemory
+    alias_method :is_font_valid, :IsFontValid
+    alias_method :gen_image_font_atlas, :GenImageFontAtlas
+    alias_method :unload_font, :UnloadFont
+    alias_method :export_font_as_code, :ExportFontAsCode
+    alias_method :draw_text, :DrawText
+    alias_method :draw_text_ex, :DrawTextEx
+    alias_method :draw_text_pro, :DrawTextPro
+    alias_method :draw_text_codepoint, :DrawTextCodepoint
+    alias_method :draw_text_codepoints, :DrawTextCodepoints
+    alias_method :measure_text_ex, :MeasureTextEx
+    alias_method :measure_text_codepoints, :MeasureTextCodepoints
+    alias_method :get_glyph_index, :GetGlyphIndex
+    alias_method :get_glyph_info, :GetGlyphInfo
+    alias_method :get_glyph_atlas_rec, :GetGlyphAtlasRec
+    alias_method :draw_line_3d, :DrawLine3D
+    alias_method :draw_point_3d, :DrawPoint3D
+    alias_method :draw_circle_3d, :DrawCircle3D
+    alias_method :draw_triangle_3d, :DrawTriangle3D
+    alias_method :draw_triangle_strip_3d, :DrawTriangleStrip3D
+    alias_method :draw_cube, :DrawCube
+    alias_method :draw_cube_v, :DrawCubeV
+    alias_method :draw_cube_wires, :DrawCubeWires
+    alias_method :draw_cube_wires_v, :DrawCubeWiresV
+    alias_method :draw_sphere, :DrawSphere
+    alias_method :draw_sphere_ex, :DrawSphereEx
+    alias_method :draw_sphere_wires, :DrawSphereWires
+    alias_method :draw_cylinder, :DrawCylinder
+    alias_method :draw_cylinder_ex, :DrawCylinderEx
+    alias_method :draw_cylinder_wires, :DrawCylinderWires
+    alias_method :draw_cylinder_wires_ex, :DrawCylinderWiresEx
+    alias_method :draw_capsule, :DrawCapsule
+    alias_method :draw_capsule_wires, :DrawCapsuleWires
+    alias_method :draw_plane, :DrawPlane
+    alias_method :draw_ray, :DrawRay
+    alias_method :load_model, :LoadModel
+    alias_method :load_model_from_mesh, :LoadModelFromMesh
+    alias_method :is_model_valid, :IsModelValid
+    alias_method :unload_model, :UnloadModel
+    alias_method :get_model_bounding_box, :GetModelBoundingBox
+    alias_method :draw_model, :DrawModel
+    alias_method :draw_model_ex, :DrawModelEx
+    alias_method :draw_model_wires, :DrawModelWires
+    alias_method :draw_model_wires_ex, :DrawModelWiresEx
+    alias_method :draw_bounding_box, :DrawBoundingBox
+    alias_method :draw_billboard, :DrawBillboard
+    alias_method :draw_billboard_rec, :DrawBillboardRec
+    alias_method :draw_billboard_pro, :DrawBillboardPro
+    alias_method :update_mesh_buffer, :UpdateMeshBuffer
+    alias_method :unload_mesh, :UnloadMesh
+    alias_method :draw_mesh, :DrawMesh
+    alias_method :draw_mesh_instanced, :DrawMeshInstanced
+    alias_method :get_mesh_bounding_box, :GetMeshBoundingBox
+    alias_method :export_mesh, :ExportMesh
+    alias_method :export_mesh_as_code, :ExportMeshAsCode
+    alias_method :gen_mesh_poly, :GenMeshPoly
+    alias_method :gen_mesh_plane, :GenMeshPlane
+    alias_method :gen_mesh_cube, :GenMeshCube
+    alias_method :gen_mesh_sphere, :GenMeshSphere
+    alias_method :gen_mesh_hemi_sphere, :GenMeshHemiSphere
+    alias_method :gen_mesh_cylinder, :GenMeshCylinder
+    alias_method :gen_mesh_cone, :GenMeshCone
+    alias_method :gen_mesh_torus, :GenMeshTorus
+    alias_method :gen_mesh_knot, :GenMeshKnot
+    alias_method :gen_mesh_heightmap, :GenMeshHeightmap
+    alias_method :gen_mesh_cubicmap, :GenMeshCubicmap
+    alias_method :load_material_default, :LoadMaterialDefault
+    alias_method :is_material_valid, :IsMaterialValid
+    alias_method :unload_material, :UnloadMaterial
+    alias_method :set_material_texture, :SetMaterialTexture
+    alias_method :update_model_animation, :UpdateModelAnimation
+    alias_method :update_model_animation_ex, :UpdateModelAnimationEx
+    alias_method :is_model_animation_valid, :IsModelAnimationValid
+    alias_method :check_collision_spheres, :CheckCollisionSpheres
+    alias_method :check_collision_boxes, :CheckCollisionBoxes
+    alias_method :check_collision_box_sphere, :CheckCollisionBoxSphere
+    alias_method :get_ray_collision_sphere, :GetRayCollisionSphere
+    alias_method :get_ray_collision_box, :GetRayCollisionBox
+    alias_method :get_ray_collision_mesh, :GetRayCollisionMesh
+    alias_method :get_ray_collision_triangle, :GetRayCollisionTriangle
+    alias_method :get_ray_collision_quad, :GetRayCollisionQuad
+    alias_method :load_wave, :LoadWave
+    alias_method :load_wave_from_memory, :LoadWaveFromMemory
+    alias_method :is_wave_valid, :IsWaveValid
+    alias_method :load_sound, :LoadSound
+    alias_method :load_sound_from_wave, :LoadSoundFromWave
+    alias_method :load_sound_alias, :LoadSoundAlias
+    alias_method :is_sound_valid, :IsSoundValid
+    alias_method :update_sound, :UpdateSound
+    alias_method :unload_wave, :UnloadWave
+    alias_method :unload_sound, :UnloadSound
+    alias_method :unload_sound_alias, :UnloadSoundAlias
+    alias_method :export_wave, :ExportWave
+    alias_method :export_wave_as_code, :ExportWaveAsCode
+    alias_method :play_sound, :PlaySound
+    alias_method :stop_sound, :StopSound
+    alias_method :pause_sound, :PauseSound
+    alias_method :resume_sound, :ResumeSound
+    alias_method :is_sound_playing, :IsSoundPlaying
+    alias_method :set_sound_volume, :SetSoundVolume
+    alias_method :set_sound_pitch, :SetSoundPitch
+    alias_method :set_sound_pan, :SetSoundPan
+    alias_method :wave_copy, :WaveCopy
+    alias_method :load_wave_samples, :LoadWaveSamples
+    alias_method :load_music_stream, :LoadMusicStream
+    alias_method :load_music_stream_from_memory, :LoadMusicStreamFromMemory
+    alias_method :is_music_valid, :IsMusicValid
+    alias_method :unload_music_stream, :UnloadMusicStream
+    alias_method :play_music_stream, :PlayMusicStream
+    alias_method :is_music_stream_playing, :IsMusicStreamPlaying
+    alias_method :update_music_stream, :UpdateMusicStream
+    alias_method :stop_music_stream, :StopMusicStream
+    alias_method :pause_music_stream, :PauseMusicStream
+    alias_method :resume_music_stream, :ResumeMusicStream
+    alias_method :seek_music_stream, :SeekMusicStream
+    alias_method :set_music_volume, :SetMusicVolume
+    alias_method :set_music_pitch, :SetMusicPitch
+    alias_method :set_music_pan, :SetMusicPan
+    alias_method :get_music_time_length, :GetMusicTimeLength
+    alias_method :get_music_time_played, :GetMusicTimePlayed
+    alias_method :load_audio_stream, :LoadAudioStream
+    alias_method :is_audio_stream_valid, :IsAudioStreamValid
+    alias_method :unload_audio_stream, :UnloadAudioStream
+    alias_method :update_audio_stream, :UpdateAudioStream
+    alias_method :is_audio_stream_processed, :IsAudioStreamProcessed
+    alias_method :play_audio_stream, :PlayAudioStream
+    alias_method :pause_audio_stream, :PauseAudioStream
+    alias_method :resume_audio_stream, :ResumeAudioStream
+    alias_method :is_audio_stream_playing, :IsAudioStreamPlaying
+    alias_method :stop_audio_stream, :StopAudioStream
+    alias_method :set_audio_stream_volume, :SetAudioStreamVolume
+    alias_method :set_audio_stream_pitch, :SetAudioStreamPitch
+    alias_method :set_audio_stream_pan, :SetAudioStreamPan
+    alias_method :set_audio_stream_callback, :SetAudioStreamCallback
+    alias_method :attach_audio_stream_processor, :AttachAudioStreamProcessor
+    alias_method :detach_audio_stream_processor, :DetachAudioStreamProcessor
+    alias_method :attach_audio_mixed_processor, :AttachAudioMixedProcessor
+    alias_method :detach_audio_mixed_processor, :DetachAudioMixedProcessor
+  end
 end

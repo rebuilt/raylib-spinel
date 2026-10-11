@@ -208,4 +208,53 @@ module Raylib
   TEXT_LINE_SPACING = 20
   TEXT_ALIGNMENT_VERTICAL = 21
   TEXT_WRAP_MODE = 22
+
+  # ====== generated: snake_case aliases (MRI gem naming, tools/gen_raygui_aliases.py) ======
+  def self.gui_toggle_group(p0, p1, p2)
+    Raylib.rl_GuiToggleGroup(p0, p1, p2)
+  end
+  def self.gui_toggle_slider(p0, p1, p2)
+    Raylib.rl_GuiToggleSlider(p0, p1, p2)
+  end
+  def self.gui_dummy_rec(p0, p1)
+    Raylib.rl_GuiDummyRec(p0, p1)
+  end
+  def self.gui_color_bar_alpha(p0, p1, p2)
+    Raylib.rl_GuiColorBarAlpha(p0, p1, p2)
+  end
+  class << self
+    alias_method :gui_enable, :GuiEnable
+    alias_method :gui_disable, :GuiDisable
+    alias_method :gui_lock, :GuiLock
+    alias_method :gui_unlock, :GuiUnlock
+    alias_method :gui_set_alpha, :GuiSetAlpha
+    alias_method :gui_set_state, :GuiSetState
+    alias_method :gui_set_font, :GuiSetFont
+    alias_method :gui_set_style, :GuiSetStyle
+    alias_method :gui_get_style, :GuiGetStyle
+    alias_method :gui_load_style, :GuiLoadStyle
+    alias_method :gui_load_style_default, :GuiLoadStyleDefault
+    alias_method :gui_icon_text, :GuiIconText
+    alias_method :gui_window_box, :GuiWindowBox
+    alias_method :gui_group_box, :GuiGroupBox
+    alias_method :gui_line, :GuiLine
+    alias_method :gui_panel, :GuiPanel
+    alias_method :gui_scroll_panel, :GuiScrollPanel
+    alias_method :gui_label, :GuiLabel
+    alias_method :gui_button, :GuiButton
+    alias_method :gui_label_button, :GuiLabelButton
+    alias_method :gui_check_box, :GuiCheckBox
+    alias_method :gui_combo_box, :GuiComboBox
+    alias_method :gui_dropdown_box, :GuiDropdownBox
+    alias_method :gui_spinner, :GuiSpinner
+    alias_method :gui_value_box, :GuiValueBox
+    alias_method :gui_slider, :GuiSlider
+    alias_method :gui_slider_bar, :GuiSliderBar
+    alias_method :gui_progress_bar, :GuiProgressBar
+    alias_method :gui_status_bar, :GuiStatusBar
+    alias_method :gui_grid, :GuiGrid
+    alias_method :gui_list_view, :GuiListView
+    alias_method :gui_message_box, :GuiMessageBox
+    alias_method :gui_color_picker, :GuiColorPicker
+  end
 end

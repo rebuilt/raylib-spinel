@@ -519,4 +519,477 @@ module Rlgl
     RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES = 7
     RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS = 8
     RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM = 9
+
+    # ====== generated: wrappers + constants ======
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  def self.rl_matrix_mode(p0)
+    Rlgl.rlMatrixMode(p0)
+  end
+  def self.rl_push_matrix()
+    Rlgl.rlPushMatrix()
+  end
+  def self.rl_pop_matrix()
+    Rlgl.rlPopMatrix()
+  end
+  def self.rl_load_identity()
+    Rlgl.rlLoadIdentity()
+  end
+  def self.rl_translatef(p0, p1, p2)
+    Rlgl.rlTranslatef(p0, p1, p2)
+  end
+  def self.rl_rotatef(p0, p1, p2, p3)
+    Rlgl.rlRotatef(p0, p1, p2, p3)
+  end
+  def self.rl_scalef(p0, p1, p2)
+    Rlgl.rlScalef(p0, p1, p2)
+  end
+  def self.rl_mult_matrixf(p0)
+    Rlgl.rlMultMatrixf(p0)
+  end
+  def self.rl_frustum(p0, p1, p2, p3, p4, p5)
+    Rlgl.rlFrustum(p0, p1, p2, p3, p4, p5)
+  end
+  def self.rl_ortho(p0, p1, p2, p3, p4, p5)
+    Rlgl.rlOrtho(p0, p1, p2, p3, p4, p5)
+  end
+  def self.rl_viewport(p0, p1, p2, p3)
+    Rlgl.rlViewport(p0, p1, p2, p3)
+  end
+  def self.rl_set_clip_planes(p0, p1)
+    Rlgl.rlSetClipPlanes(p0, p1)
+  end
+  def self.rl_get_cull_distance_near()
+    Rlgl.rlGetCullDistanceNear()
+  end
+  def self.rl_get_cull_distance_far()
+    Rlgl.rlGetCullDistanceFar()
+  end
+  def self.rl_begin(p0)
+    Rlgl.rlBegin(p0)
+  end
+  def self.rl_end()
+    Rlgl.rlEnd()
+  end
+  def self.rl_vertex_2i(p0, p1)
+    Rlgl.rlVertex2i(p0, p1)
+  end
+  def self.rl_vertex_2f(p0, p1)
+    Rlgl.rlVertex2f(p0, p1)
+  end
+  def self.rl_vertex_3f(p0, p1, p2)
+    Rlgl.rlVertex3f(p0, p1, p2)
+  end
+  def self.rl_tex_coord_2f(p0, p1)
+    Rlgl.rlTexCoord2f(p0, p1)
+  end
+  def self.rl_normal_3f(p0, p1, p2)
+    Rlgl.rlNormal3f(p0, p1, p2)
+  end
+  def self.rl_color_4ub(p0, p1, p2, p3)
+    Rlgl.rlColor4ub(p0, p1, p2, p3)
+  end
+  def self.rl_color_3f(p0, p1, p2)
+    Rlgl.rlColor3f(p0, p1, p2)
+  end
+  def self.rl_color_4f(p0, p1, p2, p3)
+    Rlgl.rlColor4f(p0, p1, p2, p3)
+  end
+  def self.rl_enable_vertex_array(p0)
+    Rlgl.rlEnableVertexArray(p0)
+  end
+  def self.rl_disable_vertex_array()
+    Rlgl.rlDisableVertexArray()
+  end
+  def self.rl_enable_vertex_buffer(p0)
+    Rlgl.rlEnableVertexBuffer(p0)
+  end
+  def self.rl_disable_vertex_buffer()
+    Rlgl.rlDisableVertexBuffer()
+  end
+  def self.rl_enable_vertex_buffer_element(p0)
+    Rlgl.rlEnableVertexBufferElement(p0)
+  end
+  def self.rl_disable_vertex_buffer_element()
+    Rlgl.rlDisableVertexBufferElement()
+  end
+  def self.rl_enable_vertex_attribute(p0)
+    Rlgl.rlEnableVertexAttribute(p0)
+  end
+  def self.rl_disable_vertex_attribute(p0)
+    Rlgl.rlDisableVertexAttribute(p0)
+  end
+  def self.rl_enable_state_pointer(p0, p1)
+    Rlgl.rlEnableStatePointer(p0, p1)
+  end
+  def self.rl_disable_state_pointer(p0)
+    Rlgl.rlDisableStatePointer(p0)
+  end
+  def self.rl_active_texture_slot(p0)
+    Rlgl.rlActiveTextureSlot(p0)
+  end
+  def self.rl_enable_texture(p0)
+    Rlgl.rlEnableTexture(p0)
+  end
+  def self.rl_disable_texture()
+    Rlgl.rlDisableTexture()
+  end
+  def self.rl_enable_texture_cubemap(p0)
+    Rlgl.rlEnableTextureCubemap(p0)
+  end
+  def self.rl_disable_texture_cubemap()
+    Rlgl.rlDisableTextureCubemap()
+  end
+  def self.rl_texture_parameters(p0, p1, p2)
+    Rlgl.rlTextureParameters(p0, p1, p2)
+  end
+  def self.rl_cubemap_parameters(p0, p1, p2)
+    Rlgl.rlCubemapParameters(p0, p1, p2)
+  end
+  def self.rl_enable_shader(p0)
+    Rlgl.rlEnableShader(p0)
+  end
+  def self.rl_disable_shader()
+    Rlgl.rlDisableShader()
+  end
+  def self.rl_enable_framebuffer(p0)
+    Rlgl.rlEnableFramebuffer(p0)
+  end
+  def self.rl_disable_framebuffer()
+    Rlgl.rlDisableFramebuffer()
+  end
+  def self.rl_get_active_framebuffer()
+    Rlgl.rlGetActiveFramebuffer()
+  end
+  def self.rl_active_draw_buffers(p0)
+    Rlgl.rlActiveDrawBuffers(p0)
+  end
+  def self.rl_blit_framebuffer(p0, p1, p2, p3, p4, p5, p6, p7, p8)
+    Rlgl.rlBlitFramebuffer(p0, p1, p2, p3, p4, p5, p6, p7, p8)
+  end
+  def self.rl_bind_framebuffer(p0, p1)
+    Rlgl.rlBindFramebuffer(p0, p1)
+  end
+  def self.rl_enable_color_blend()
+    Rlgl.rlEnableColorBlend()
+  end
+  def self.rl_disable_color_blend()
+    Rlgl.rlDisableColorBlend()
+  end
+  def self.rl_enable_depth_test()
+    Rlgl.rlEnableDepthTest()
+  end
+  def self.rl_disable_depth_test()
+    Rlgl.rlDisableDepthTest()
+  end
+  def self.rl_enable_depth_mask()
+    Rlgl.rlEnableDepthMask()
+  end
+  def self.rl_disable_depth_mask()
+    Rlgl.rlDisableDepthMask()
+  end
+  def self.rl_enable_backface_culling()
+    Rlgl.rlEnableBackfaceCulling()
+  end
+  def self.rl_disable_backface_culling()
+    Rlgl.rlDisableBackfaceCulling()
+  end
+  def self.rl_color_mask(p0, p1, p2, p3)
+    Rlgl.rlColorMask(p0, p1, p2, p3)
+  end
+  def self.rl_set_cull_face(p0)
+    Rlgl.rlSetCullFace(p0)
+  end
+  def self.rl_enable_scissor_test()
+    Rlgl.rlEnableScissorTest()
+  end
+  def self.rl_disable_scissor_test()
+    Rlgl.rlDisableScissorTest()
+  end
+  def self.rl_scissor(p0, p1, p2, p3)
+    Rlgl.rlScissor(p0, p1, p2, p3)
+  end
+  def self.rl_enable_point_mode()
+    Rlgl.rlEnablePointMode()
+  end
+  def self.rl_disable_point_mode()
+    Rlgl.rlDisablePointMode()
+  end
+  def self.rl_set_point_size(p0)
+    Rlgl.rlSetPointSize(p0)
+  end
+  def self.rl_get_point_size()
+    Rlgl.rlGetPointSize()
+  end
+  def self.rl_enable_wire_mode()
+    Rlgl.rlEnableWireMode()
+  end
+  def self.rl_disable_wire_mode()
+    Rlgl.rlDisableWireMode()
+  end
+  def self.rl_set_line_width(p0)
+    Rlgl.rlSetLineWidth(p0)
+  end
+  def self.rl_get_line_width()
+    Rlgl.rlGetLineWidth()
+  end
+  def self.rl_enable_smooth_lines()
+    Rlgl.rlEnableSmoothLines()
+  end
+  def self.rl_disable_smooth_lines()
+    Rlgl.rlDisableSmoothLines()
+  end
+  def self.rl_enable_stereo_render()
+    Rlgl.rlEnableStereoRender()
+  end
+  def self.rl_disable_stereo_render()
+    Rlgl.rlDisableStereoRender()
+  end
+  def self.rl_is_stereo_render_enabled()
+    Rlgl.rlIsStereoRenderEnabled()
+  end
+  def self.rl_clear_color(p0, p1, p2, p3)
+    Rlgl.rlClearColor(p0, p1, p2, p3)
+  end
+  def self.rl_clear_screen_buffers()
+    Rlgl.rlClearScreenBuffers()
+  end
+  def self.rl_check_errors()
+    Rlgl.rlCheckErrors()
+  end
+  def self.rl_set_blend_mode(p0)
+    Rlgl.rlSetBlendMode(p0)
+  end
+  def self.rl_set_blend_factors(p0, p1, p2)
+    Rlgl.rlSetBlendFactors(p0, p1, p2)
+  end
+  def self.rl_set_blend_factors_separate(p0, p1, p2, p3, p4, p5)
+    Rlgl.rlSetBlendFactorsSeparate(p0, p1, p2, p3, p4, p5)
+  end
+  def self.rlgl_init(p0, p1)
+    Rlgl.rlglInit(p0, p1)
+  end
+  def self.rlgl_close()
+    Rlgl.rlglClose()
+  end
+  def self.rl_load_extensions(p0)
+    Rlgl.rlLoadExtensions(p0)
+  end
+  def self.rl_get_proc_address(p0)
+    Rlgl.rlGetProcAddress(p0)
+  end
+  def self.rl_get_version()
+    Rlgl.rlGetVersion()
+  end
+  def self.rl_set_framebuffer_width(p0)
+    Rlgl.rlSetFramebufferWidth(p0)
+  end
+  def self.rl_get_framebuffer_width()
+    Rlgl.rlGetFramebufferWidth()
+  end
+  def self.rl_set_framebuffer_height(p0)
+    Rlgl.rlSetFramebufferHeight(p0)
+  end
+  def self.rl_get_framebuffer_height()
+    Rlgl.rlGetFramebufferHeight()
+  end
+  def self.rl_get_texture_id_default()
+    Rlgl.rlGetTextureIdDefault()
+  end
+  def self.rl_get_shader_id_default()
+    Rlgl.rlGetShaderIdDefault()
+  end
+  def self.rl_get_shader_locs_default()
+    Rlgl.rlGetShaderLocsDefault()
+  end
+  def self.rl_load_render_batch(p0, p1)
+    Rlgl.rlLoadRenderBatch(p0, p1)
+  end
+  def self.rl_draw_render_batch(p0)
+    Rlgl.rlDrawRenderBatch(p0)
+  end
+  def self.rl_set_render_batch_active(p0)
+    Rlgl.rlSetRenderBatchActive(p0)
+  end
+  def self.rl_draw_render_batch_active()
+    Rlgl.rlDrawRenderBatchActive()
+  end
+  def self.rl_check_render_batch_limit(p0)
+    Rlgl.rlCheckRenderBatchLimit(p0)
+  end
+  def self.rl_set_texture(p0)
+    Rlgl.rlSetTexture(p0)
+  end
+  def self.rl_load_vertex_array()
+    Rlgl.rlLoadVertexArray()
+  end
+  def self.rl_load_vertex_buffer(p0, p1, p2)
+    Rlgl.rlLoadVertexBuffer(p0, p1, p2)
+  end
+  def self.rl_load_vertex_buffer_element(p0, p1, p2)
+    Rlgl.rlLoadVertexBufferElement(p0, p1, p2)
+  end
+  def self.rl_update_vertex_buffer(p0, p1, p2, p3)
+    Rlgl.rlUpdateVertexBuffer(p0, p1, p2, p3)
+  end
+  def self.rl_update_vertex_buffer_elements(p0, p1, p2, p3)
+    Rlgl.rlUpdateVertexBufferElements(p0, p1, p2, p3)
+  end
+  def self.rl_unload_vertex_array(p0)
+    Rlgl.rlUnloadVertexArray(p0)
+  end
+  def self.rl_unload_vertex_buffer(p0)
+    Rlgl.rlUnloadVertexBuffer(p0)
+  end
+  def self.rl_set_vertex_attribute(p0, p1, p2, p3, p4, p5)
+    Rlgl.rlSetVertexAttribute(p0, p1, p2, p3, p4, p5)
+  end
+  def self.rl_set_vertex_attribute_divisor(p0, p1)
+    Rlgl.rlSetVertexAttributeDivisor(p0, p1)
+  end
+  def self.rl_set_vertex_attribute_default(p0, p1, p2, p3)
+    Rlgl.rlSetVertexAttributeDefault(p0, p1, p2, p3)
+  end
+  def self.rl_draw_vertex_array(p0, p1)
+    Rlgl.rlDrawVertexArray(p0, p1)
+  end
+  def self.rl_draw_vertex_array_elements(p0, p1, p2)
+    Rlgl.rlDrawVertexArrayElements(p0, p1, p2)
+  end
+  def self.rl_draw_vertex_array_instanced(p0, p1, p2)
+    Rlgl.rlDrawVertexArrayInstanced(p0, p1, p2)
+  end
+  def self.rl_draw_vertex_array_elements_instanced(p0, p1, p2, p3)
+    Rlgl.rlDrawVertexArrayElementsInstanced(p0, p1, p2, p3)
+  end
+  def self.rl_load_texture(p0, p1, p2, p3, p4)
+    Rlgl.rlLoadTexture(p0, p1, p2, p3, p4)
+  end
+  def self.rl_load_texture_depth(p0, p1, p2)
+    Rlgl.rlLoadTextureDepth(p0, p1, p2)
+  end
+  def self.rl_load_texture_cubemap(p0, p1, p2, p3)
+    Rlgl.rlLoadTextureCubemap(p0, p1, p2, p3)
+  end
+  def self.rl_update_texture(p0, p1, p2, p3, p4, p5, p6)
+    Rlgl.rlUpdateTexture(p0, p1, p2, p3, p4, p5, p6)
+  end
+  def self.rl_get_gl_texture_formats(p0, p1, p2, p3)
+    Rlgl.rlGetGlTextureFormats(p0, p1, p2, p3)
+  end
+  def self.rl_get_pixel_format_name(p0)
+    Rlgl.rlGetPixelFormatName(p0)
+  end
+  def self.rl_unload_texture(p0)
+    Rlgl.rlUnloadTexture(p0)
+  end
+  def self.rl_gen_texture_mipmaps(p0, p1, p2, p3, p4)
+    Rlgl.rlGenTextureMipmaps(p0, p1, p2, p3, p4)
+  end
+  def self.rl_read_texture_pixels(p0, p1, p2, p3)
+    Rlgl.rlReadTexturePixels(p0, p1, p2, p3)
+  end
+  def self.rl_read_screen_pixels(p0, p1)
+    Rlgl.rlReadScreenPixels(p0, p1)
+  end
+  def self.rl_load_framebuffer()
+    Rlgl.rlLoadFramebuffer()
+  end
+  def self.rl_framebuffer_attach(p0, p1, p2, p3, p4)
+    Rlgl.rlFramebufferAttach(p0, p1, p2, p3, p4)
+  end
+  def self.rl_framebuffer_complete(p0)
+    Rlgl.rlFramebufferComplete(p0)
+  end
+  def self.rl_unload_framebuffer(p0)
+    Rlgl.rlUnloadFramebuffer(p0)
+  end
+  def self.rl_copy_framebuffer(p0, p1, p2, p3, p4, p5)
+    Rlgl.rlCopyFramebuffer(p0, p1, p2, p3, p4, p5)
+  end
+  def self.rl_resize_framebuffer(p0, p1)
+    Rlgl.rlResizeFramebuffer(p0, p1)
+  end
+  def self.rl_load_shader(p0, p1)
+    Rlgl.rlLoadShader(p0, p1)
+  end
+  def self.rl_load_shader_program(p0, p1)
+    Rlgl.rlLoadShaderProgram(p0, p1)
+  end
+  def self.rl_load_shader_program_ex(p0, p1)
+    Rlgl.rlLoadShaderProgramEx(p0, p1)
+  end
+  def self.rl_load_shader_program_compute(p0)
+    Rlgl.rlLoadShaderProgramCompute(p0)
+  end
+  def self.rl_unload_shader(p0)
+    Rlgl.rlUnloadShader(p0)
+  end
+  def self.rl_unload_shader_program(p0)
+    Rlgl.rlUnloadShaderProgram(p0)
+  end
+  def self.rl_get_location_uniform(p0, p1)
+    Rlgl.rlGetLocationUniform(p0, p1)
+  end
+  def self.rl_get_location_attrib(p0, p1)
+    Rlgl.rlGetLocationAttrib(p0, p1)
+  end
+  def self.rl_set_uniform(p0, p1, p2, p3)
+    Rlgl.rlSetUniform(p0, p1, p2, p3)
+  end
+  def self.rl_set_uniform_matrices(p0, p1, p2)
+    Rlgl.rlSetUniformMatrices(p0, p1, p2)
+  end
+  def self.rl_set_uniform_sampler(p0, p1)
+    Rlgl.rlSetUniformSampler(p0, p1)
+  end
+  def self.rl_set_shader(p0, p1)
+    Rlgl.rlSetShader(p0, p1)
+  end
+  def self.rl_compute_shader_dispatch(p0, p1, p2)
+    Rlgl.rlComputeShaderDispatch(p0, p1, p2)
+  end
+  def self.rl_load_shader_buffer(p0, p1, p2)
+    Rlgl.rlLoadShaderBuffer(p0, p1, p2)
+  end
+  def self.rl_unload_shader_buffer(p0)
+    Rlgl.rlUnloadShaderBuffer(p0)
+  end
+  def self.rl_update_shader_buffer(p0, p1, p2, p3)
+    Rlgl.rlUpdateShaderBuffer(p0, p1, p2, p3)
+  end
+  def self.rl_bind_shader_buffer(p0, p1)
+    Rlgl.rlBindShaderBuffer(p0, p1)
+  end
+  def self.rl_read_shader_buffer(p0, p1, p2, p3)
+    Rlgl.rlReadShaderBuffer(p0, p1, p2, p3)
+  end
+  def self.rl_copy_shader_buffer(p0, p1, p2, p3, p4)
+    Rlgl.rlCopyShaderBuffer(p0, p1, p2, p3, p4)
+  end
+  def self.rl_get_shader_buffer_size(p0)
+    Rlgl.rlGetShaderBufferSize(p0)
+  end
+  def self.rl_bind_image_texture(p0, p1, p2, p3)
+    Rlgl.rlBindImageTexture(p0, p1, p2, p3)
+  end
+  def self.rl_load_draw_cube()
+    Rlgl.rlLoadDrawCube()
+  end
+  def self.rl_load_draw_quad()
+    Rlgl.rlLoadDrawQuad()
+  end
+  class << self
+    alias_method :rl_unload_render_batch, :rlUnloadRenderBatch
+    alias_method :rl_set_uniform_matrix, :rlSetUniformMatrix
+    alias_method :rl_get_matrix_modelview, :rlGetMatrixModelview
+    alias_method :rl_get_matrix_projection, :rlGetMatrixProjection
+    alias_method :rl_get_matrix_transform, :rlGetMatrixTransform
+    alias_method :rl_get_matrix_projection_stereo, :rlGetMatrixProjectionStereo
+    alias_method :rl_get_matrix_view_offset_stereo, :rlGetMatrixViewOffsetStereo
+    alias_method :rl_set_matrix_projection, :rlSetMatrixProjection
+    alias_method :rl_set_matrix_modelview, :rlSetMatrixModelview
+    alias_method :rl_set_matrix_projection_stereo, :rlSetMatrixProjectionStereo
+    alias_method :rl_set_matrix_view_offset_stereo, :rlSetMatrixViewOffsetStereo
+  end
   end

@@ -84,4 +84,29 @@ module Raylib
     PHYSAC_PENETRATION_ALLOWANCE = 0.05
     PHYSAC_PENETRATION_CORRECTION = 0.4
     PHYSAC_PI = 3.141592653589793
+
+    # ====== generated: wrappers + constants ======
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  class << self
+    alias_method :init_physics, :InitPhysics
+    alias_method :update_physics, :UpdatePhysics
+    alias_method :reset_physics, :ResetPhysics
+    alias_method :close_physics, :ClosePhysics
+    alias_method :set_physics_time_step, :SetPhysicsTimeStep
+    alias_method :set_physics_gravity, :SetPhysicsGravity
+    alias_method :create_physics_body_circle, :CreatePhysicsBodyCircle
+    alias_method :create_physics_body_rectangle, :CreatePhysicsBodyRectangle
+    alias_method :create_physics_body_polygon, :CreatePhysicsBodyPolygon
+    alias_method :destroy_physics_body, :DestroyPhysicsBody
+    alias_method :physics_add_force, :PhysicsAddForce
+    alias_method :physics_add_torque, :PhysicsAddTorque
+    alias_method :physics_shatter, :PhysicsShatter
+    alias_method :set_physics_body_rotation, :SetPhysicsBodyRotation
+    alias_method :get_physics_body, :GetPhysicsBody
+    alias_method :get_physics_bodies_count, :GetPhysicsBodiesCount
+    alias_method :get_physics_shape_type, :GetPhysicsShapeType
+    alias_method :get_physics_shape_vertices_count, :GetPhysicsShapeVerticesCount
+    alias_method :get_physics_shape_vertex, :GetPhysicsShapeVertex
+  end
 end

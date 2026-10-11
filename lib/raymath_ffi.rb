@@ -830,4 +830,174 @@ module Raylib
     def self.MatrixDecompose(mat, translation, rotation, scale)
       Raylib.rl_MatrixDecompose(mat, translation, rotation, scale)
     end
+
+    # ====== generated: wrappers + constants ======
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  def self.clamp(p0, p1, p2)
+    Raylib.Clamp(p0, p1, p2)
+  end
+  def self.lerp(p0, p1, p2)
+    Raylib.Lerp(p0, p1, p2)
+  end
+  def self.normalize(p0, p1, p2)
+    Raylib.Normalize(p0, p1, p2)
+  end
+  def self.remap(p0, p1, p2, p3, p4)
+    Raylib.Remap(p0, p1, p2, p3, p4)
+  end
+  def self.wrap(p0, p1, p2)
+    Raylib.Wrap(p0, p1, p2)
+  end
+  def self.float_equals(p0, p1)
+    Raylib.FloatEquals(p0, p1)
+  end
+  def self.matrix_to_float_v(p0)
+    Raylib.rl_MatrixToFloatV(p0)
+  end
+  def self.quaternion_from_vector3_to_vector3(p0, p1)
+    Raylib.rl_QuaternionFromVector3ToVector3(p0, p1)
+  end
+  def self.quaternion_to_matrix(p0)
+    Raylib.rl_QuaternionToMatrix(p0)
+  end
+  class << self
+    alias_method :vector2_zero, :Vector2Zero
+    alias_method :vector2_one, :Vector2One
+    alias_method :vector2_add, :Vector2Add
+    alias_method :vector2_add_value, :Vector2AddValue
+    alias_method :vector2_subtract, :Vector2Subtract
+    alias_method :vector2_subtract_value, :Vector2SubtractValue
+    alias_method :vector2_length, :Vector2Length
+    alias_method :vector2_length_sqr, :Vector2LengthSqr
+    alias_method :vector2_dot_product, :Vector2DotProduct
+    alias_method :vector2_cross_product, :Vector2CrossProduct
+    alias_method :vector2_distance, :Vector2Distance
+    alias_method :vector2_distance_sqr, :Vector2DistanceSqr
+    alias_method :vector2_angle, :Vector2Angle
+    alias_method :vector2_line_angle, :Vector2LineAngle
+    alias_method :vector2_scale, :Vector2Scale
+    alias_method :vector2_multiply, :Vector2Multiply
+    alias_method :vector2_negate, :Vector2Negate
+    alias_method :vector2_divide, :Vector2Divide
+    alias_method :vector2_normalize, :Vector2Normalize
+    alias_method :vector2_transform, :Vector2Transform
+    alias_method :vector2_lerp, :Vector2Lerp
+    alias_method :vector2_reflect, :Vector2Reflect
+    alias_method :vector2_min, :Vector2Min
+    alias_method :vector2_max, :Vector2Max
+    alias_method :vector2_rotate, :Vector2Rotate
+    alias_method :vector2_move_towards, :Vector2MoveTowards
+    alias_method :vector2_invert, :Vector2Invert
+    alias_method :vector2_clamp, :Vector2Clamp
+    alias_method :vector2_clamp_value, :Vector2ClampValue
+    alias_method :vector2_equals, :Vector2Equals
+    alias_method :vector2_refract, :Vector2Refract
+    alias_method :vector3_zero, :Vector3Zero
+    alias_method :vector3_one, :Vector3One
+    alias_method :vector3_add, :Vector3Add
+    alias_method :vector3_add_value, :Vector3AddValue
+    alias_method :vector3_subtract, :Vector3Subtract
+    alias_method :vector3_subtract_value, :Vector3SubtractValue
+    alias_method :vector3_scale, :Vector3Scale
+    alias_method :vector3_multiply, :Vector3Multiply
+    alias_method :vector3_cross_product, :Vector3CrossProduct
+    alias_method :vector3_perpendicular, :Vector3Perpendicular
+    alias_method :vector3_length, :Vector3Length
+    alias_method :vector3_length_sqr, :Vector3LengthSqr
+    alias_method :vector3_dot_product, :Vector3DotProduct
+    alias_method :vector3_distance, :Vector3Distance
+    alias_method :vector3_distance_sqr, :Vector3DistanceSqr
+    alias_method :vector3_angle, :Vector3Angle
+    alias_method :vector3_negate, :Vector3Negate
+    alias_method :vector3_divide, :Vector3Divide
+    alias_method :vector3_normalize, :Vector3Normalize
+    alias_method :vector3_project, :Vector3Project
+    alias_method :vector3_reject, :Vector3Reject
+    alias_method :vector3_ortho_normalize, :Vector3OrthoNormalize
+    alias_method :vector3_transform, :Vector3Transform
+    alias_method :vector3_rotate_by_quaternion, :Vector3RotateByQuaternion
+    alias_method :vector3_rotate_by_axis_angle, :Vector3RotateByAxisAngle
+    alias_method :vector3_move_towards, :Vector3MoveTowards
+    alias_method :vector3_lerp, :Vector3Lerp
+    alias_method :vector3_cubic_hermite, :Vector3CubicHermite
+    alias_method :vector3_reflect, :Vector3Reflect
+    alias_method :vector3_min, :Vector3Min
+    alias_method :vector3_max, :Vector3Max
+    alias_method :vector3_barycenter, :Vector3Barycenter
+    alias_method :vector3_unproject, :Vector3Unproject
+    alias_method :vector3_to_float_v, :Vector3ToFloatV
+    alias_method :vector3_invert, :Vector3Invert
+    alias_method :vector3_clamp, :Vector3Clamp
+    alias_method :vector3_clamp_value, :Vector3ClampValue
+    alias_method :vector3_equals, :Vector3Equals
+    alias_method :vector3_refract, :Vector3Refract
+    alias_method :vector_4zero, :Vector4Zero
+    alias_method :vector_4one, :Vector4One
+    alias_method :vector_4add, :Vector4Add
+    alias_method :vector_4add_value, :Vector4AddValue
+    alias_method :vector_4subtract, :Vector4Subtract
+    alias_method :vector_4subtract_value, :Vector4SubtractValue
+    alias_method :vector_4length, :Vector4Length
+    alias_method :vector_4length_sqr, :Vector4LengthSqr
+    alias_method :vector_4dot_product, :Vector4DotProduct
+    alias_method :vector_4distance, :Vector4Distance
+    alias_method :vector_4distance_sqr, :Vector4DistanceSqr
+    alias_method :vector_4scale, :Vector4Scale
+    alias_method :vector_4multiply, :Vector4Multiply
+    alias_method :vector_4negate, :Vector4Negate
+    alias_method :vector_4divide, :Vector4Divide
+    alias_method :vector_4normalize, :Vector4Normalize
+    alias_method :vector_4min, :Vector4Min
+    alias_method :vector_4max, :Vector4Max
+    alias_method :vector_4lerp, :Vector4Lerp
+    alias_method :vector_4move_towards, :Vector4MoveTowards
+    alias_method :vector_4invert, :Vector4Invert
+    alias_method :vector_4equals, :Vector4Equals
+    alias_method :matrix_determinant, :MatrixDeterminant
+    alias_method :matrix_trace, :MatrixTrace
+    alias_method :matrix_transpose, :MatrixTranspose
+    alias_method :matrix_invert, :MatrixInvert
+    alias_method :matrix_identity, :MatrixIdentity
+    alias_method :matrix_add, :MatrixAdd
+    alias_method :matrix_subtract, :MatrixSubtract
+    alias_method :matrix_multiply, :MatrixMultiply
+    alias_method :matrix_multiply_value, :MatrixMultiplyValue
+    alias_method :matrix_translate, :MatrixTranslate
+    alias_method :matrix_rotate, :MatrixRotate
+    alias_method :matrix_rotate_x, :MatrixRotateX
+    alias_method :matrix_rotate_y, :MatrixRotateY
+    alias_method :matrix_rotate_z, :MatrixRotateZ
+    alias_method :matrix_rotate_xyz, :MatrixRotateXYZ
+    alias_method :matrix_rotate_zyx, :MatrixRotateZYX
+    alias_method :matrix_scale, :MatrixScale
+    alias_method :matrix_frustum, :MatrixFrustum
+    alias_method :matrix_perspective, :MatrixPerspective
+    alias_method :matrix_ortho, :MatrixOrtho
+    alias_method :matrix_look_at, :MatrixLookAt
+    alias_method :quaternion_add, :QuaternionAdd
+    alias_method :quaternion_add_value, :QuaternionAddValue
+    alias_method :quaternion_subtract, :QuaternionSubtract
+    alias_method :quaternion_subtract_value, :QuaternionSubtractValue
+    alias_method :quaternion_identity, :QuaternionIdentity
+    alias_method :quaternion_length, :QuaternionLength
+    alias_method :quaternion_normalize, :QuaternionNormalize
+    alias_method :quaternion_invert, :QuaternionInvert
+    alias_method :quaternion_multiply, :QuaternionMultiply
+    alias_method :quaternion_scale, :QuaternionScale
+    alias_method :quaternion_divide, :QuaternionDivide
+    alias_method :quaternion_lerp, :QuaternionLerp
+    alias_method :quaternion_nlerp, :QuaternionNlerp
+    alias_method :quaternion_slerp, :QuaternionSlerp
+    alias_method :quaternion_cubic_hermite_spline, :QuaternionCubicHermiteSpline
+    alias_method :quaternion_from_matrix, :QuaternionFromMatrix
+    alias_method :quaternion_from_axis_angle, :QuaternionFromAxisAngle
+    alias_method :quaternion_to_axis_angle, :QuaternionToAxisAngle
+    alias_method :quaternion_from_euler, :QuaternionFromEuler
+    alias_method :quaternion_to_euler, :QuaternionToEuler
+    alias_method :quaternion_transform, :QuaternionTransform
+    alias_method :quaternion_equals, :QuaternionEquals
+    alias_method :matrix_compose, :MatrixCompose
+    alias_method :matrix_decompose, :MatrixDecompose
+  end
 end

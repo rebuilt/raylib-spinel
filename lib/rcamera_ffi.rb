@@ -136,4 +136,22 @@ module Rcamera
     CAMERA_PAN_SPEED = 2.0
     CAMERA_MOUSE_MOVE_SENSITIVITY = 0.003
     CAMERA_ORBITAL_SPEED = 0.5
+
+    # ====== generated: wrappers + constants ======
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  class << self
+    alias_method :get_camera_forward, :GetCameraForward
+    alias_method :get_camera_up, :GetCameraUp
+    alias_method :get_camera_right, :GetCameraRight
+    alias_method :camera_move_forward, :CameraMoveForward
+    alias_method :camera_move_up, :CameraMoveUp
+    alias_method :camera_move_right, :CameraMoveRight
+    alias_method :camera_move_to_target, :CameraMoveToTarget
+    alias_method :camera_yaw, :CameraYaw
+    alias_method :camera_pitch, :CameraPitch
+    alias_method :camera_roll, :CameraRoll
+    alias_method :get_camera_view_matrix, :GetCameraViewMatrix
+    alias_method :get_camera_projection_matrix, :GetCameraProjectionMatrix
+  end
 end
