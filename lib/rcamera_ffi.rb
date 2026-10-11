@@ -75,42 +75,6 @@ module Rcamera
   native_struct "Rectangle", "rl_Rectangle"
   native_new [], "rl_Rectangle_new"
 
-  # Camera
-  ffi_func :InitCamera, [], :void
-  ffi_func :SetCameraMode, [%i[ptr int]]
-  ffi_func :SetCameraPanZoom, [%i[ptr float float]]
-  ffi_func :UpdateCamera, [%i[ptr int]]
-  ffi_func :BeginMode2D, [%i[ptr]]
-  ffi_func :EndMode2D, []
-  ffi_func :BeginMode3D, [%i[ptr]]
-  ffi_func :EndMode3D, []
-  ffi_func :BeginModeStereo, [%i[ptr]]
-  ffi_func :EndModeStereo, []
-  ffi_func :MoveCamera, [%i[ptr float float float]]
-  ffi_func :CameraMove, [%i[ptr float float float]]
-  ffi_func :CameraRotate, [%i[ptr float float float]]
-  ffi_func :CameraZoom, [%i[ptr float]]
-  ffi_func :SetShadesValue, [%i[ptr int int]]
-  ffi_func :GetCameraWidth, [%i[ptr]] :int
-  ffi_func :GetCameraHeight, [%i[ptr]] :int
-
-  # Vector3
-  ffi_func :Vector3Create, %i[float float float], :ptr
-  ffi_func :Vector3GetX, [:ptr], :float
-  ffi_func :Vector3GetY, [:ptr], :float
-  ffi_func :Vector3GetZ, [:ptr], :float
-
-  # Enums
-  CAMERA_CUSTOM = 0
-  CAMERA_FREE = 1
-  CAMERA_ORBITAL = 2
-  CAMERA_FIRST_PERSON = 3
-  CAMERA_THIRD_PERSON = 4
-  CAMERA_ORTHOGRAPHIC = 5
-  CAMERA_PERSPECTIVE = 0
-
-  # Constants
-
     # ====== generated: wrappers + constants ======
     def self.GetCameraForward(camera)
       _out = Vector3.new(0.0, 0.0, 0.0)
@@ -172,5 +136,4 @@ module Rcamera
     CAMERA_PAN_SPEED = 2.0
     CAMERA_MOUSE_MOVE_SENSITIVITY = 0.003
     CAMERA_ORBITAL_SPEED = 0.5
-  end
 end

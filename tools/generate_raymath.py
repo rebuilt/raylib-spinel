@@ -167,6 +167,10 @@ def is_opaque(base):
 
 api = json.load(open(API_PATH))
 struct_fields = {s["name"]: s["fields"] for s in api.get("structs", [])}
+# Quaternion is defined in raymath.h but absent from the parsed API jsons;
+# hard-code its fields so the GC struct block can emit accessors.
+struct_fields.setdefault("Quaternion",
+                         [{"name": f, "type": "float"} for f in ("x", "y", "z", "w")])
 
 
 def existing_set(pattern, path, lst=False):
@@ -186,6 +190,7 @@ esp = existing_set(r"\brl_[A-Za-z0-9_]+", ADAPTER_PATH)
 PRIMARY_FFI = os.path.join(LIB, "raylib_ffi.rb")
 PRIMARY_ADAPTER = os.path.join(LIB, "raylib_adapter.c")
 enative |= existing_set(r'native_struct\s+"(\w+)"', PRIMARY_FFI)
+emethod |= existing_set(r'native_method\s+:[:A-Za-z0-9_]*,\s*\[[^\]]*\],\s*:[A-Za-z0-9_]*,\s*"(rl_[A-Za-z0-9_]+)"', PRIMARY_FFI)
 esp |= existing_set(r"\brl_[A-Za-z0-9_]+", PRIMARY_ADAPTER)
 
 
@@ -218,7 +223,7 @@ def func_needs_shim(fn):
 
 # ------------------------------------------------------------------ emit --
 
-report = {"direct": 0, "shim": 0, "out": 0, "heap_in_shim": 0,
+report = {"direct": 0, "shim": 0, "decl_only": 0, "out": 0, "heap_in_shim": 0,
           "dup_name": 0, "dup_sp": 0, "varargs": [], "new_gc": [],
           "not_in_installed": []}
 
@@ -252,14 +257,17 @@ def emit_flat(fn):
 
 def emit_shim(fn):
     global esp, effi
-    if fn.name in effi:
+    sp = "rl_" + fn.name
+    if fn.name in effi or sp in effi:
         report["dup_name"] += 1
         return
-    sp = "rl_" + fn.name
-    if sp in esp:
+    shim_exists = sp in esp
+    if shim_exists:
+        # C shim already present (hand-written or earlier run); still emit the
+        # ffi_func declaration + Ruby wrapper so it is reachable from Ruby.
         report["dup_sp"] += 1
-        return
     effi.add(fn.name)
+    effi.add(sp)
     esp.add(sp)
 
     c_params = []
@@ -362,16 +370,17 @@ def emit_shim(fn):
         else:
             body_lines.append("  return %s;" % ret_expr)
 
-    gen_shim_c.append("/** %s(params: %s -> %s) */\n%s rl_%s(%s) {\n%s\n}\n" %
-                     (fn.name, sig, c_ret, c_ret, fn.name, sig,
-                      "\n".join(body_lines)))
+    if not shim_exists:
+        gen_shim_c.append("/** %s(params: %s -> %s) */\n%s rl_%s(%s) {\n%s\n}\n" %
+                         (fn.name, sig, c_ret, c_ret, fn.name, sig,
+                          "\n".join(body_lines)))
     gen_ffi.append("  ffi_func :%s, [%s], %s\n" % (sp, ", ".join(ffi_args), ffi_ret))
 
     if out_class is not None:
         gen_wrap.append(wrapper_out(fn, wrapper_args, out_class))
     else:
         gen_wrap.append(wrapper_simple(fn, wrapper_args))
-    report["shim"] += 1
+    report["decl_only" if shim_exists else "shim"] += 1
 
 
 def wrapper_simple(fn, wrapper_args):
@@ -425,27 +434,35 @@ for j in api["functions"]:
 new_gc = []
 seen_klass = set()
 for base, (klass, emb) in list(GC_STRUCTS.items()) + list(GC_RETURN_ONLY.items()):
-    if klass in enative or base in enative or ("rl_" + klass) in esp:
-        continue
     if klass in seen_klass:
         continue
     seen_klass.add(klass)
+    # No whole-struct skip: the Ruby native block, the C typedef+ctor, and the
+    # per-field accessor shims are each deduped at their own emit site below,
+    # so a half-present struct (e.g. hand-written C typedef but no Ruby block
+    # or accessors) still gets its missing pieces. The old combined check
+    # treated any rl_<Klass> identifier (e.g. the C typedef) as "complete".
     new_gc.append((base, klass, emb))
-report["new_gc"] = new_gc
 
+touched = []
 for base, klass, emb in new_gc:
+    before = (len(gen_c), len(gen_ffi))
     fields = struct_fields.get(base, [])
-    gen_c.append("\n/* rl_%s — GC-embedded %s (see raymath_ffi.rb) */" % (klass, base))
-    gen_c.append("typedef struct rl_%s_s {\n  sp_int cls_id;\n  %s %s;\n} rl_%s;\n"
-                 % (klass, base, emb, klass))
-    gen_c.append("static void rl_%s_scan(void *p) { (void)p; }\n" % klass)
-    init = "  self->%s = (%s){ 0 };\n" % (emb, base)
-    gen_c.append("rl_%s *rl_%s_new(sp_int cls_id) {\n"
-                 "  rl_%s *self = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);\n"
-                 "  self->cls_id = cls_id;\n%s  return self;\n}\n"
-                 % (klass, klass, klass, klass, klass, klass, init))
-    gen_ffi.append(f'  native_struct "{klass}", "rl_{klass}"\n')
-    gen_ffi.append(f'  native_new [], "rl_{klass}_new"\n')
+    emit_c = ("rl_" + klass + "_new") not in esp
+    emit_ruby = klass not in enative and base not in enative
+    if emit_c:
+        gen_c.append("\n/* rl_%s — GC-embedded %s (see raymath_ffi.rb) */" % (klass, base))
+        gen_c.append("typedef struct rl_%s_s {\n  sp_int cls_id;\n  %s %s;\n} rl_%s;\n"
+                     % (klass, base, emb, klass))
+        gen_c.append("static void rl_%s_scan(void *p) { (void)p; }\n" % klass)
+        init = "  self->%s = (%s){ 0 };\n" % (emb, base)
+        gen_c.append("rl_%s *rl_%s_new(sp_int cls_id) {\n"
+                     "  rl_%s *self = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);\n"
+                     "  self->cls_id = cls_id;\n%s  return self;\n}\n"
+                     % (klass, klass, klass, klass, klass, klass, init))
+    if emit_ruby:
+        gen_ffi.append(f'  native_struct "{klass}", "rl_{klass}"\n')
+        gen_ffi.append(f'  native_new [], "rl_{klass}_new"\n')
 
     for f in fields:
         if is_ptr(f["type"]):
@@ -458,27 +475,32 @@ for base, klass, emb in new_gc:
         ftok, ctype = FIELD_TOK[ft]
         fname = f["name"]
         if ft == "bool":
-            gen_c.append(f"int rl_{klass}_{fname}(rl_{klass} *self) {{\n"
-                         f"  return self->{emb}.{fname} ? 1 : 0;\n}}\n")
-            gen_c.append(f"int rl_{klass}_set_{fname}(rl_{klass} *self, int {fname}) {{\n"
-                         f"  self->{emb}.{fname} = {fname} != 0;\n  return {fname};\n}}\n")
+            c_lines = (f"int rl_{klass}_{fname}(rl_{klass} *self) {{\n"
+                       f"  return self->{emb}.{fname} ? 1 : 0;\n}}\n"
+                       f"int rl_{klass}_set_{fname}(rl_{klass} *self, int {fname}) {{\n"
+                       f"  self->{emb}.{fname} = {fname} != 0;\n  return {fname};\n}}\n")
         elif ctype == "double":
-            gen_c.append(f"double rl_{klass}_{fname}(rl_{klass} *self) {{\n"
-                         f"  return (double)self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"double rl_{klass}_set_{fname}(rl_{klass} *self, double {fname}) {{\n"
-                         f"  self->{emb}.{fname} = (float){fname};\n  return {fname};\n}}\n")
+            c_lines = (f"double rl_{klass}_{fname}(rl_{klass} *self) {{\n"
+                       f"  return (double)self->{emb}.{fname};\n}}\n"
+                       f"double rl_{klass}_set_{fname}(rl_{klass} *self, double {fname}) {{\n"
+                       f"  self->{emb}.{fname} = (float){fname};\n  return {fname};\n}}\n")
         else:
-            gen_c.append(f"{ctype} rl_{klass}_{fname}(rl_{klass} *self) {{\n"
-                         f"  return self->{emb}.{fname};\n}}\n")
-            gen_c.append(f"{ctype} rl_{klass}_set_{fname}(rl_{klass} *self, {ctype} {fname}) {{\n"
-                         f"  self->{emb}.{fname} = {fname};\n  return {fname};\n}}\n")
+            c_lines = (f"{ctype} rl_{klass}_{fname}(rl_{klass} *self) {{\n"
+                       f"  return self->{emb}.{fname};\n}}\n"
+                       f"{ctype} rl_{klass}_set_{fname}(rl_{klass} *self, {ctype} {fname}) {{\n"
+                       f"  self->{emb}.{fname} = {fname};\n  return {fname};\n}}\n")
         nmx = f"rl_{klass}_{fname}"
         nms = f"rl_{klass}_set_{fname}"
+        if nmx not in esp and nms not in esp:
+            gen_c.append(c_lines)
         if nmx not in emethod and nms not in emethod:
             gen_ffi.append(f'  native_method :{fname}, [], {ftok}, "{nmx}"\n')
             gen_ffi.append(f'  native_method :{fname}=, [:{ftok[1:]}], {ftok}, "{nms}"\n')
             emethod.add(nmx)
             emethod.add(nms)
+    if (len(gen_c), len(gen_ffi)) != before:
+        touched.append(klass)
+report["new_gc"] = touched
 
 # ------------------------------------------------------------------ output --
 
@@ -542,7 +564,7 @@ if gen_c_out or gen_shim_c_out:
 open(ADAPTER_PATH, "w").write(adapter_text)
 
 print("=== gen_raymath summary ===")
-for k in ("direct", "shim", "out", "heap_in_shim", "dup_name", "dup_sp"):
+for k in ("direct", "shim", "decl_only", "out", "heap_in_shim", "dup_name", "dup_sp"):
     print("  %-14s %d" % (k, report[k]))
 print("  varargs skipped:", sorted(report["varargs"]))
-print("  new GC structs:", [c for _, c, _ in new_gc])
+print("  new GC structs:", touched)

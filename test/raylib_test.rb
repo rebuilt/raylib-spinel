@@ -1,4 +1,4 @@
-require "raylib_ffi"
+require "raylib-spinel"
 
 v = Raylib.GetRandomValue(0, 100)
 puts "raylib bindings loaded"

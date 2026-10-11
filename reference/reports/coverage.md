@@ -1,0 +1,21 @@
+# API coverage audit — 2026-10-11
+
+Baseline: raylib-bindings generator jsons (raylib 6.1-dev). Tool: `tools/coverage_audit.py`.
+
+== raylib: 617/619 covered (381 wrapper, 236 direct, 0 shim-only, 2 missing)
+   missing: TextFormat, TraceLog
+   extras (exposed, not in API json): Vector2Create, Vector2GetX, Vector2GetY, Vector2SetX, Vector2SetY, ptr, rl_AudioStreamSineReset, rl_BeginMode2DF, rl_Camera3DCreate, rl_Camera_position_from_bounds, rl_Camera_position_x, rl_Camera_position_y, rl_Camera_position_z, rl_Camera_target_x, rl_Camera_target_y, rl_Camera_target_z, rl_CheckCollisionBoxesF, rl_CheckCollisionCircleRecF, rl_CheckCollisionPointRecF, rl_DirListCount, rl_DirListName, rl_DrawPixelPacked, rl_DrawPixelsPacked, rl_DrawRectangleLinesExF, rl_DrawRectangleProF, rl_DrawRectangleRecF, rl_DrawRectangleRoundedF, rl_DrawRectangleRoundedLinesExF, rl_DrawRenderTexture, rl_DrawRenderTextureAt, rl_DrawRenderTexturePro, rl_DrawTextInt, rl_DrawTexturePacked, rl_DrawTextureProF, rl_DrawTextureRec4, rl_DrawTextureRecF, rl_FontBaseSize, rl_FontGlyphAdvanceX, rl_FontGlyphRecWidth, rl_FontTexture, rl_ImageColorR, rl_ImageFrameData, rl_ImageFromImageF, rl_ImageHeight, rl_ImageWidth, rl_IntAlloc, rl_IntFree, rl_IntGet, rl_LoadFileTextPtr, rl_LoadFontAtlas, rl_LoadImageFromRenderTexture, rl_LoadShaderFS, rl_Material_set_diffuse, rl_Material_set_shader, rl_MatrixFill, rl_MatrixRotateXYZ, rl_ModelAnimationAt, rl_ModelAnimation_frameCount, rl_ModelAnimation_framePoseTranslation, rl_ModelSetDiffuseTexture, rl_Model_bindPoseTranslation, rl_Model_boneCount, rl_Model_boneParent, rl_Model_material, rl_Model_mesh, rl_Model_meshCount, rl_Model_set_transform, rl_Model_transform, rl_PtrToString, rl_RayCollision_normal, rl_RayCollision_point, rl_RenderTexture_texture, rl_SetShaderValueColor, rl_SetShaderValueFloat, rl_SetShaderValueInt, rl_SetShaderValueVec2, rl_SetShaderValueVec3, rl_SetShaderValueVec4, rl_Shader_setLoc, rl_TextureHeight, rl_TextureWidth, rl_UnloadFileTextPtr, rl_UpdateAudioStreamSine, rl_Vector2Fill, rl_Vector4Fill
+== raymath: 146/146 covered (137 wrapper, 6 direct, 3 shim-only, 0 missing)
+   shim-only (callable only as Raylib.rl_*): MatrixToFloatV, QuaternionFromVector3ToVector3, QuaternionToMatrix
+   extras (exposed, not in API json): rl_QuaternionToMatrix3, rl_rlMultMatrixfFloats, rl_rlMultMatrixfForDir
+== rlgl: 163/163 covered (11 wrapper, 152 direct, 0 shim-only, 0 missing)
+   extras (exposed, not in API json): DrawRenderTexture, GenTextureMipmaps, GetShaderLocation, GetShaderLocationAttrib, IsRenderTextureValid, IsShaderValid, IsTextureValid, LoadRenderTexture, LoadShader, LoadShaderFromMemory, LoadTexture, LoadTextureCubemap, MatrixCreate, MatrixGetElement, MatrixSetElement, SetShaderValue, SetShaderValueMatrix, SetShaderValueTexture, SetShaderValueV, SetTextureFilter, SetTextureWrap, UnloadRenderTexture, UnloadShader, UnloadTexture, UpdateTexture, UpdateTextureRec, Vector2Create, Vector2GetX, Vector2GetY
+== physac: 19/19 covered (19 wrapper, 0 direct, 0 shim-only, 0 missing)
+   extras (exposed, not in API json): rl_PhysicsBodyGetEnabled, rl_PhysicsBodyGetPosX, rl_PhysicsBodyGetPosY, rl_PhysicsBodySetEnabled, rl_UpdatePhysics1
+== rcamera: 12/12 covered (12 wrapper, 0 direct, 0 shim-only, 0 missing)
+== raygui: 37/61 covered (33 wrapper, 0 direct, 4 shim-only, 24 missing)
+   shim-only (callable only as Raylib.rl_*): GuiColorBarAlpha, GuiDummyRec, GuiToggleGroup, GuiToggleSlider
+   missing: GuiColorBarHue, GuiColorPanel, GuiColorPanelHSV, GuiColorPickerHSV, GuiDisableTooltip, GuiDrawIcon, GuiEnableTooltip, GuiGetFont, GuiGetIcons, GuiGetState, GuiGetTextWidth, GuiIsLocked, GuiListViewEx, GuiLoadIcons, GuiLoadIconsFromMemory, GuiLoadStyleFromMemory, GuiSetIconScale, GuiSetTooltip, GuiTabBar, GuiTabBarEx, GuiTextBox, GuiTextInputBox, GuiToggle, GuiValueBoxFloat
+   extras (exposed, not in API json): rl_GuiCheckBoxValue, rl_GuiColorPickerSet, rl_GuiColorPickerValue, rl_GuiComboBoxValue, rl_GuiDropdownBoxValue, rl_GuiListViewValue, rl_GuiProgressBarValue, rl_GuiSliderBarValue, rl_GuiSliderValue, rl_GuiSpinnerValue, rl_GuiTextBoxFloat, rl_GuiValueBoxValue, rl_Gui_GetColorA, rl_Gui_GetColorB, rl_Gui_GetColorG, rl_Gui_GetColorR, rl_Gui_GetFloat, rl_Gui_GetInt
+
+TOTAL: 994/1020 (97.5%)

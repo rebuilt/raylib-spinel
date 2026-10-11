@@ -849,3 +849,39 @@ void rl_rlMultMatrixfForDir(void *dir) {
   Matrix m = QuaternionToMatrix(q);
   rlMultMatrixf((float *)&m);
 }
+
+/* ================================================================
+ * Generated shims (tools/gen_raymath.py). Same conventions as the
+ * hand-written shims above; keep in sync by re-running the generator.
+ * ================================================================ */
+
+double rl_Quaternion_x(rl_Quaternion *self) {
+  return (double)self->v.x;
+}
+double rl_Quaternion_set_x(rl_Quaternion *self, double x) {
+  self->v.x = (float)x;
+  return x;
+}
+double rl_Quaternion_y(rl_Quaternion *self) {
+  return (double)self->v.y;
+}
+double rl_Quaternion_set_y(rl_Quaternion *self, double y) {
+  self->v.y = (float)y;
+  return y;
+}
+double rl_Quaternion_z(rl_Quaternion *self) {
+  return (double)self->v.z;
+}
+double rl_Quaternion_set_z(rl_Quaternion *self, double z) {
+  self->v.z = (float)z;
+  return z;
+}
+double rl_Quaternion_w(rl_Quaternion *self) {
+  return (double)self->v.w;
+}
+double rl_Quaternion_set_w(rl_Quaternion *self, double w) {
+  self->v.w = (float)w;
+  return w;
+}
+
+/* ---- generated shims ---- */

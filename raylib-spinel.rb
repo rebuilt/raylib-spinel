@@ -19,10 +19,8 @@
 # Under MRI, ffi_func/ffi_lib/ffi_cflags are no-ops defined in main.rb.
 
 if $PROGRAM_NAME.end_with?(".rb")
-  puts "raylib-spinel: loading raylib_ruby (CRuby)"
   require_relative File.join("lib","raylib_ruby")
 else
-  puts "raylib-spinel: loading raylib_ffi (Spinel)"
   require_relative "lib/raylib_ffi"
 end
 
