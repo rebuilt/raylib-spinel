@@ -2484,14 +2484,17 @@ void rl_Vector2Rotate(rl_Vector2 *v, double angle, rl_Vector2 *out) {
 void rl_Vector2Normalize(rl_Vector2 *v, rl_Vector2 *out) {
   out->v = Vector2Normalize(v->v);
 }
-double rl_Vector2Length(rl_Vector2 *v) {
-  return (double)Vector2Length(v->v);
+/* Return type must match the raymath_ffi.rb ffi_func decls (:float): these
+ * hand-written shims win the link over the generator's static duplicates in
+ * raymath_adapter.c, so a double return here misreads xmm0 as float garbage. */
+float rl_Vector2Length(rl_Vector2 *v) {
+  return Vector2Length(v->v);
 }
 void rl_Vector2Lerp(rl_Vector2 *a, rl_Vector2 *b, double amount, rl_Vector2 *out) {
   out->v = Vector2Lerp(a->v, b->v, (float)amount);
 }
-double rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
-  return (double)Vector2Angle(a->v, b->v);
+float rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
+  return Vector2Angle(a->v, b->v);
 }
 
 /* ---- positional construction fills (Raylib.Vector2/Vector4/Matrix) ----

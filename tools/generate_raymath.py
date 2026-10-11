@@ -117,6 +117,10 @@ def strip_array(t):
 
 def base_of(t):
     t = strip_array(t)
+    # Strip cv-qualifiers: raymath_api.json declares Vector3Length/LengthSqr
+    # params as "const Vector3"; without this they miss GC_STRUCTS and emit a
+    # raw *(const Vector3 *) deref against the rl_ wrapper (cls_id header).
+    t = re.sub(r"\b(const|volatile)\s+", "", t)
     if t.endswith("*"):
         t = t[:-1].strip()
     return t

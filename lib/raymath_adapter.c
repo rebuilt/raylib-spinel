@@ -429,11 +429,11 @@ void rl_Vector3Perpendicular(void * v, void * _out) {
 }
 /** Vector3Length(params: void * v -> float) */
 float rl_Vector3Length(void * v) {
-  return Vector3Length(*(const Vector3 *)v);
+  return Vector3Length(((rl_Vector3*)v)->v);
 }
 /** Vector3LengthSqr(params: void * v -> float) */
 float rl_Vector3LengthSqr(void * v) {
-  return Vector3LengthSqr(*(const Vector3 *)v);
+  return Vector3LengthSqr(((rl_Vector3*)v)->v);
 }
 /** Vector3DotProduct(params: void * v1, void * v2 -> float) */
 float rl_Vector3DotProduct(void * v1, void * v2) {

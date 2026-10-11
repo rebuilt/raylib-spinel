@@ -13,6 +13,10 @@ end
 a = Raylib.Vector2(3.0, 4.0)
 b = Raylib.Vector2(1.0, 2.0)
 puts "Vector2LengthSqr #{f Raylib.Vector2LengthSqr(a)}"
+# Vector2Length/Vector2Angle also exist as hand-written shims in
+# raylib_adapter.c; their return type must match the :float ffi decls.
+puts "Vector2Length #{f Raylib.Vector2Length(a)}"
+puts "Vector2Angle #{f Raylib.Vector2Angle(a, b)}"
 puts "Vector2DotProduct #{f Raylib.Vector2DotProduct(a, b)}"
 puts "Vector2CrossProduct #{f Raylib.Vector2CrossProduct(a, b)}"
 puts "Vector2Distance #{f Raylib.Vector2Distance(a, Raylib.Vector2(0.0, 0.0))}"
@@ -24,6 +28,10 @@ v = Raylib::Vector3.new(1.0, 2.0, 3.0)
 w = Raylib::Vector3.new(4.0, -5.0, 6.0)
 n3 = Raylib.Vector3Normalize(v)
 puts "Vector3Normalize #{f n3.x} #{f n3.y} #{f n3.z}"
+# Length/LengthSqr take "const Vector3" params in raymath_api.json; the
+# adapter once misread the GC wrapper header instead of the payload.
+puts "Vector3Length #{f Raylib.Vector3Length(v)}"
+puts "Vector3LengthSqr #{f Raylib.Vector3LengthSqr(v)}"
 c3 = Raylib.Vector3CrossProduct(v, w)
 puts "Vector3CrossProduct #{f c3.x} #{f c3.y} #{f c3.z}"
 lp = Raylib.Vector3Lerp(v, w, 0.5)

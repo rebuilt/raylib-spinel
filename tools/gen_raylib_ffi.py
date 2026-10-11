@@ -232,6 +232,7 @@ def installed_raylib_symbols():
 
 def base_of(t):
     t = strip_array(t)
+    t = re.sub(r"\b(const|volatile)\s+", "", t)
     if t.endswith("*"):
         t = t[:-1].strip()
     return t
