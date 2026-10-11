@@ -565,7 +565,7 @@ for fn in api.get("functions", []):
         # alias table only rewrites def-ed methods), so emit a forwarding
         # wrapper instead of an alias for ffi_func targets.
         a = ", ".join("p%d" % i for i in range(len(fn.get("params", []))))
-        fwd.append("  def self.%s(%s)\n    Rcamera.%s(%s)\n  end\n" % (sn, a, target, a))
+        fwd.append("  def self.%s(%s)\n    Raylib.%s(%s)\n  end\n" % (sn, a, target, a))
     else:
         aliases.append("    alias_method :%s, :%s\n" % (sn, target))
 report["aliases"] = len(aliases) + len(fwd)

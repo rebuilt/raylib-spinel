@@ -1,3 +1,5 @@
+#include <raylib.h>
+#include <stdbool.h>
 #include <rcamera.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,23 +20,23 @@
   Vector2 v;
 } rl_Vector2;
 static void rl_Vector2_scan(void *p) { (void)p; }
-rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
+static rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
   rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
   self->cls_id = cls_id;
   self->v = (Vector2){ 0 };
   return self;
 }
-double rl_Vector2_x(rl_Vector2 *self) {
+static double rl_Vector2_x(rl_Vector2 *self) {
   return (double)self->v.x;
 }
-double rl_Vector2_set_x(rl_Vector2 *self, double x) {
+static double rl_Vector2_set_x(rl_Vector2 *self, double x) {
   self->v.x = (float)x;
   return x;
 }
-double rl_Vector2_y(rl_Vector2 *self) {
+static double rl_Vector2_y(rl_Vector2 *self) {
   return (double)self->v.y;
 }
-double rl_Vector2_set_y(rl_Vector2 *self, double y) {
+static double rl_Vector2_set_y(rl_Vector2 *self, double y) {
   self->v.y = (float)y;
   return y;
 }
@@ -44,30 +46,30 @@ double rl_Vector2_set_y(rl_Vector2 *self, double y) {
   Vector3 v;
 } rl_Vector3;
 static void rl_Vector3_scan(void *p) { (void)p; }
-rl_Vector3 *rl_Vector3_new(sp_int cls_id) {
+static rl_Vector3 *rl_Vector3_new(sp_int cls_id) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
   self->v = (Vector3){ 0 };
   return self;
 }
-double rl_Vector3_x(rl_Vector3 *self) {
+static double rl_Vector3_x(rl_Vector3 *self) {
   return (double)self->v.x;
 }
-double rl_Vector3_set_x(rl_Vector3 *self, double x) {
+static double rl_Vector3_set_x(rl_Vector3 *self, double x) {
   self->v.x = (float)x;
   return x;
 }
-double rl_Vector3_y(rl_Vector3 *self) {
+static double rl_Vector3_y(rl_Vector3 *self) {
   return (double)self->v.y;
 }
-double rl_Vector3_set_y(rl_Vector3 *self, double y) {
+static double rl_Vector3_set_y(rl_Vector3 *self, double y) {
   self->v.y = (float)y;
   return y;
 }
-double rl_Vector3_z(rl_Vector3 *self) {
+static double rl_Vector3_z(rl_Vector3 *self) {
   return (double)self->v.z;
 }
-double rl_Vector3_set_z(rl_Vector3 *self, double z) {
+static double rl_Vector3_set_z(rl_Vector3 *self, double z) {
   self->v.z = (float)z;
   return z;
 }
@@ -77,7 +79,7 @@ double rl_Vector3_set_z(rl_Vector3 *self, double z) {
   Camera c;
 } rl_Camera;
 static void rl_Camera_scan(void *p) { (void)p; }
-rl_Camera *rl_Camera_new(sp_int cls_id) {
+static rl_Camera *rl_Camera_new(sp_int cls_id) {
   rl_Camera *self = (rl_Camera *)sp_gc_alloc(sizeof(rl_Camera), NULL, rl_Camera_scan);
   self->cls_id = cls_id;
   self->c = (Camera){ 0 };
@@ -89,7 +91,7 @@ rl_Camera *rl_Camera_new(sp_int cls_id) {
   Vector4 v;
 } rl_Vector4;
 static void rl_Vector4_scan(void *p) { (void)p; }
-rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
+static rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
   rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
   self->cls_id = cls_id;
   self->v = (Vector4){ 0 };
@@ -101,121 +103,121 @@ rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
   Matrix v;
 } rl_Matrix;
 static void rl_Matrix_scan(void *p) { (void)p; }
-rl_Matrix *rl_Matrix_new(sp_int cls_id) {
+static rl_Matrix *rl_Matrix_new(sp_int cls_id) {
   rl_Matrix *self = (rl_Matrix *)sp_gc_alloc(sizeof(rl_Matrix), NULL, rl_Matrix_scan);
   self->cls_id = cls_id;
   self->v = (Matrix){ 0 };
   return self;
 }
-double rl_Matrix_m0(rl_Matrix *self) {
+static double rl_Matrix_m0(rl_Matrix *self) {
   return (double)self->v.m0;
 }
-double rl_Matrix_set_m0(rl_Matrix *self, double m0) {
+static double rl_Matrix_set_m0(rl_Matrix *self, double m0) {
   self->v.m0 = (float)m0;
   return m0;
 }
-double rl_Matrix_m4(rl_Matrix *self) {
+static double rl_Matrix_m4(rl_Matrix *self) {
   return (double)self->v.m4;
 }
-double rl_Matrix_set_m4(rl_Matrix *self, double m4) {
+static double rl_Matrix_set_m4(rl_Matrix *self, double m4) {
   self->v.m4 = (float)m4;
   return m4;
 }
-double rl_Matrix_m8(rl_Matrix *self) {
+static double rl_Matrix_m8(rl_Matrix *self) {
   return (double)self->v.m8;
 }
-double rl_Matrix_set_m8(rl_Matrix *self, double m8) {
+static double rl_Matrix_set_m8(rl_Matrix *self, double m8) {
   self->v.m8 = (float)m8;
   return m8;
 }
-double rl_Matrix_m12(rl_Matrix *self) {
+static double rl_Matrix_m12(rl_Matrix *self) {
   return (double)self->v.m12;
 }
-double rl_Matrix_set_m12(rl_Matrix *self, double m12) {
+static double rl_Matrix_set_m12(rl_Matrix *self, double m12) {
   self->v.m12 = (float)m12;
   return m12;
 }
-double rl_Matrix_m1(rl_Matrix *self) {
+static double rl_Matrix_m1(rl_Matrix *self) {
   return (double)self->v.m1;
 }
-double rl_Matrix_set_m1(rl_Matrix *self, double m1) {
+static double rl_Matrix_set_m1(rl_Matrix *self, double m1) {
   self->v.m1 = (float)m1;
   return m1;
 }
-double rl_Matrix_m5(rl_Matrix *self) {
+static double rl_Matrix_m5(rl_Matrix *self) {
   return (double)self->v.m5;
 }
-double rl_Matrix_set_m5(rl_Matrix *self, double m5) {
+static double rl_Matrix_set_m5(rl_Matrix *self, double m5) {
   self->v.m5 = (float)m5;
   return m5;
 }
-double rl_Matrix_m9(rl_Matrix *self) {
+static double rl_Matrix_m9(rl_Matrix *self) {
   return (double)self->v.m9;
 }
-double rl_Matrix_set_m9(rl_Matrix *self, double m9) {
+static double rl_Matrix_set_m9(rl_Matrix *self, double m9) {
   self->v.m9 = (float)m9;
   return m9;
 }
-double rl_Matrix_m13(rl_Matrix *self) {
+static double rl_Matrix_m13(rl_Matrix *self) {
   return (double)self->v.m13;
 }
-double rl_Matrix_set_m13(rl_Matrix *self, double m13) {
+static double rl_Matrix_set_m13(rl_Matrix *self, double m13) {
   self->v.m13 = (float)m13;
   return m13;
 }
-double rl_Matrix_m2(rl_Matrix *self) {
+static double rl_Matrix_m2(rl_Matrix *self) {
   return (double)self->v.m2;
 }
-double rl_Matrix_set_m2(rl_Matrix *self, double m2) {
+static double rl_Matrix_set_m2(rl_Matrix *self, double m2) {
   self->v.m2 = (float)m2;
   return m2;
 }
-double rl_Matrix_m6(rl_Matrix *self) {
+static double rl_Matrix_m6(rl_Matrix *self) {
   return (double)self->v.m6;
 }
-double rl_Matrix_set_m6(rl_Matrix *self, double m6) {
+static double rl_Matrix_set_m6(rl_Matrix *self, double m6) {
   self->v.m6 = (float)m6;
   return m6;
 }
-double rl_Matrix_m10(rl_Matrix *self) {
+static double rl_Matrix_m10(rl_Matrix *self) {
   return (double)self->v.m10;
 }
-double rl_Matrix_set_m10(rl_Matrix *self, double m10) {
+static double rl_Matrix_set_m10(rl_Matrix *self, double m10) {
   self->v.m10 = (float)m10;
   return m10;
 }
-double rl_Matrix_m14(rl_Matrix *self) {
+static double rl_Matrix_m14(rl_Matrix *self) {
   return (double)self->v.m14;
 }
-double rl_Matrix_set_m14(rl_Matrix *self, double m14) {
+static double rl_Matrix_set_m14(rl_Matrix *self, double m14) {
   self->v.m14 = (float)m14;
   return m14;
 }
-double rl_Matrix_m3(rl_Matrix *self) {
+static double rl_Matrix_m3(rl_Matrix *self) {
   return (double)self->v.m3;
 }
-double rl_Matrix_set_m3(rl_Matrix *self, double m3) {
+static double rl_Matrix_set_m3(rl_Matrix *self, double m3) {
   self->v.m3 = (float)m3;
   return m3;
 }
-double rl_Matrix_m7(rl_Matrix *self) {
+static double rl_Matrix_m7(rl_Matrix *self) {
   return (double)self->v.m7;
 }
-double rl_Matrix_set_m7(rl_Matrix *self, double m7) {
+static double rl_Matrix_set_m7(rl_Matrix *self, double m7) {
   self->v.m7 = (float)m7;
   return m7;
 }
-double rl_Matrix_m11(rl_Matrix *self) {
+static double rl_Matrix_m11(rl_Matrix *self) {
   return (double)self->v.m11;
 }
-double rl_Matrix_set_m11(rl_Matrix *self, double m11) {
+static double rl_Matrix_set_m11(rl_Matrix *self, double m11) {
   self->v.m11 = (float)m11;
   return m11;
 }
-double rl_Matrix_m15(rl_Matrix *self) {
+static double rl_Matrix_m15(rl_Matrix *self) {
   return (double)self->v.m15;
 }
-double rl_Matrix_set_m15(rl_Matrix *self, double m15) {
+static double rl_Matrix_set_m15(rl_Matrix *self, double m15) {
   self->v.m15 = (float)m15;
   return m15;
 }
@@ -225,7 +227,7 @@ double rl_Matrix_set_m15(rl_Matrix *self, double m15) {
   Color c;
 } rl_Color;
 static void rl_Color_scan(void *p) { (void)p; }
-rl_Color *rl_Color_new(sp_int cls_id) {
+static rl_Color *rl_Color_new(sp_int cls_id) {
   rl_Color *self = (rl_Color *)sp_gc_alloc(sizeof(rl_Color), NULL, rl_Color_scan);
   self->cls_id = cls_id;
   self->c = (Color){ 0 };
@@ -237,7 +239,7 @@ rl_Color *rl_Color_new(sp_int cls_id) {
   Rectangle v;
 } rl_Rectangle;
 static void rl_Rectangle_scan(void *p) { (void)p; }
-rl_Rectangle *rl_Rectangle_new(sp_int cls_id) {
+static rl_Rectangle *rl_Rectangle_new(sp_int cls_id) {
   rl_Rectangle *self = (rl_Rectangle *)sp_gc_alloc(sizeof(rl_Rectangle), NULL, rl_Rectangle_scan);
   self->cls_id = cls_id;
   self->v = (Rectangle){ 0 };
