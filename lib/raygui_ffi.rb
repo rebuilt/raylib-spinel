@@ -70,6 +70,40 @@ module Raylib
   ffi_func :rl_GuiIconText, %i[int str], :str
   ffi_func :rl_GuiProgressBarValue, %i[float float float float str str float float float], :int
 
+  # Extended surface (coverage completion): global state, tooltips, metrics,
+  # icons, text buffers/lists and the HSV colour controls.
+  ffi_func :rl_GuiIsLocked, [], :int
+  ffi_func :rl_GuiGetState, [], :int
+  ffi_func :rl_GuiEnableTooltip, [], :void
+  ffi_func :rl_GuiDisableTooltip, [], :void
+  ffi_func :rl_GuiSetTooltip, [:str], :void
+  ffi_func :rl_GuiSetIconScale, [:int], :void
+  ffi_func :rl_GuiGetTextWidth, [:str], :int
+  ffi_func :rl_GuiGetFont, [], :ptr
+  ffi_func :rl_GuiGetIcons, [], :ptr
+  ffi_func :rl_GuiLoadIcons, %i[str int], :ptr
+  ffi_func :rl_GuiLoadIconsFromMemory, %i[ptr int int], :ptr
+  ffi_func :rl_GuiLoadStyleFromMemory, %i[ptr int], :void
+  ffi_func :rl_GuiDrawIcon, %i[int int int int ptr], :void
+  ffi_func :rl_GuiToggle, %i[float float float float str int], :int
+  ffi_func :rl_GuiValueBoxFloat, %i[float float float float str float int], :int
+  ffi_func :rl_GuiColorBarHue, %i[float float float float str float], :int
+  ffi_func :rl_GuiColorPanel, %i[float float float float str], :int
+  ffi_func :rl_GuiColorPanelHSV, %i[float float float float str], :int
+  ffi_func :rl_GuiColorPickerHSV, %i[float float float float str], :int
+  ffi_func :rl_GuiTextBox, %i[float float float float str int int], :int
+  ffi_func :rl_GuiTextInputBox, %i[float float float float str str str int str int int], :int
+  ffi_func :rl_GuiListViewEx, %i[float float float float str int int int int], :int
+  ffi_func :rl_GuiTabBar, %i[float float float float str int int], :int
+  ffi_func :rl_GuiTabBarEx, %i[float float float float str int int int int], :int
+  ffi_func :rl_Gui_GetText, [], :str
+  ffi_func :rl_Gui_GetInt2, [], :int
+  ffi_func :rl_Gui_GetInt3, [], :int
+  ffi_func :rl_Gui_SetHsv, %i[float float float], :void
+  ffi_func :rl_Gui_GetHsvH, [], :float
+  ffi_func :rl_Gui_GetHsvS, [], :float
+  ffi_func :rl_Gui_GetHsvV, [], :float
+
   # PascalCase surface (matches the gem's Gui* names).
   def self.GuiLock = Raylib.rl_GuiLock
   def self.GuiUnlock = Raylib.rl_GuiUnlock
@@ -160,6 +194,93 @@ module Raylib
     res = Raylib.rl_GuiProgressBarValue(x, y, w, h, l, r, value, lo, hi)
     [res, Raylib.rl_Gui_GetFloat]
   end
+
+  # Extended surface (coverage completion).
+  def self.GuiIsLocked = Raylib.rl_GuiIsLocked
+  def self.GuiGetState = Raylib.rl_GuiGetState
+  def self.GuiEnableTooltip = Raylib.rl_GuiEnableTooltip
+  def self.GuiDisableTooltip = Raylib.rl_GuiDisableTooltip
+  def self.GuiSetTooltip(text) = Raylib.rl_GuiSetTooltip(text)
+  def self.GuiSetIconScale(scale) = Raylib.rl_GuiSetIconScale(scale)
+  def self.GuiGetTextWidth(text) = Raylib.rl_GuiGetTextWidth(text)
+  def self.GuiGetFont = Raylib.rl_GuiGetFont
+  def self.GuiGetIcons = Raylib.rl_GuiGetIcons
+  def self.GuiLoadIcons(file_name, load_names)
+    Raylib.rl_GuiLoadIcons(file_name, load_names ? 1 : 0)
+  end
+  def self.GuiLoadIconsFromMemory(data, data_size, load_names)
+    Raylib.rl_GuiLoadIconsFromMemory(data, data_size, load_names ? 1 : 0)
+  end
+  def self.GuiLoadStyleFromMemory(data, data_size)
+    Raylib.rl_GuiLoadStyleFromMemory(data, data_size)
+  end
+  def self.GuiDrawIcon(icon_id, x, y, pixel_size, color)
+    Raylib.rl_GuiDrawIcon(icon_id, x, y, pixel_size, color)
+  end
+  def self.GuiTextBox(x, y, w, h, text, text_size, edit)
+    res = Raylib.rl_GuiTextBox(x, y, w, h, text, text_size, edit)
+    [res, Raylib.rl_Gui_GetText]
+  end
+  def self.GuiTextInputBox(x, y, w, h, title, message, text, text_size, btns,
+                           active, secret)
+    res = Raylib.rl_GuiTextInputBox(x, y, w, h, title, message, text, text_size,
+                                    btns, active, secret ? 1 : 0)
+    [res, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetText]
+  end
+  def self.GuiGetText = Raylib.rl_Gui_GetText
+
+  # Value-returning variants (control result + updated value(s)).
+  def self.GuiToggle(x, y, w, h, text, active)
+    res = Raylib.rl_GuiToggle(x, y, w, h, text, active ? 1 : 0)
+    [res, Raylib.rl_Gui_GetInt]
+  end
+  def self.GuiValueBoxFloat(x, y, w, h, text, value, edit)
+    res = Raylib.rl_GuiValueBoxFloat(x, y, w, h, text, value, edit)
+    [res, Raylib.rl_Gui_GetFloat]
+  end
+  def self.GuiColorBarAlpha(x, y, w, h, text, alpha)
+    res = Raylib.rl_GuiColorBarAlpha(x, y, w, h, text, alpha)
+    [res, Raylib.rl_Gui_GetFloat]
+  end
+  def self.GuiColorBarHue(x, y, w, h, text, value)
+    res = Raylib.rl_GuiColorBarHue(x, y, w, h, text, value)
+    [res, Raylib.rl_Gui_GetFloat]
+  end
+  def self.GuiToggleGroup(x, y, w, h, text, active)
+    res = Raylib.rl_GuiToggleGroup(x, y, w, h, text, active)
+    [res, Raylib.rl_Gui_GetInt]
+  end
+  def self.GuiToggleSlider(x, y, w, h, text, active)
+    res = Raylib.rl_GuiToggleSlider(x, y, w, h, text, active)
+    [res, Raylib.rl_Gui_GetInt]
+  end
+  def self.GuiDummyRec(x, y, w, h, text) = Raylib.rl_GuiDummyRec(x, y, w, h, text)
+  def self.GuiColorPanel(x, y, w, h, text)
+    res = Raylib.rl_GuiColorPanel(x, y, w, h, text)
+    [res, Raylib.rl_Gui_GetColorR, Raylib.rl_Gui_GetColorG,
+     Raylib.rl_Gui_GetColorB, Raylib.rl_Gui_GetColorA]
+  end
+  def self.GuiColorPanelHSV(x, y, w, h, text)
+    res = Raylib.rl_GuiColorPanelHSV(x, y, w, h, text)
+    [res, Raylib.rl_Gui_GetHsvH, Raylib.rl_Gui_GetHsvS, Raylib.rl_Gui_GetHsvV]
+  end
+  def self.GuiColorPickerHSV(x, y, w, h, text)
+    res = Raylib.rl_GuiColorPickerHSV(x, y, w, h, text)
+    [res, Raylib.rl_Gui_GetHsvH, Raylib.rl_Gui_GetHsvS, Raylib.rl_Gui_GetHsvV]
+  end
+  def self.GuiListViewEx(x, y, w, h, text, count, scroll, active, focus)
+    res = Raylib.rl_GuiListViewEx(x, y, w, h, text, count, scroll, active, focus)
+    [res, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetInt3]
+  end
+  def self.GuiTabBar(x, y, w, h, text, hscroll, active)
+    res = Raylib.rl_GuiTabBar(x, y, w, h, text, hscroll, active)
+    [res, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2]
+  end
+  def self.GuiTabBarEx(x, y, w, h, text, count, hscroll, active, focus)
+    res = Raylib.rl_GuiTabBarEx(x, y, w, h, text, count, hscroll, active, focus)
+    [res, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetInt3]
+  end
+  def self.GuiSetColorHSV(h, s, v) = Raylib.rl_Gui_SetHsv(h, s, v)
 
   # Legacy RGui* aliases (the examples use these names).
   def self.RGuiCheckBox(x, y, w, h, text, checked) = Raylib.rl_GuiCheckBox(x, y, w, h, text, checked)
@@ -256,5 +377,33 @@ module Raylib
     alias_method :gui_list_view, :GuiListView
     alias_method :gui_message_box, :GuiMessageBox
     alias_method :gui_color_picker, :GuiColorPicker
+  end
+
+  # ====== generated: snake_case aliases (MRI gem naming, tools/gen_raygui_aliases.py) ======
+  class << self
+    alias_method :gui_is_locked, :GuiIsLocked
+    alias_method :gui_get_state, :GuiGetState
+    alias_method :gui_get_font, :GuiGetFont
+    alias_method :gui_load_style_from_memory, :GuiLoadStyleFromMemory
+    alias_method :gui_enable_tooltip, :GuiEnableTooltip
+    alias_method :gui_disable_tooltip, :GuiDisableTooltip
+    alias_method :gui_set_tooltip, :GuiSetTooltip
+    alias_method :gui_set_icon_scale, :GuiSetIconScale
+    alias_method :gui_get_icons, :GuiGetIcons
+    alias_method :gui_load_icons, :GuiLoadIcons
+    alias_method :gui_load_icons_from_memory, :GuiLoadIconsFromMemory
+    alias_method :gui_draw_icon, :GuiDrawIcon
+    alias_method :gui_get_text_width, :GuiGetTextWidth
+    alias_method :gui_toggle, :GuiToggle
+    alias_method :gui_value_box_float, :GuiValueBoxFloat
+    alias_method :gui_text_box, :GuiTextBox
+    alias_method :gui_list_view_ex, :GuiListViewEx
+    alias_method :gui_tab_bar, :GuiTabBar
+    alias_method :gui_tab_bar_ex, :GuiTabBarEx
+    alias_method :gui_text_input_box, :GuiTextInputBox
+    alias_method :gui_color_panel, :GuiColorPanel
+    alias_method :gui_color_bar_hue, :GuiColorBarHue
+    alias_method :gui_color_picker_hsv, :GuiColorPickerHSV
+    alias_method :gui_color_panel_hsv, :GuiColorPanelHSV
   end
 end

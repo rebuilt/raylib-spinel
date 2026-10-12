@@ -1,6 +1,8 @@
 #include <raylib.h>
 #include "raygui.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "spinel/runtime.h"
 
 /* Mirror the raylib adapter's embedded-Color wrapper (used by GuiColorPicker). */
@@ -254,3 +256,185 @@ int rl_GuiProgressBarValue(float x, float y, float w, float h, const char *l,
   sp_gui_float_result = v;
   return res;
 }
+
+/* ================================================================
+ * Coverage completion: the rest of the raygui 5.0 surface. Same
+ * conventions as above (Rectangle by value -> floats; pointer out-params
+ * become return-value slots read back with the rl_Gui_Get* helpers).
+ * ================================================================ */
+
+/* Extra result slots (multi-value controls such as the tab/list views). */
+static int sp_gui_int_result2;
+static int sp_gui_int_result3;
+static char sp_gui_text_result[1024];
+static float sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v;
+
+/* ---- global state, tooltips, metrics, icons ---- */
+int rl_GuiIsLocked(void) { return GuiIsLocked() ? 1 : 0; }
+int rl_GuiGetState(void) { return GuiGetState(); }
+void rl_GuiEnableTooltip(void) { GuiEnableTooltip(); }
+void rl_GuiDisableTooltip(void) { GuiDisableTooltip(); }
+void rl_GuiSetTooltip(const char *tooltip) { GuiSetTooltip(tooltip); }
+void rl_GuiSetIconScale(int scale) { GuiSetIconScale(scale); }
+int rl_GuiGetTextWidth(const char *text) { return GuiGetTextWidth(text); }
+
+/* GuiGetFont returns a Font by value; hand back a pointer to a static copy
+ * that can be fed straight back to rl_GuiSetFont (which dereferences it). */
+void *rl_GuiGetFont(void) {
+  static Font f;
+  f = GuiGetFont();
+  return &f;
+}
+void *rl_GuiGetIcons(void) { return GuiGetIcons(); }
+void *rl_GuiLoadIcons(const char *fileName, int loadIconsName) {
+  return GuiLoadIcons(fileName, loadIconsName != 0);
+}
+void *rl_GuiLoadIconsFromMemory(void *fileData, int dataSize,
+                                int loadIconsName) {
+  return GuiLoadIconsFromMemory((const unsigned char *)fileData, dataSize,
+                                loadIconsName != 0);
+}
+void rl_GuiLoadStyleFromMemory(void *fileData, int dataSize) {
+  GuiLoadStyleFromMemory((const unsigned char *)fileData, dataSize);
+}
+void rl_GuiDrawIcon(int iconId, int posX, int posY, int pixelSize, void *color) {
+  GuiDrawIcon(iconId, posX, posY, pixelSize, ((rl_Color *)color)->c);
+}
+
+/* ---- value-returning controls ---- */
+int rl_GuiToggle(float x, float y, float w, float h, const char *text,
+                 int active) {
+  bool b = active != 0;
+  int r = GuiToggle((Rectangle){ x, y, w, h }, text, &b);
+  sp_gui_int_result = b ? 1 : 0;
+  return r;
+}
+int rl_GuiValueBoxFloat(float x, float y, float w, float h, const char *text,
+                        float value, int edit) {
+  char buf[64];
+  snprintf(buf, sizeof buf, "%g", value);
+  float v = value;
+  int r = GuiValueBoxFloat((Rectangle){ x, y, w, h }, text, buf, &v, edit != 0);
+  sp_gui_float_result = v;
+  return r;
+}
+int rl_GuiColorBarHue(float x, float y, float w, float h, const char *text,
+                      float value) {
+  float v = value;
+  int r = GuiColorBarHue((Rectangle){ x, y, w, h }, text, &v);
+  sp_gui_float_result = v;
+  return r;
+}
+int rl_GuiColorPanel(float x, float y, float w, float h, const char *text) {
+  Color c = { sp_gui_color_r, sp_gui_color_g, sp_gui_color_b, sp_gui_color_a };
+  int r = GuiColorPanel((Rectangle){ x, y, w, h }, text, &c);
+  sp_gui_color_r = c.r; sp_gui_color_g = c.g;
+  sp_gui_color_b = c.b; sp_gui_color_a = c.a;
+  return r;
+}
+int rl_GuiColorPanelHSV(float x, float y, float w, float h, const char *text) {
+  Vector3 hsv = { sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v };
+  int r = GuiColorPanelHSV((Rectangle){ x, y, w, h }, text, &hsv);
+  sp_gui_hsv_h = hsv.x; sp_gui_hsv_s = hsv.y; sp_gui_hsv_v = hsv.z;
+  return r;
+}
+int rl_GuiColorPickerHSV(float x, float y, float w, float h, const char *text) {
+  Vector3 hsv = { sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v };
+  int r = GuiColorPickerHSV((Rectangle){ x, y, w, h }, text, &hsv);
+  sp_gui_hsv_h = hsv.x; sp_gui_hsv_s = hsv.y; sp_gui_hsv_v = hsv.z;
+  return r;
+}
+void rl_Gui_SetHsv(float h, float s, float v) {
+  sp_gui_hsv_h = h; sp_gui_hsv_s = s; sp_gui_hsv_v = v;
+}
+float rl_Gui_GetHsvH(void) { return sp_gui_hsv_h; }
+float rl_Gui_GetHsvS(void) { return sp_gui_hsv_s; }
+float rl_Gui_GetHsvV(void) { return sp_gui_hsv_v; }
+
+/* ---- editable text buffers ---- */
+int rl_GuiTextBox(float x, float y, float w, float h, const char *text,
+                  int textSize, int edit) {
+  (void)textSize;
+  int i = 0;
+  if (text != NULL) {
+    while (text[i] != '\0' && i < 1023) { sp_gui_text_result[i] = text[i]; i++; }
+  }
+  sp_gui_text_result[i] = '\0';
+  return GuiTextBox((Rectangle){ x, y, w, h }, sp_gui_text_result, 1024,
+                    edit != 0);
+}
+int rl_GuiTextInputBox(float x, float y, float w, float h, const char *title,
+                       const char *message, const char *text, int textSize,
+                       const char *btnText, int btnActive, int secretView) {
+  (void)textSize;
+  int i = 0;
+  if (text != NULL) {
+    while (text[i] != '\0' && i < 1023) { sp_gui_text_result[i] = text[i]; i++; }
+  }
+  sp_gui_text_result[i] = '\0';
+  int b = btnActive;
+  bool secret = secretView != 0;
+  int r = GuiTextInputBox((Rectangle){ x, y, w, h }, title, message,
+                          sp_gui_text_result, 1024, btnText, &b, &secret);
+  sp_gui_int_result = b;
+  sp_gui_int_result2 = secret ? 1 : 0;
+  return r;
+}
+const char *rl_Gui_GetText(void) { return sp_gui_text_result; }
+
+/* ---- text-list controls (char** built from a ';'-delimited string) ---- */
+static char sp_gui_list_buf[1024];
+static char *sp_gui_list_items[64];
+static char **sp_gui_split_text(const char *text, int *count_out) {
+  int n = 0;
+  if (text != NULL) {
+    size_t len = strlen(text);
+    if (len > sizeof(sp_gui_list_buf) - 1) len = sizeof(sp_gui_list_buf) - 1;
+    memcpy(sp_gui_list_buf, text, len);
+    sp_gui_list_buf[len] = '\0';
+    char *p = sp_gui_list_buf;
+    while (*p != '\0' && n < 64) {
+      sp_gui_list_items[n++] = p;
+      char *semi = strchr(p, ';');
+      if (semi == NULL) break;
+      *semi = '\0';
+      p = semi + 1;
+    }
+  }
+  *count_out = n;
+  return sp_gui_list_items;
+}
+int rl_GuiListViewEx(float x, float y, float w, float h, const char *text,
+                     int count, int scrollIndex, int active, int focus) {
+  (void)count;
+  int n = 0;
+  char **items = sp_gui_split_text(text, &n);
+  int s = scrollIndex, a = active, f = focus;
+  int r = GuiListViewEx((Rectangle){ x, y, w, h }, items, n, &s, &a, &f);
+  sp_gui_int_result = a;
+  sp_gui_int_result2 = s;
+  sp_gui_int_result3 = f;
+  return r;
+}
+int rl_GuiTabBar(float x, float y, float w, float h, const char *text,
+                 int hscroll, int active) {
+  int hs = hscroll, a = active;
+  int r = GuiTabBar((Rectangle){ x, y, w, h }, text, &hs, &a);
+  sp_gui_int_result = a;
+  sp_gui_int_result2 = hs;
+  return r;
+}
+int rl_GuiTabBarEx(float x, float y, float w, float h, const char *text,
+                   int count, int hscroll, int active, int focus) {
+  (void)count;
+  int n = 0;
+  char **items = sp_gui_split_text(text, &n);
+  int hs = hscroll, a = active, f = focus;
+  int r = GuiTabBarEx((Rectangle){ x, y, w, h }, items, n, &hs, &a, &f);
+  sp_gui_int_result = a;
+  sp_gui_int_result2 = hs;
+  sp_gui_int_result3 = f;
+  return r;
+}
+int rl_Gui_GetInt2(void) { return sp_gui_int_result2; }
+int rl_Gui_GetInt3(void) { return sp_gui_int_result3; }
