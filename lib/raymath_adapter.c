@@ -717,8 +717,8 @@ void rl_MatrixOrtho(double left, double right, double bottom, double top, double
 void rl_MatrixLookAt(void * eye, void * target, void * up, void * _out) {
   ((rl_Matrix*)_out)->v = MatrixLookAt(((rl_Vector3*)eye)->v, ((rl_Vector3*)target)->v, ((rl_Vector3*)up)->v);
 }
-/** MatrixToFloatV(params: void * mat, float * _out -> void *) */
-void * rl_MatrixToFloatV(void * mat, float * _out) {
+/** MatrixToFloatV(params: void * mat -> void *) */
+void * rl_MatrixToFloatV(void * mat) {
   float16 *r = (float16 *)malloc(sizeof(float16));
   *r = MatrixToFloatV(((rl_Matrix*)mat)->v);
   return r;

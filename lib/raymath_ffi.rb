@@ -172,7 +172,7 @@ module Raylib
   ffi_func :rl_Vector3DotProduct, %i[ptr ptr], :float
   ffi_func :rl_Vector3ClampValue, %i[ptr float float ptr], :void
   ffi_func :rl_MatrixIdentity, %i[ptr], :void
-  ffi_func :rl_MatrixToFloatV, %i[ptr ptr], :ptr
+  ffi_func :rl_MatrixToFloatV, [:ptr], :ptr
   ffi_func :rl_QuaternionFromVector3ToVector3, %i[ptr ptr ptr], :void
   ffi_func :rl_QuaternionToMatrix, %i[ptr ptr], :void
   ffi_func :rl_QuaternionToMatrix3, %i[ptr ptr], :void
@@ -718,6 +718,19 @@ module Raylib
       Raylib.rl_MatrixLookAt(eye, target, up, _out)
       _out
     end
+    def self.MatrixToFloatV(mat)
+      Raylib.rl_MatrixToFloatV(mat)
+    end
+    def self.QuaternionFromVector3ToVector3(from, to)
+      _out = Quaternion.new
+      Raylib.rl_QuaternionFromVector3ToVector3(from, to, _out)
+      _out
+    end
+    def self.QuaternionToMatrix(q)
+      _out = Matrix.new
+      Raylib.rl_QuaternionToMatrix(q, _out)
+      _out
+    end
     def self.QuaternionAdd(q1, q2)
       _out = Quaternion.new
       Raylib.rl_QuaternionAdd(q1, q2, _out)
@@ -852,16 +865,10 @@ module Raylib
   def self.float_equals(p0, p1)
     Raylib.FloatEquals(p0, p1)
   end
-  def self.matrix_to_float_v(p0)
-    Raylib.rl_MatrixToFloatV(p0)
-  end
-  def self.quaternion_from_vector3_to_vector3(p0, p1)
-    Raylib.rl_QuaternionFromVector3ToVector3(p0, p1)
-  end
-  def self.quaternion_to_matrix(p0)
-    Raylib.rl_QuaternionToMatrix(p0)
-  end
   class << self
+    alias_method :matrix_to_float_v, :MatrixToFloatV
+    alias_method :quaternion_from_vector3_to_vector3, :QuaternionFromVector3ToVector3
+    alias_method :quaternion_to_matrix, :QuaternionToMatrix
     alias_method :vector2_zero, :Vector2Zero
     alias_method :vector2_one, :Vector2One
     alias_method :vector2_add, :Vector2Add

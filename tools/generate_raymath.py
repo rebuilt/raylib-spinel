@@ -326,20 +326,10 @@ def emit_shim(fn):
         ffl = ffi_flat(ret)
         c_ret, ffi_ret = ffi_c_type(ffl), ffl
     elif ret in ("float3", "float16"):
-        # float3/float16 returns: materialize as out-param with malloc'd buffer
-        n_elems = 3 if ret == "float3" else 16
-        c_ret = "void *"
-        ffi_ret = ":ptr"
-        c_params.append(("float *", "_out"))
-        ffi_args.append(":float")
-        # count parameter for the number of floats
-        for aname, t in fn.args:
-            if base_of(t) == "Vector3" and "float3" not in [a for a,_ in fn.args[:len(fn.args)]]:
-                pass
-        # Actually, we need to know the source type. For now, just mark as out-param
-        wrapper_args.append(None)
-        report["out"] += 1
-        # body_lines will be set later based on c_ret
+        # float3/float16 returns: the shim mallocs the buffer and returns a
+        # pointer to it (see the c_ret == "void *" body below).
+        c_ret, ffi_ret = "void *", ":ptr"
+        report["heap_in_shim"] += 1
     else:
         raise SystemExit("unhandled return %r in %s" % (ret, fn.name))
 
@@ -582,6 +572,12 @@ for fn in api.get("functions", []):
         # Spinel codegen cannot call an aliased ffi_func declaration (the
         # alias table only rewrites def-ed methods), so emit a forwarding
         # wrapper instead of an alias for ffi_func targets.
+        rb = base_of((fn.get("returnType") or "void").strip())
+        if rb in GC_STRUCTS or (rb in RAW_STRUCTS
+                                and (fn.get("returnType") or "").strip() == "Vector2"):
+            # Out-param shim with no PascalCase wrapper: forwarding would
+            # have to allocate the out struct, so leave it shim-only.
+            continue
         a = ", ".join("p%d" % i for i in range(len(fn.get("params", []))))
         fwd.append("  def self.%s(%s)\n    Raylib.%s(%s)\n  end\n" % (sn, a, target, a))
     else:

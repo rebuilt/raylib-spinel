@@ -66,6 +66,16 @@ puts "Vector4Lerp #{f l4.x} #{f l4.y} #{f l4.z} #{f l4.w}"
 n4 = Raylib.Vector4Normalize(p4)
 puts "Vector4Normalize #{f n4.x} #{f n4.y} #{f n4.z} #{f n4.w}"
 
+# ---- Quaternion/Matrix conversions (out-param wrappers that once had no
+# PascalCase surface; MatrixToFloatV returns a raw pointer under Spinel so it
+# is not differentially comparable) ----
+qq = Raylib.QuaternionFromVector3ToVector3(Raylib::Vector3.new(0.0, 0.0, 1.0),
+                                           Raylib::Vector3.new(1.0, 0.0, 0.0))
+puts "QuaternionFromVector3ToVector3 #{f qq.x} #{f qq.y} #{f qq.z} #{f qq.w}"
+qmm = Raylib.QuaternionToMatrix(qq)
+puts "QuaternionToMatrix #{f qmm.m0} #{f qmm.m5} #{f qmm.m10}"
+puts "snake quaternion_to_matrix #{f Raylib.quaternion_to_matrix(qq).m5}"
+
 # ---- snake_case aliases (MRI gem naming) ----
 puts "snake vector2_dot_product #{f Raylib.vector2_dot_product(a, b)}"
 n3s = Raylib.vector3_normalize(v)

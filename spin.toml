@@ -1,4 +1,4 @@
 [package]
 name = "raylib"
 version = "0.1.0"
-sources = ["lib/raylib_adapter.c", "lib/raymath_adapter.c", "lib/rlgl_adapter.c", "lib/raygui_adapter.c", "lib/raygui_impl.c", "lib/physac_adapter.c", "lib/physac_impl.c"]
+sources = ["lib/raylib_adapter.c", "lib/raymath_adapter.c", "lib/rlgl_adapter.c", "lib/raygui_adapter.c", "lib/raygui_impl.c", "lib/physac_adapter.c", "lib/physac_impl.c", "lib/rcamera_adapter.c"]
