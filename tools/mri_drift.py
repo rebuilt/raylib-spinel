@@ -11,8 +11,9 @@ Two comparisons:
 
 2. Latest MRI gem vs. raylib-spinel's exposed surface (same extraction as
    coverage_audit.py): MRI-only names are functions the MRI gem gives users
-   that we do not expose (coverage gaps + snake_case alias targets); our-only
-   names are custom shims with no MRI counterpart.
+   that we do not expose (coverage gaps + snake_case alias targets). Our
+   extra surface -- snake_case aliases of MRI names plus custom adapter
+   shims/helpers -- is not drift, so it is not reported.
 
 MRI surfaces are extracted from the generated entry tables:
     [:Name, :entry_point, [:param, ...], :return]
@@ -123,18 +124,18 @@ def main():
             else:
                 print("  %s: unchanged (%d fns)" % (lib, len(b)))
 
-    # latest MRI vs ours
+    # latest MRI vs ours: report only the MRI-only gaps (what the MRI gem
+    # exposes and we do not). Our extra surface is not drift -- it is
+    # snake_case aliases of MRI names plus custom adapter shims/helpers -- so
+    # it is deliberately not reported.
     latest = versions[-1][2]
     print("\n== MRI %s vs raylib-spinel surface" % versions[-1][1])
     for lib in MRI_FILES:
         mri = mri_surface(latest, lib)
         surf = ca.our_surface(lib)
         mri_only = sorted(n for n in mri if ca.classify(n, surf) is None)
-        ours_names = surf["ffi"] | surf["shim"] | surf["wrapper"]
-        ours_only = sorted(n for n in ours_names
-                           if n not in mri and not (n.startswith("rl_") and n[3:] in mri))
-        report["vs_ours"][lib] = {"mri_only": mri_only, "ours_only": ours_only}
-        print("  %s: mri-only=%d, ours-only=%d" % (lib, len(mri_only), len(ours_only)))
+        report["vs_ours"][lib] = {"mri_only": mri_only}
+        print("  %s: mri-only=%d" % (lib, len(mri_only)))
         if mri_only:
             print("     mri-only: %s" % ", ".join(mri_only))
 

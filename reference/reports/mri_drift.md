@@ -39,10 +39,10 @@ Tool: `tools/mri_drift.py`. Compares installed MRI gem versions and the MRI 0.8.
   raygui: unchanged (61 fns)
 
 == MRI 0.8.4 vs raylib-spinel surface
-  raylib: mri-only=3, ours-only=332
+  raylib: mri-only=3
      mri-only: TextFormat, TraceLog, internalDrawModelEx
-  raymath: mri-only=0, ours-only=10
-  rlgl: mri-only=0, ours-only=181
-  physac: mri-only=0, ours-only=9
-  rcamera: mri-only=0, ours-only=0
-  raygui: mri-only=0, ours-only=53
+  raymath: mri-only=0
+  rlgl: mri-only=0
+  physac: mri-only=0
+  rcamera: mri-only=0
+  raygui: mri-only=0
