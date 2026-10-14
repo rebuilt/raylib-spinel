@@ -679,6 +679,14 @@ def snake_case(name):
     return s
 
 ealias = existing_set(r"alias_method :(\w+),", FFI_PATH)
+# Pre-existing aliases whose target is an ffi_func declaration never register
+# under Spinel (only def-ed methods can be aliased); drop the lines so the
+# forwarding-wrapper branch below regenerates them.
+for _sn, _tgt in re.findall(r"alias_method\s+:(\w+),\s*:(\w+)", ffi_text):
+    if _tgt in effi and _tgt not in ewrap:
+        ffi_text = re.sub(r"[ \t]*alias_method\s+:%s,\s*:%s\n" % (_sn, _tgt),
+                          "", ffi_text)
+        ealias.discard(_sn)
 taken = effi | ewrap | ealias
 aliases = []
 fwd = []

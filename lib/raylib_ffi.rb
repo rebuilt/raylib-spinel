@@ -3335,8 +3335,24 @@ module Raylib
   def self.set_audio_stream_buffer_size_default(p0)
     Raylib.SetAudioStreamBufferSizeDefault(p0)
   end
+  # Forwarding wrappers (not aliases): the targets are ffi_func declarations,
+  # which Spinel cannot alias.
+  def self.window_should_close()
+    Raylib.WindowShouldClose()
+  end
+  def self.is_key_pressed(p0)
+    Raylib.IsKeyPressed(p0)
+  end
+  def self.is_key_down(p0)
+    Raylib.IsKeyDown(p0)
+  end
+  def self.is_gamepad_button_down(p0, p1)
+    Raylib.IsGamepadButtonDown(p0, p1)
+  end
+  def self.is_mouse_button_down(p0)
+    Raylib.IsMouseButtonDown(p0)
+  end
   class << self
-    alias_method :window_should_close, :WindowShouldClose
     alias_method :set_window_icon, :SetWindowIcon
     alias_method :get_monitor_position, :GetMonitorPosition
     alias_method :get_window_position, :GetWindowPosition
@@ -3383,10 +3399,6 @@ module Raylib
     alias_method :export_automation_event_list, :ExportAutomationEventList
     alias_method :set_automation_event_list, :SetAutomationEventList
     alias_method :play_automation_event, :PlayAutomationEvent
-    alias_method :is_key_pressed, :IsKeyPressed
-    alias_method :is_key_down, :IsKeyDown
-    alias_method :is_gamepad_button_down, :IsGamepadButtonDown
-    alias_method :is_mouse_button_down, :IsMouseButtonDown
     alias_method :get_mouse_position, :GetMousePosition
     alias_method :get_mouse_delta, :GetMouseDelta
     alias_method :get_mouse_wheel_move_v, :GetMouseWheelMoveV

@@ -205,7 +205,7 @@ module Raylib
   end
 
   # Extended surface (coverage completion).
-  def self.GuiIsLocked = Raylib.rl_GuiIsLocked
+  def self.GuiIsLocked = Raylib.rl_GuiIsLocked != 0
   def self.GuiGetState = Raylib.rl_GuiGetState
   def self.GuiEnableTooltip = Raylib.rl_GuiEnableTooltip
   def self.GuiDisableTooltip = Raylib.rl_GuiDisableTooltip
