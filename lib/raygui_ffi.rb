@@ -124,11 +124,14 @@ module Raylib
   def self.GuiLine(x, y, w, h, text) = Raylib.rl_GuiLine(x, y, w, h, text)
   def self.GuiPanel(x, y, w, h, text) = Raylib.rl_GuiPanel(x, y, w, h, text)
   def self.GuiStatusBar(x, y, w, h, text) = Raylib.rl_GuiStatusBar(x, y, w, h, text)
+  # `checked` is an `int *` carrier (IO::Buffer / ffi_buffer): the adapter
+  # reads and writes the state through it, so a bare boolean would be address
+  # 0/1. Use GuiCheckBoxValue(x, y, w, h, text, checked) for the boolean form.
   def self.GuiCheckBox(x, y, w, h, text, checked) = Raylib.rl_GuiCheckBox(x, y, w, h, text, checked)
   def self.GuiComboBox(x, y, w, h, text, active) = Raylib.rl_GuiComboBox(x, y, w, h, text, active)
-  def self.GuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit)
-  def self.GuiSpinner(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiSpinner(x, y, w, h, text, value, lo, hi, edit)
-  def self.GuiValueBox(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiValueBox(x, y, w, h, text, value, lo, hi, edit)
+  def self.GuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit ? 1 : 0)
+  def self.GuiSpinner(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiSpinner(x, y, w, h, text, value, lo, hi, edit ? 1 : 0)
+  def self.GuiValueBox(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiValueBox(x, y, w, h, text, value, lo, hi, edit ? 1 : 0)
   def self.GuiSlider(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSlider(x, y, w, h, l, r, value, lo, hi)
   def self.GuiSliderBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSliderBar(x, y, w, h, l, r, value, lo, hi)
   def self.GuiProgressBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiProgressBar(x, y, w, h, l, r, value, lo, hi)
@@ -224,7 +227,7 @@ module Raylib
     Raylib.rl_GuiDrawIcon(icon_id, x, y, pixel_size, color)
   end
   def self.GuiTextBox(x, y, w, h, text, text_size, edit)
-    res = Raylib.rl_GuiTextBox(x, y, w, h, text, text_size, edit)
+    res = Raylib.rl_GuiTextBox(x, y, w, h, text, text_size, edit ? 1 : 0)
     [res, Raylib.rl_Gui_GetText]
   end
   def self.GuiTextInputBox(x, y, w, h, title, message, text, text_size, btns,
@@ -241,7 +244,7 @@ module Raylib
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiValueBoxFloat(x, y, w, h, text, value, edit)
-    res = Raylib.rl_GuiValueBoxFloat(x, y, w, h, text, value, edit)
+    res = Raylib.rl_GuiValueBoxFloat(x, y, w, h, text, value, edit ? 1 : 0)
     [res, Raylib.rl_Gui_GetFloat]
   end
   def self.GuiColorBarAlpha(x, y, w, h, text, alpha)
@@ -289,10 +292,11 @@ module Raylib
   def self.GuiSetColorHSV(h, s, v) = Raylib.rl_Gui_SetHsv(h, s, v)
 
   # Legacy RGui* aliases (the examples use these names).
+  # RGuiCheckBox takes the same `int *` as GuiCheckBox (see the note above).
   def self.RGuiCheckBox(x, y, w, h, text, checked) = Raylib.rl_GuiCheckBox(x, y, w, h, text, checked)
   def self.RGuiSliderBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSliderBar(x, y, w, h, l, r, value, lo, hi)
   def self.RGuiSlider(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSlider(x, y, w, h, l, r, value, lo, hi)
-  def self.RGuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit)
+  def self.RGuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit ? 1 : 0)
   def self.RGuiComboBox(x, y, w, h, text, active) = Raylib.rl_GuiComboBox(x, y, w, h, text, active)
   def self.RGuiProgressBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiProgressBar(x, y, w, h, l, r, value, lo, hi)
   def self.RGuiListView(x, y, w, h, text, scroll, active) = Raylib.rl_GuiListView(x, y, w, h, text, scroll, active)
