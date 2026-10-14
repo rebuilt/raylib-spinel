@@ -188,6 +188,10 @@ module Raylib
       s = s.chop if s.end_with?('_')
       next if s == m.to_s || Raylib.respond_to?(s)
       alias_method s, m
+      # The gem's snake mode attaches names as module *and* instance methods
+      # (attach_function + module_function); mirror that so `include Raylib` +
+      # bare snake calls work like on the Spinel side.
+      Raylib.send(:define_method, s) { |*args| Raylib.send(m, *args) }
     end
   end
 end
