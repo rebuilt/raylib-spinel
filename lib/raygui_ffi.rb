@@ -152,11 +152,16 @@ module Raylib
     [res, Raylib.rl_Gui_GetFloat]
   end
   def self.GuiSpinnerValue(x, y, w, h, text, value, lo, hi, edit)
-    res = Raylib.rl_GuiSpinnerValue(x, y, w, h, text, value, lo, hi, edit)
+    # `edit` is a Ruby boolean; the :int FFI slot wants 0/1 (as GuiCheckBoxValue
+    # does for `checked`). Handing a bare bool to an int slot is CRuby's
+    # TypeError "no implicit conversion of false into Integer".
+    res = Raylib.rl_GuiSpinnerValue(x, y, w, h, text, value, lo, hi,
+                                    edit ? 1 : 0)
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiDropdownBoxValue(x, y, w, h, text, active, edit)
-    res = Raylib.rl_GuiDropdownBoxValue(x, y, w, h, text, active, edit)
+    res = Raylib.rl_GuiDropdownBoxValue(x, y, w, h, text, active,
+                                        edit ? 1 : 0)
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiComboBoxValue(x, y, w, h, text, active)
@@ -168,12 +173,13 @@ module Raylib
     [res, Raylib.rl_Gui_GetInt]
   end
 
-  def self.GuiTextBoxFloat(x, y, w, h, text, edit) = Raylib.rl_GuiTextBoxFloat(x, y, w, h, text, edit)
+  def self.GuiTextBoxFloat(x, y, w, h, text, edit) = Raylib.rl_GuiTextBoxFloat(x, y, w, h, text, edit ? 1 : 0)
   def self.GuiScrollPanel(x, y, w, h, text, cx, cy, cw, ch) = Raylib.rl_GuiScrollPanel(x, y, w, h, text, cx, cy, cw, ch)
   def self.GuiIconText(icon, text) = Raylib.rl_GuiIconText(icon, text)
 
   def self.GuiValueBoxValue(x, y, w, h, text, value, lo, hi, edit)
-    res = Raylib.rl_GuiValueBoxValue(x, y, w, h, text, value, lo, hi, edit)
+    res = Raylib.rl_GuiValueBoxValue(x, y, w, h, text, value, lo, hi,
+                                     edit ? 1 : 0)
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiToggleGroupValue(x, y, w, h, text, active)
