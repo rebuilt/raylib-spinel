@@ -1,5 +1,5 @@
 # Gem raygui state surface (headless).
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 puts "locked=#{Raylib.GuiIsLocked}"

@@ -1,6 +1,6 @@
 # windowed
 # Gem model surface: handles with fields + helper methods.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 Raylib.InitWindow(64, 64, "corpus-models")

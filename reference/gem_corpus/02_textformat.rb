@@ -1,5 +1,5 @@
 # Gem string formatting helpers (TextFormat returns a pointer).
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 puts Raylib.TextFormat("hello %s %d %.1f", :string, "world", :int, 42, :float, 1.5).read_string

@@ -1,5 +1,5 @@
 # Gem raymath surface (by-value Vector/Matrix in and out).
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 a = Vector2.create(1.0, 2.0)

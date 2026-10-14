@@ -11,6 +11,20 @@ spin add raylib --path ../raylib-spinel
 spin run              # compile bin/myapp.rb and run it
 ```
 
+## Existing raylib-bindings projects
+
+Projects written against the MRI `raylib-bindings` gem need no source changes:
+point spin at this package and keep `require "raylib"`. That entry loads the
+full gem surface (raylib, raymath, rlgl, rcamera, raygui, physac), the bundled
+`ffi` package, and the include-able instance methods, and the gem's
+`Raylib.load_lib` / `Raylib.setup_symbols` calls are accepted as no-ops.
+
+```bash
+cd my_existing_game
+spin add raylib --path ../raylib-spinel
+spin run bin/my_game.rb   # `require "raylib"` resolves to this package
+```
+
 
 Create a gemfile
 

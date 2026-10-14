@@ -1,6 +1,6 @@
 # windowed
 # Gem draw surface with by-value structs.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 Raylib.InitWindow(320, 240, "corpus-shapes")

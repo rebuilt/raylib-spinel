@@ -1,6 +1,6 @@
 # windowed
 # Gem window lifecycle, fixed frames.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 Raylib.InitWindow(320, 240, "corpus-window")

@@ -1,5 +1,5 @@
 # Gem file-text API: LoadFileText returns a pointer that reads back as text.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 path = "corpus_tmp.txt"

@@ -62,35 +62,6 @@ def normalize(text):
 PREAMBLE = None
 
 
-def delegators():
-    """Generate the instance-method delegators the MRI gem provides.
-
-    The gem attaches every function both as a module method and (after
-    `include Raylib`) as an instance method; raylib-spinel only defines the
-    module methods, so bare-call example code needs this prelude to analyze
-    past the first blocker. Harness-only: prototypes P1's generation.
-    """
-    global PREAMBLE
-    if PREAMBLE is not None:
-        return PREAMBLE
-    text = "\n".join(open(os.path.join(ROOT, "lib", f)).read()
-                     for f in sorted(os.listdir(os.path.join(ROOT, "lib")))
-                     if f.endswith("_ffi.rb"))
-    lines = []
-    for m in re.finditer(r"def self\.([A-Za-z]\w*)\(([^)]*)\)", text):
-        name, args = m.group(1), m.group(2).strip()
-        if name.startswith("rl_"):
-            continue  # adapter shim, not gem surface
-        lines.append("def %s(%s) = Raylib.%s(%s)" % (name, args, name, args))
-    with_args = set(re.findall(r"def self\.([A-Za-z]\w*)\(", text))
-    for name in sorted(set(re.findall(r"ffi_func\s+:([A-Za-z]\w*)", text)) - with_args):
-        if name.startswith("rl_"):
-            continue
-        lines.append("def %s(*args) = Raylib.%s(*args)" % (name, name))
-    PREAMBLE = "\n".join(sorted(set(lines)))
-    return PREAMBLE
-
-
 def mri_run(path, tmp):
     cmd = ["ruby", "-I", ROOT, "-I", CORPUS, path]
     if windowed(path):
@@ -152,18 +123,16 @@ def section_synthetic(flags):
 def prepare_example(src, dst_dir):
     dst = os.path.join(dst_dir, os.path.basename(src))
     text = open(src).read()
-    prelude = "\n".join([
-        'require "raylib-spinel"',
-        'require "raylib-spinel/raymath"',
-        'require "raylib-spinel/rlgl"',
-        'require "raylib-spinel/raygui"',
-        'require "raylib-spinel/physac"',
-        'require "raylib-spinel/rcamera"',
-        "include Raylib",
-        delegators(),
-    ])
-    text = text.replace("require_relative 'util/setup_dll'", prelude)
-    text = text.replace('require_relative "util/setup_dll"', prelude)
+    # The gem projects start with `require_relative 'util/setup_dll'`, which
+    # loads the gem DLL and ends with `include Raylib`; replace the loader with
+    # the gem's own entry point (`require "raylib"`, resolved to the compat
+    # entry through -I ROOT) and keep the include so bare calls still work.
+    for old in ("require_relative 'util/setup_dll'",
+                'require_relative "util/setup_dll"'):
+        text = text.replace(old, 'require "raylib"\ninclude Raylib')
+    text = text.replace("require '../lib/raylib'", 'require "raylib"')
+    text = text.replace('require "../lib/raylib"', 'require "raylib"')
+    text = text.replace("require 'raylib'", 'require "raylib"')
     text = text.replace("require_relative 'util/", "require_relative '%s/util/" % EXAMPLES)
     text = text.replace('require_relative "util/', 'require_relative "%s/util/' % EXAMPLES)
     open(dst, "w").write(text)

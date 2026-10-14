@@ -1,5 +1,5 @@
 # Gem constants / enums.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 puts [KEY_A, KEY_SPACE, KEY_F5, KEY_RIGHT].inspect

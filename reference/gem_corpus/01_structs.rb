@@ -1,5 +1,5 @@
 # Gem-API struct surface: factories, fields, to_a, sizes, nested structs.
-require "raylib-spinel"
+require "raylib"
 include Raylib
 
 v = Vector2.create(1.5, -2.25)
