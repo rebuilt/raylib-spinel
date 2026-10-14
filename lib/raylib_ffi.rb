@@ -927,8 +927,11 @@ module Raylib
   native_method :with_projection, [:int], :self, "rl_Camera_with_projection"
   native_method :pointer, [], :ptr, "rl_Camera_ptr"
 
-  # Constants — only define under Spinel (MRI gets them from the gem)
-  unless $PROGRAM_NAME.end_with?(".rb")
+  # Constants — only define under Spinel (MRI gets them from the gem).
+  # RUBY_ENGINE is a compile-time constant under AOT ("spinel") and "ruby"
+  # under MRI, so the branch is folded away instead of being a runtime
+  # condition wrapping method definitions (which newer Spinel rejects).
+  if RUBY_ENGINE == "spinel"
     # KeyboardKey enum — mirrors raylib.h (raylib 5.0), same order
     KEY_NULL = 0
     KEY_APOSTROPHE = 39
