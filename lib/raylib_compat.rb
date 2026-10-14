@@ -16,4 +16,30 @@ module Raylib
   def self.setup_symbols(method_naming: :original)
     nil
   end
+
+  # TextFormat — the gem's printf-style helper. The gem passes FFI varargs as
+  # (type, value) pairs; Spinel cannot call C varargs, so the pairs are
+  # stripped here and Kernel#format does the work.
+  def self.TextFormat(fmt, *args)
+    vals = []
+    i = 0
+    while i < args.size
+      vals << args[i + 1]
+      i += 2
+    end
+    format(fmt, *vals)
+  end
+
+  # UnloadFileText — LoadFileText returns a Ruby String copy under Spinel
+  # (see raylib_ffi.rb), so there is no C buffer to free. The raw-pointer pair
+  # rl_LoadFileTextPtr/rl_UnloadFileTextPtr keeps the free for pointer users.
+  def self.UnloadFileText(text)
+    nil
+  end
+end
+
+class String
+  # The gem's TextFormat/LoadFileText return FFI pointers that callers read
+  # with read_string; ours are already Ruby Strings, so the call is identity.
+  def read_string = self
 end

@@ -26,4 +26,6 @@ else
   require_relative "raylib-spinel/physac"
   require_relative "lib/raylib_include"
   require_relative "lib/raylib_compat"
+  require_relative "lib/raylib_structs"
+  require_relative "lib/raygui_compat"
 end

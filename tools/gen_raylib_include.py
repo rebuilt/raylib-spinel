@@ -80,12 +80,29 @@ def methods(path, skip_shims=True):
     return out
 
 
+def with_nil_defaults(param):
+    """`p0` -> `p0 = nil` for a plain parameter (splats/blocks/defaults as is).
+
+    Spinel's `include`-exposed singleton methods reject possibly-nil arguments
+    (empty-array elements are typed nil-able); a default makes the parameter
+    optional, and the FFI conversion that follows is nil-safe
+    (sp_ffi_dbl_of_f etc.).
+    """
+    p = param.strip()
+    if not p or "=" in p or p.startswith("*") or p.startswith("&"):
+        return p
+    return p + " = nil"
+
+
 def call(name, args):
     if isinstance(args, int):
-        return ", ".join("p%d" % i for i in range(args)), not args
-    if args is None:
-        return "", True
-    return args, not args
+        names = ["p%d" % i for i in range(args)]
+    elif args is None:
+        names = []
+    else:
+        names = [p.strip() for p in args.split(",") if p.strip()]
+    params = ", ".join(with_nil_defaults(p) for p in names)
+    return params, ", ".join(names)
 
 
 def main():
@@ -96,8 +113,11 @@ def main():
         "# also as an instance method. The instance surface lives in its own module",
         "# (included into Raylib) because Spinel resolves a `Raylib.name` singleton",
         "# call to a same-name instance method defined in Raylib itself, which would",
-        "# hide the module methods (alias_method targets included). Rlgl is exposed",
-        "# on Raylib because the gem binds rlgl there. Loaded by raylib.rb (Spinel).",
+        "# hide the module methods (alias_method targets included). Parameters get",
+        "# `= nil` defaults: bare calls of Spinel's include-exposed singleton methods",
+        "# reject possibly-nil arguments, and the nil-safe FFI conversion path is the",
+        "# same one the rest of the surface uses. Rlgl is exposed on Raylib because",
+        "# the gem binds rlgl there. Loaded by raylib.rb (Spinel path).",
         "",
         "module RaylibInstanceMethods",
     ]
@@ -111,28 +131,47 @@ def main():
         if os.path.exists(path):
             raylib_names.update(n for n, _a in methods(path))
 
+    # raygui_compat.rb redefines the RGui* helpers with the gem's Rectangle +
+    # (value, result...) shape; it is loaded after raygui_ffi.rb, so those are
+    # the definitions a delegate reaches. Prefer them for names they define.
+    compat_path = os.path.join(LIB, "raygui_compat.rb")
+    compat_names = {n for n, _a in methods(compat_path)} if os.path.exists(compat_path) else set()
+
+    def dedup(entries):
+        seen, out = set(), []
+        for n, a in entries:
+            if n in seen:
+                continue
+            seen.add(n)
+            out.append((n, a))
+        return out
+
     # rlgl_ffi re-declares some raylib names (LoadTexture, SetTextureFilter,
     # ...); only alias the rlgl-specific ones so the Raylib surface is not
     # shadowed by a second declaration.
-    rlgl = [(n, a) for n, a in methods(os.path.join(LIB, "rlgl_ffi.rb"),
-                                      skip_shims=False)
-            if n not in raylib_names]
+    rlgl = dedup([(n, a) for n, a in methods(os.path.join(LIB, "rlgl_ffi.rb"),
+                                              skip_shims=False)
+                  if n not in raylib_names])
     if rlgl:
         body.append("  # --- rlgl surface (gem: Raylib, here Rlgl) ---")
         for name, args in rlgl:
-            call_args, empty = call(name, args)
-            body.append("  def %s(%s) = Rlgl.%s(%s)" % (name, call_args, name, call_args))
+            params, call_args = call(name, args)
+            body.append("  def %s(%s) = Rlgl.%s(%s)" % (name, params, name, call_args))
             total += 1
         body.append("")
 
-    for fname in FILES:
+    for fname in FILES + ["raygui_compat.rb"]:
         path = os.path.join(LIB, fname)
         if not os.path.exists(path) or fname == "rlgl_ffi.rb":
             continue
+        entries = [(n, a) for n, a in methods(path)
+                   if not (fname == "raygui_ffi.rb" and n in compat_names)]
+        if not entries:
+            continue
         body.append("  # --- %s ---" % fname)
-        for name, args in methods(path):
-            call_args, empty = call(name, args)
-            body.append("  def %s(%s) = Raylib.%s(%s)" % (name, call_args, name, call_args))
+        for name, args in dedup(entries):
+            params, call_args = call(name, args)
+            body.append("  def %s(%s) = Raylib.%s(%s)" % (name, params, name, call_args))
             total += 1
         body.append("")
 
@@ -142,8 +181,8 @@ def main():
     if rlgl:
         body.append("  # rlgl names on the Raylib module (gem parity).")
         for name, args in rlgl:
-            call_args, empty = call(name, args)
-            body.append("  def self.%s(%s) = Rlgl.%s(%s)" % (name, call_args, name, call_args))
+            params, call_args = call(name, args)
+            body.append("  def self.%s(%s) = Rlgl.%s(%s)" % (name, params, name, call_args))
             total += 1
         body.append("")
     body.append("  include RaylibInstanceMethods")

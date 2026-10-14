@@ -54,6 +54,10 @@ rl_Color *rl_Color_new(sp_int cls_id, sp_int r, sp_int g, sp_int b, sp_int a) {
   self->c = (Color){ (unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a };
   return self;
 }
+sp_int rl_Color_set_r(rl_Color *self, sp_int r) { self->c.r = (unsigned char)r; return r; }
+sp_int rl_Color_set_g(rl_Color *self, sp_int g) { self->c.g = (unsigned char)g; return g; }
+sp_int rl_Color_set_b(rl_Color *self, sp_int b) { self->c.b = (unsigned char)b; return b; }
+sp_int rl_Color_set_a(rl_Color *self, sp_int a) { self->c.a = (unsigned char)a; return a; }
 
 /* rl_Vector2 — GC-embedded Vector2 (see raylib_ffi.rb). Declared early so the
  * generated shims below (and the raw Vector2 helpers) read the embedded `v`
@@ -275,6 +279,9 @@ rl_Vector3 *rl_Vector3_new(sp_int cls_id, double x, double y, double z) {
 double rl_Vector3_x(rl_Vector3 *self) { return self->v.x; }
 double rl_Vector3_y(rl_Vector3 *self) { return self->v.y; }
 double rl_Vector3_z(rl_Vector3 *self) { return self->v.z; }
+double rl_Vector3_set_x(rl_Vector3 *self, double x) { self->v.x = (float)x; return x; }
+double rl_Vector3_set_y(rl_Vector3 *self, double y) { self->v.y = (float)y; return y; }
+double rl_Vector3_set_z(rl_Vector3 *self, double z) { self->v.z = (float)z; return z; }
 void *rl_Vector3_ptr(rl_Vector3 *self) { return self; }
 
 

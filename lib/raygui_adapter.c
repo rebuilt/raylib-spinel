@@ -127,6 +127,10 @@ int rl_GuiGrid(float x, float y, float w, float h, const char *text,
  * into a module-level slot read back with rl_Gui_GetFloat/rl_Gui_GetInt. */
 static float sp_gui_float_result;
 static int sp_gui_int_result;
+/* Extra result slots (multi-value controls such as the tab/list views;
+ * read back with rl_Gui_GetInt2/rl_Gui_GetInt3). */
+static int sp_gui_int_result2;
+static int sp_gui_int_result3;
 
 int rl_GuiCheckBoxValue(float x, float y, float w, float h, const char *text,
                         int checked) {
@@ -176,6 +180,7 @@ int rl_GuiListViewValue(float x, float y, float w, float h, const char *text,
   int a = active;
   int res = GuiListView((Rectangle){ x, y, w, h }, text, &s, &a);
   sp_gui_int_result = a;
+  sp_gui_int_result2 = s;
   return res;
 }
 float rl_Gui_GetFloat(void) { return sp_gui_float_result; }
@@ -263,9 +268,6 @@ int rl_GuiProgressBarValue(float x, float y, float w, float h, const char *l,
  * become return-value slots read back with the rl_Gui_Get* helpers).
  * ================================================================ */
 
-/* Extra result slots (multi-value controls such as the tab/list views). */
-static int sp_gui_int_result2;
-static int sp_gui_int_result3;
 static char sp_gui_text_result[1024];
 static float sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v;
 

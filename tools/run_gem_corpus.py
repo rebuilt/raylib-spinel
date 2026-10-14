@@ -139,8 +139,24 @@ def prepare_example(src, dst_dir):
     return dst
 
 
+# Examples that are broken against the raylib-bindings gem itself (verified
+# under CRuby: the called method does not exist). They are reported as
+# `invalid` and excluded from the 70-example target.
+INVALID_EXAMPLES = {
+    "textures_background_scrolling.rb":
+        "calls unloadtexture (typo; NoMethodError under CRuby)",
+    "models_animation_blending.gpu.rb":
+        "calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)",
+    "textures_bunnymark_optimized.rb":
+        "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)",
+}
+
+
 def analyze_example(src, flags):
     name = os.path.basename(src)
+    if name in INVALID_EXAMPLES:
+        return {"name": name, "verdict": "invalid",
+                "detail": INVALID_EXAMPLES[name]}
     with tempfile.TemporaryDirectory() as tmp:
         dst = prepare_example(src, tmp)
         rc, _out, err = run(["spinel", "-c", dst] + flags +
@@ -193,6 +209,11 @@ def main():
         for k, v in sorted(counts.items()):
             md.append("| %s | %d |" % (k, v))
         md.append("\n%d examples total.\n" % len(result["examples"]))
+        invalid = [r for r in result["examples"] if r["verdict"] == "invalid"]
+        if invalid:
+            md.append("\nInvalid upstream (excluded from the target):\n")
+            for r in invalid:
+                md.append("- %s — %s" % (r["name"], r["detail"]))
         bare = [r for r in result["examples"] if r["verdict"] == "bare-call"]
         if bare:
             md.append("First bare-call blocker (same shape for all %d):\n" % len(bare))

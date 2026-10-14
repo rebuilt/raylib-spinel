@@ -55,23 +55,11 @@ static rl_Vector3 *rl_Vector3_new(sp_int cls_id) {
 static double rl_Vector3_x(rl_Vector3 *self) {
   return (double)self->v.x;
 }
-double rl_Vector3_set_x(rl_Vector3 *self, double x) {
-  self->v.x = (float)x;
-  return x;
-}
 static double rl_Vector3_y(rl_Vector3 *self) {
   return (double)self->v.y;
 }
-double rl_Vector3_set_y(rl_Vector3 *self, double y) {
-  self->v.y = (float)y;
-  return y;
-}
 static double rl_Vector3_z(rl_Vector3 *self) {
   return (double)self->v.z;
-}
-double rl_Vector3_set_z(rl_Vector3 *self, double z) {
-  self->v.z = (float)z;
-  return z;
 }
 
 /* rl_Vector4 — GC-embedded Vector4 (see raymath_ffi.rb) */typedef struct rl_Vector4_s {

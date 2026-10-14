@@ -113,6 +113,9 @@ module Raylib
   ffi_func :SetConfigFlags, [:uint], :void
   ffi_func :OpenURL, [:str], :void
   ffi_func :SetTraceLogLevel, [:int], :void
+  # TraceLog is C-varargs; the gem/example calls pass (level, text) and raylib
+  # only walks the va_list when the text carries format specifiers.
+  ffi_func :TraceLog, %i[int str], :void
   ffi_func :rl_SetTraceLogCallback, [:ptr], :void
   ffi_func :MemAlloc, [:uint], :ptr
   ffi_func :MemRealloc, [:ptr, :uint], :ptr
@@ -879,7 +882,10 @@ module Raylib
   native_method :g, [], :int, "rl_Color_g"
   native_method :b, [], :int, "rl_Color_b"
   native_method :a, [], :int, "rl_Color_a"
-
+  native_method :r=, [:int], :int, "rl_Color_set_r"
+  native_method :g=, [:int], :int, "rl_Color_set_g"
+  native_method :b=, [:int], :int, "rl_Color_set_b"
+  native_method :a=, [:int], :int, "rl_Color_set_a"
   # Texture (opaque pointer — rl_LoadTexture mallocs Texture2D)
   ffi_func :rl_LoadTexture, [:str], :ptr
   ffi_func :rl_DrawTexture, %i[ptr int int ptr], :void
@@ -915,6 +921,9 @@ module Raylib
   native_method :x, [], :float, "rl_Vector3_x"
   native_method :y, [], :float, "rl_Vector3_y"
   native_method :z, [], :float, "rl_Vector3_z"
+  native_method :x=, [:float], :float, "rl_Vector3_set_x"
+  native_method :y=, [:float], :float, "rl_Vector3_set_y"
+  native_method :z=, [:float], :float, "rl_Vector3_set_z"
 
   # Camera — native GC object wrapping Camera3D. Built with the with_* chain,
   # mutated by rl_UpdateCamera, passed to rl_BeginMode3D.
@@ -1113,7 +1122,7 @@ module Raylib
       Raylib.rl_DrawTextInt(text, n, x, y, size, color)
     end
     def self.DrawTexture(texture, x, y, color)
-      Raylib.rl_DrawTexture(texture, x, y, color)
+      Raylib.rl_DrawTexture(texture, (x || 0).to_i, (y || 0).to_i, color)
     end
 
     def self.DrawTextureEx(texture, x, y, rotation, scale, color)
@@ -1153,7 +1162,9 @@ module Raylib
     end
 
     def self.DrawCubeWires(position, width, height, length, color)
-      Raylib.rl_DrawCubeWires(position, width, height, length, color)
+      Raylib.rl_DrawCubeWires(position, (width || 0.0).to_f,
+                              (height || 0.0).to_f, (length || 0.0).to_f,
+                              color)
     end
 
     def self.DrawRectangle(x, y, width, height, color)
@@ -1337,7 +1348,8 @@ module Raylib
       Raylib.rl_GetShaderLocationAttrib(shader, attribName)
     end
     def self.SetShaderValue(shader, locIndex, value, uniformType)
-      Raylib.rl_SetShaderValue(shader, locIndex, value, uniformType)
+      Raylib.rl_SetShaderValue(shader, (locIndex || 0).to_i, value,
+                               (uniformType || 0).to_i)
     end
     def self.SetShaderValueV(shader, locIndex, value, uniformType, count)
       Raylib.rl_SetShaderValueV(shader, locIndex, value, uniformType, count)
@@ -2258,7 +2270,9 @@ module Raylib
       Raylib.rl_UpdateModelAnimation(model, anim, frame)
     end
     def self.UpdateModelAnimationEx(model, animA, frameA, animB, frameB, blend)
-      Raylib.rl_UpdateModelAnimationEx(model, animA, frameA, animB, frameB, blend)
+      Raylib.rl_UpdateModelAnimationEx(model, animA, (frameA || 0.0).to_f,
+                                       animB, (frameB || 0.0).to_f,
+                                       (blend || 0.0).to_f)
     end
     def self.IsModelAnimationValid(model, anim)
       Raylib.rl_IsModelAnimationValid(model, anim)
