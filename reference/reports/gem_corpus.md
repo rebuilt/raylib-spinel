@@ -6,31 +6,38 @@ Tool: `tools/run_gem_corpus.py`. Oracle: CRuby + raylib-bindings; Spinel: `spine
 
 | program | verdict | detail |
 | --- | --- | --- |
-| 01_structs.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/01_structs.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError) |
-| 02_textformat.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/02_textformat.rb:5: unsupported puts argument: node 80715 (CallNode `read_string`) recv=CallNode/ty0 argc=0 |
-| 03_constants.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/03_constants.rb:11: unsupported puts argument: node 80754 (CallNode `round`) recv=ConstantPathNode/ty0 argc=1 arg0ty3 |
-| 04_raymath.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/04_raymath.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError) |
+| 01_structs.rb | run-error | run-error: undefined method 'min' for an instance of Raylib::BoundingBox (NoMethodError) |
+| 02_textformat.rb | same |  |
+| 03_constants.rb | same |  |
+| 04_raymath.rb | same |  |
 | 05_raygui_state.rb | same |  |
-| 06_files.rb | run-error | run-error: undefined method 'read_string' for an instance of String (NoMethodError) |
+| 06_files.rb | same |  |
 | 07_window.rb | same |  |
-| 08_shapes.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/08_shapes.rb:7: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError) |
-| 09_textures.rb | compile-error | /home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/09_textures.rb:9: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError) |
+| 08_shapes.rb | same |  |
+| 09_textures.rb | run-error | run-error: undefined method 'width' for an instance of  (NoMethodError) |
 | 10_models.rb | run-error | run-error: undefined method 'meshCount' for an instance of  (NoMethodError) |
 
-2/10 run identically under both engines.
+7/10 run identically under both engines.
 
 ## raylib-bindings examples (loader line replaced, `spinel -c`)
 
 | verdict | count |
 | --- | --- |
-| analyzed | 10 |
-| bare-call | 5 |
-| refusal | 55 |
+| analyzed | 50 |
+| bare-call | 3 |
+| invalid | 3 |
+| refusal | 14 |
 
 70 examples total.
 
-First bare-call blocker (same shape for all 5):
+
+Invalid upstream (excluded from the target):
+
+- models_animation_blending.gpu.rb — calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)
+- textures_background_scrolling.rb — calls unloadtexture (typo; NoMethodError under CRuby)
+- textures_bunnymark_optimized.rb — calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)
+First bare-call blocker (same shape for all 3):
 
 ```
-/tmp/tmp6wgld35n/core_loading_thread.rb:45: unsupported call: node 80806 (CallNode `TraceLog`) recv=-/ty-1 argc=2 arg0ty3
+/tmp/tmpo5e0k4ks/core_2d_camera.rb:59: unsupported call operator write (unsupported receiver/attr): node 88292 (CallOperatorWriteNode)
 ```

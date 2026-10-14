@@ -2,23 +2,23 @@
  "synthetic": [
   {
    "name": "01_structs.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/01_structs.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "run-error",
+   "detail": "run-error: undefined method 'min' for an instance of Raylib::BoundingBox (NoMethodError)"
   },
   {
    "name": "02_textformat.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/02_textformat.rb:5: unsupported puts argument: node 80715 (CallNode `read_string`) recv=CallNode/ty0 argc=0"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "03_constants.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/03_constants.rb:11: unsupported puts argument: node 80754 (CallNode `round`) recv=ConstantPathNode/ty0 argc=1 arg0ty3"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "04_raymath.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/04_raymath.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "05_raygui_state.rb",
@@ -27,8 +27,8 @@
   },
   {
    "name": "06_files.rb",
-   "verdict": "run-error",
-   "detail": "run-error: undefined method 'read_string' for an instance of String (NoMethodError)"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "07_window.rb",
@@ -37,13 +37,13 @@
   },
   {
    "name": "08_shapes.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/08_shapes.rb:7: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "09_textures.rb",
-   "verdict": "compile-error",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/09_textures.rb:9: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "run-error",
+   "detail": "run-error: undefined method 'width' for an instance of  (NoMethodError)"
   },
   {
    "name": "10_models.rb",
@@ -58,8 +58,7 @@
   },
   {
    "name": "audio_raw_stream.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpeld37uwy/audio_raw_stream.rb:31: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "audio_sound_loading.rb",
@@ -71,28 +70,26 @@
   },
   {
    "name": "bitmap_font.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp1rl1fgbj/bitmap_font.rb:22: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "core_2d_camera.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpmdpj86jm/core_2d_camera.rb:11: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "bare-call",
+   "detail": "/tmp/tmpo5e0k4ks/core_2d_camera.rb:59: unsupported call operator write (unsupported receiver/attr): node 88292 (CallOperatorWriteNode)"
   },
   {
    "name": "core_3d_camera_first_person.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpooq_sr73/core_3d_camera_first_person.rb:26: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "core_3d_split_screen.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpup45i2v_/core_3d_split_screen.rb:13: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "bare-call",
+   "detail": "/tmp/tmp1f_okugi/core_3d_split_screen.rb:71: unsupported call operator write (unsupported receiver/attr): node 88287 (CallOperatorWriteNode)"
   },
   {
    "name": "core_automation_events.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpf_wcuhjr/core_automation_events.rb:8: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "bare-call",
+   "detail": "/tmp/tmp8reoc3ya/core_automation_events.rb:123: unsupported call operator write (unsupported receiver/attr): node 88498 (CallOperatorWriteNode)"
   },
   {
    "name": "core_drop_files.rb",
@@ -100,23 +97,19 @@
   },
   {
    "name": "core_loading_thread.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmp6wgld35n/core_loading_thread.rb:45: unsupported call: node 80806 (CallNode `TraceLog`) recv=-/ty-1 argc=2 arg0ty3"
+   "verdict": "analyzed"
   },
   {
    "name": "core_world_screen.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp1_abjm13/core_world_screen.rb:19: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "flocking_optimized.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpcdxh4xg5/flocking_optimized.rb:96: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "flocking_plain.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpmv62p0qk/flocking_plain.rb:80: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "game_of_life_simple.rb",
@@ -124,18 +117,15 @@
   },
   {
    "name": "game_of_life_ui.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp1zmshwaf/game_of_life_ui.rb:105: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "generate_heightmap_obj.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpy1_dw5ce/generate_heightmap_obj.rb:24: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "gui_controls.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmplthw31cf/gui_controls.rb:106: warning: uninitialized constant TEXT_ALIGN_LEFT: defined nowhere in the program (raises NameError when reached)"
+   "verdict": "analyzed"
   },
   {
    "name": "lissajous_curve.rb",
@@ -143,88 +133,74 @@
   },
   {
    "name": "models_animation.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpnr7itaac/models_animation.rb:23: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_animation_blending.cpu.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpg07u0ln2/models_animation_blending.cpu.rb:64: nil written into a non-nullable Float slot: parameter blend of UpdateModelAnimationEx"
+   "verdict": "analyzed"
   },
   {
    "name": "models_animation_blending.gpu.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmp8nlgda2n/models_animation_blending.gpu.rb:90: unsupported call: node 81029 (CallNode `UpdateModelAnimationBonesLerp`) recv=-/ty-1 argc=6 arg0ty50"
+   "verdict": "invalid",
+   "detail": "calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)"
   },
   {
    "name": "models_animation_lowlevelapi.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:564: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 84912 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:568: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 93536 (LocalVariableReadNode)"
   },
   {
    "name": "models_billboard.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmphpkm4xmc/models_billboard.rb:20: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_box_collisions.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpf4do5atf/models_box_collisions.rb:17: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_cubicmap.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpo2zphd90/models_cubicmap.rb:22: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_first_person_maze.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpne13tgvi/models_first_person_maze.rb:21: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_geometric_shapes.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp8e8q3h3o/models_geometric_shapes.rb:24: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_heightmap.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpve442_ll/models_heightmap.rb:21: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_loading_gltf.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpuzmvcr79/models_loading_gltf.rb:22: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_loading_m3d.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpva57nzfc/models_loading_m3d.rb:25: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp3hatm8ar/models_loading_m3d.rb:42: unsupported comparison: node 88172 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "models_mesh_generation.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp8jh7ube5/models_mesh_generation.rb:76: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_mesh_picking.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpzektaq9s/models_mesh_picking.rb:28: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_rlgl_solar_system.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpvtrzvxk1/models_rlgl_solar_system.rb:19: warning: uninitialized constant DEG2RAD: defined nowhere in the program (raises NameError when reached)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_waving_cubes.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpiz351_cc/models_waving_cubes.rb:49: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "models_yaw_pitch_roll.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpjhbw5mj9/models_yaw_pitch_roll.rb:74: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "particles_fireworks.rb",
@@ -233,12 +209,11 @@
   {
    "name": "physics_demo.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpsc_ou11l/physics_demo.rb:59: unsupported comparison: node 80929 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
+   "detail": "/tmp/tmph44c6srw/physics_demo.rb:59: unsupported comparison: node 88290 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "procedural_texture.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpabt0jrcw/procedural_texture.rb:226: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "raylib_opengl_interop.rb",
@@ -248,7 +223,7 @@
   {
    "name": "raylib_with_imgui.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpjoutwlo8/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
+   "detail": "/tmp/tmps3rwfj_y/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
   },
   {
    "name": "raylib_with_tileson.rb",
@@ -263,22 +238,20 @@
   {
    "name": "reversi_board.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpmwxpgn2d/reversi_board.rb:219: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp5gmex1ud/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "rlgl_compute_shader.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:158: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 83303 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:161: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 91319 (LocalVariableReadNode)"
   },
   {
    "name": "shaders_basic_lighting.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpp7xnl5ya/shaders_basic_lighting.rb:41: nil written into a non-nullable Integer slot: parameter locIndex of SetShaderValue"
+   "verdict": "analyzed"
   },
   {
    "name": "shaders_basic_pbr.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp0h3g4flk/shaders_basic_pbr.rb:462: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "shaders_raymarching.rb",
@@ -286,83 +259,73 @@
   },
   {
    "name": "shapes_basic_shapes.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpgfj1lkzl/shapes_basic_shapes.rb:26: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "shapes_draw_circle_sector.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpj1jqn879/shapes_draw_circle_sector.rb:9: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "shapes_lines_bezier.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpnfgpkpy5/shapes_lines_bezier.rb:11: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "shapes_splines_drawing.rb",
-   "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_ffi.rb:1615: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 37937 (LocalVariableReadNode)"
+   "verdict": "analyzed"
   },
   {
    "name": "snake_case_api.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp48_e59lw/snake_case_api.rb:16: warning: uninitialized constant Gem::Specification: defined nowhere in the program (raises NameError when reached)"
+   "verdict": "analyzed"
   },
   {
    "name": "snake_case_rlgl.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmph0q8vbx6/snake_case_rlgl.rb:32: warning: uninitialized constant DEG2RAD: defined nowhere in the program (raises NameError when reached)"
+   "verdict": "analyzed"
   },
   {
    "name": "template.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp495zo89t/template.rb:16: warning: uninitialized constant Gem::Specification: defined nowhere in the program (raises NameError when reached)"
+   "verdict": "analyzed"
   },
   {
    "name": "text_draw_3d.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmpmn2iymhj/text_draw_3d.rb:33: unsupported call operator write (unsupported receiver/attr): node 80792 (CallOperatorWriteNode)"
+   "verdict": "refusal",
+   "detail": "/tmp/tmppsrbd2y0/text_draw_3d.rb:45: unsupported comparison: node 88274 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "text_font_filters.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpw5jws5hy/text_font_filters.rb:25: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "text_font_sdf.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_ffi.rb:2056: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 39940 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:423: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 92629 (LocalVariableReadNode)"
   },
   {
    "name": "text_rectangle_bounds.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmp9d9fhctb/text_rectangle_bounds.rb:46: unsupported call: node 80879 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0"
+   "verdict": "refusal",
+   "detail": "/tmp/tmp0tklt6u0/text_rectangle_bounds.rb:97: unsupported comparison: node 88456 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
   },
   {
    "name": "text_unicode.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmp8j1ahetx/text_unicode.rb:153: unsupported call: node 81683 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0"
+   "verdict": "refusal",
+   "detail": "/tmp/tmp84ueijvc/text_unicode.rb:204: unsupported comparison: node 89263 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
   },
   {
    "name": "textures_background_scrolling.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmp20u1oq47/textures_background_scrolling.rb:39: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "invalid",
+   "detail": "calls unloadtexture (typo; NoMethodError under CRuby)"
   },
   {
    "name": "textures_bunnymark_optimized.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmppyfw9sjd/textures_bunnymark_optimized.rb:84: nil written into a non-nullable Float slot: parameter x of DrawTexture"
+   "verdict": "invalid",
+   "detail": "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)"
   },
   {
    "name": "textures_bunnymark_plain.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmptl67e64k/textures_bunnymark_plain.rb:34: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "textures_gif_player.rb",
-   "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_ffi.rb:1711: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 38384 (LocalVariableReadNode)"
+   "verdict": "analyzed"
   },
   {
    "name": "textures_image_generation.rb",
@@ -374,13 +337,11 @@
   },
   {
    "name": "textures_mouse_painting.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpie4nj4o2/textures_mouse_painting.rb:24: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "textures_sprite_anim.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpzrcdlafk/textures_sprite_anim.rb:18: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   },
   {
    "name": "toon_character_sprites.rb",
@@ -389,8 +350,7 @@
   },
   {
    "name": "utf8_font.rb",
-   "verdict": "refusal",
-   "detail": "/tmp/tmpkk9ho0hk/utf8_font.rb:48: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "verdict": "analyzed"
   }
  ]
 }
