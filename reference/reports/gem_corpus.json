@@ -1,5 +1,56 @@
 {
- "synthetic": [],
+ "synthetic": [
+  {
+   "name": "01_structs.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/01_structs.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+  },
+  {
+   "name": "02_textformat.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/02_textformat.rb:5: unsupported puts argument: node 18106 (CallNode `read_string`) recv=CallNode/ty0 argc=0"
+  },
+  {
+   "name": "03_constants.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/03_constants.rb:11: unsupported puts argument: node 18145 (CallNode `round`) recv=ConstantPathNode/ty0 argc=1 arg0ty3"
+  },
+  {
+   "name": "04_raymath.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/04_raymath.rb:5: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+  },
+  {
+   "name": "05_raygui_state.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/05_raygui_state.rb:5: undefined method 'GuiIsLocked' for a Class: no class in the program defines a class method 'GuiIsLocked' (NoMethodError)"
+  },
+  {
+   "name": "06_files.rb",
+   "verdict": "run-error",
+   "detail": "run-error: undefined method 'read_string' for an instance of String (NoMethodError)"
+  },
+  {
+   "name": "07_window.rb",
+   "verdict": "same",
+   "detail": ""
+  },
+  {
+   "name": "08_shapes.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/08_shapes.rb:7: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+  },
+  {
+   "name": "09_textures.rb",
+   "verdict": "compile-error",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/reference/gem_corpus/09_textures.rb:9: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+  },
+  {
+   "name": "10_models.rb",
+   "verdict": "run-error",
+   "detail": "run-error: undefined method 'meshCount' for an instance of  (NoMethodError)"
+  }
+ ],
  "examples": [
   {
    "name": "audio_music_stream.rb",
@@ -8,7 +59,7 @@
   {
    "name": "audio_raw_stream.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp5i73youa/audio_raw_stream.rb:1338: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp_bd7x6za/audio_raw_stream.rb:1338: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "audio_sound_loading.rb",
@@ -21,27 +72,27 @@
   {
    "name": "bitmap_font.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmps3vdb92b/bitmap_font.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpo0v5yvp_/bitmap_font.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "core_2d_camera.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpjqyvibxv/core_2d_camera.rb:1318: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp8bufyd1q/core_2d_camera.rb:1318: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "core_3d_camera_first_person.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp61e27r31/core_3d_camera_first_person.rb:92: nil written into a non-nullable Integer slot: parameter height of DrawCubeWires"
+   "detail": "/tmp/tmpk69b12kr/core_3d_camera_first_person.rb:92: nil written into a non-nullable Integer slot: parameter height of DrawCubeWires"
   },
   {
    "name": "core_3d_split_screen.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpl168zs8p/core_3d_split_screen.rb:1320: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpn2qlg6a8/core_3d_split_screen.rb:1320: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "core_automation_events.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp577dkrzn/core_automation_events.rb:1315: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp32gs11rr/core_automation_events.rb:1315: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "core_drop_files.rb",
@@ -50,22 +101,22 @@
   {
    "name": "core_loading_thread.rb",
    "verdict": "bare-call",
-   "detail": "/tmp/tmpdc8_36qx/core_loading_thread.rb:1352: unsupported call: node 43304 (CallNode `TraceLog`) recv=-/ty-1 argc=2 arg0ty3"
+   "detail": "/tmp/tmpmrs1y1yk/core_loading_thread.rb:1352: unsupported call: node 43304 (CallNode `TraceLog`) recv=-/ty-1 argc=2 arg0ty3"
   },
   {
    "name": "core_world_screen.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmptbylnd93/core_world_screen.rb:1326: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpydxnhchg/core_world_screen.rb:1326: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "flocking_optimized.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpjsa4birq/flocking_optimized.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
+   "detail": "/tmp/tmph58zw3hl/flocking_optimized.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
   },
   {
    "name": "flocking_plain.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp0taujtag/flocking_plain.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
+   "detail": "/tmp/tmpv9jdkqbc/flocking_plain.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
   },
   {
    "name": "game_of_life_simple.rb",
@@ -74,17 +125,17 @@
   {
    "name": "game_of_life_ui.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp85co4d2n/game_of_life_ui.rb:1412: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp9b8b87zp/game_of_life_ui.rb:1412: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "generate_heightmap_obj.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpx8znlzp9/generate_heightmap_obj.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpua2s_1t2/generate_heightmap_obj.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "gui_controls.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp6ru8d56d/gui_controls.rb:393: nil written into a non-nullable Integer slot: parameter w of GuiTextBox"
+   "detail": "/tmp/tmpw4ec6yh6/gui_controls.rb:393: nil written into a non-nullable Integer slot: parameter w of GuiTextBox"
   },
   {
    "name": "lissajous_curve.rb",
@@ -93,87 +144,87 @@
   {
    "name": "models_animation.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpiy7nyj2m/models_animation.rb:1330: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp35p2tgwa/models_animation.rb:1330: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_animation_blending.cpu.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp9p1amag2/models_animation_blending.cpu.rb:784: nil written into a non-nullable Float slot: parameter blend of UpdateModelAnimationEx"
+   "detail": "/tmp/tmpbigl2wc5/models_animation_blending.cpu.rb:784: nil written into a non-nullable Float slot: parameter blend of UpdateModelAnimationEx"
   },
   {
    "name": "models_animation_blending.gpu.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpfyds9034/models_animation_blending.gpu.rb:1330: warning: uninitialized constant FFI::NativeType::INT32: defined nowhere in the program (raises NameError when reached)"
+   "detail": "/tmp/tmpgru17l5z/models_animation_blending.gpu.rb:1330: warning: uninitialized constant FFI::NativeType::INT32: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "models_animation_lowlevelapi.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpvwun4kza/models_animation_lowlevelapi.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpn2ya1rj7/models_animation_lowlevelapi.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_billboard.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpp2qsuovh/models_billboard.rb:1327: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp1vtyo_8f/models_billboard.rb:1327: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_box_collisions.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpbzjp4d3s/models_box_collisions.rb:1324: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpa14jgj9g/models_box_collisions.rb:1324: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_cubicmap.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmplkidc2bh/models_cubicmap.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp581xxbmj/models_cubicmap.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_first_person_maze.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp5op76ol1/models_first_person_maze.rb:1328: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpaxs0motd/models_first_person_maze.rb:1328: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_geometric_shapes.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpdh7nv1cl/models_geometric_shapes.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp19bimuci/models_geometric_shapes.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_heightmap.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpmp0j_bad/models_heightmap.rb:1328: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp3zq91y7k/models_heightmap.rb:1328: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_loading_gltf.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp407lnfqj/models_loading_gltf.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpmxemjq5u/models_loading_gltf.rb:1329: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_loading_m3d.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpe_552d26/models_loading_m3d.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpf81bgn2d/models_loading_m3d.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_mesh_generation.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpgwv7z399/models_mesh_generation.rb:1318: warning: uninitialized constant FFI: defined nowhere in the program (raises NameError when reached)"
+   "detail": "/tmp/tmp83k3_ihq/models_mesh_generation.rb:1318: warning: uninitialized constant FFI: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "models_mesh_picking.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp51cxvaxr/models_mesh_picking.rb:1335: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpwwe6uxhl/models_mesh_picking.rb:1335: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_rlgl_solar_system.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp3i9gir18/models_rlgl_solar_system.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
+   "detail": "/tmp/tmpqv95dxmy/models_rlgl_solar_system.rb:1073: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
   },
   {
    "name": "models_waving_cubes.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp6hrlji6h/models_waving_cubes.rb:1356: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpi4r74dk6/models_waving_cubes.rb:1356: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "models_yaw_pitch_roll.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmph_katz8o/models_yaw_pitch_roll.rb:1381: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp4f0rrkbu/models_yaw_pitch_roll.rb:1381: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "particles_fireworks.rb",
@@ -182,12 +233,12 @@
   {
    "name": "physics_demo.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp7w_rphbx/physics_demo.rb:1366: unsupported comparison: node 43427 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
+   "detail": "/tmp/tmpoevpyiem/physics_demo.rb:1366: unsupported comparison: node 43427 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "procedural_texture.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpqn91dlbr/procedural_texture.rb:1533: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp6jiwae7d/procedural_texture.rb:1533: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "raylib_opengl_interop.rb",
@@ -197,7 +248,7 @@
   {
    "name": "raylib_with_imgui.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp38m1vip8/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
+   "detail": "/tmp/tmp53yaa0i9/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
   },
   {
    "name": "raylib_with_tileson.rb",
@@ -212,22 +263,22 @@
   {
    "name": "reversi_board.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp_a60gwad/reversi_board.rb:1526: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpowlw32lu/reversi_board.rb:1526: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "rlgl_compute_shader.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpwxe55k0l/rlgl_compute_shader.rb:1076: undefined method 'rlBindShaderBuffer' for a Class: no class in the program defines a class method 'rlBindShaderBuffer' (NoMethodError)"
+   "detail": "/tmp/tmphzb61qht/rlgl_compute_shader.rb:1076: undefined method 'rlBindShaderBuffer' for a Class: no class in the program defines a class method 'rlBindShaderBuffer' (NoMethodError)"
   },
   {
    "name": "shaders_basic_lighting.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpzra4m1vx/shaders_basic_lighting.rb:694: nil written into a non-nullable Integer slot: parameter locIndex of SetShaderValue"
+   "detail": "/tmp/tmpw42p4r6_/shaders_basic_lighting.rb:694: nil written into a non-nullable Integer slot: parameter locIndex of SetShaderValue"
   },
   {
    "name": "shaders_basic_pbr.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmptgkf8lxq/shaders_basic_pbr.rb:1666: warning: uninitialized constant FFI::NativeType::INT32: defined nowhere in the program (raises NameError when reached)"
+   "detail": "/tmp/tmpshh2cyxc/shaders_basic_pbr.rb:1666: warning: uninitialized constant FFI::NativeType::INT32: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "shaders_raymarching.rb",
@@ -236,22 +287,22 @@
   {
    "name": "shapes_basic_shapes.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpa16gqez7/shapes_basic_shapes.rb:1333: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp_bwf_swu/shapes_basic_shapes.rb:1333: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "shapes_draw_circle_sector.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmptb6uwq58/shapes_draw_circle_sector.rb:1316: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpnkf2wag7/shapes_draw_circle_sector.rb:1316: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "shapes_lines_bezier.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpfq26kfne/shapes_lines_bezier.rb:1318: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpuze04cj9/shapes_lines_bezier.rb:1318: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "shapes_splines_drawing.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpforrllr8/shapes_splines_drawing.rb:1336: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp3jhlhekw/shapes_splines_drawing.rb:1336: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "snake_case_api.rb",
@@ -271,47 +322,47 @@
   {
    "name": "text_draw_3d.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpuupsjgsx/text_draw_3d.rb:1074: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
+   "detail": "/tmp/tmp3f85dn__/text_draw_3d.rb:1074: undefined method 'rlBegin' for a Class: no class in the program defines a class method 'rlBegin' (NoMethodError)"
   },
   {
    "name": "text_font_filters.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpxfngzy5a/text_font_filters.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpixk9_9u0/text_font_filters.rb:1332: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "text_font_sdf.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp_e1ixoi7/text_font_sdf.rb:1361: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmprbnscwqi/text_font_sdf.rb:1361: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "text_rectangle_bounds.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp716qz1mr/text_rectangle_bounds.rb:1353: undefined method 'size' for a Class: no class in the program defines a class method 'size' (NoMethodError)"
+   "detail": "/tmp/tmpk8c2ngd6/text_rectangle_bounds.rb:1353: undefined method 'size' for a Class: no class in the program defines a class method 'size' (NoMethodError)"
   },
   {
    "name": "text_unicode.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmprhk9c_ji/text_unicode.rb:1460: undefined method 'size' for a Class: no class in the program defines a class method 'size' (NoMethodError)"
+   "detail": "/tmp/tmpofmiy_1k/text_unicode.rb:1460: undefined method 'size' for a Class: no class in the program defines a class method 'size' (NoMethodError)"
   },
   {
    "name": "textures_background_scrolling.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpw9_ogx49/textures_background_scrolling.rb:1346: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpnv0i14dw/textures_background_scrolling.rb:1346: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "textures_bunnymark_optimized.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpknl3cf50/textures_bunnymark_optimized.rb:163: nil written into a non-nullable Float slot: parameter x of DrawTexture"
+   "detail": "/tmp/tmp3f6vmv5y/textures_bunnymark_optimized.rb:163: nil written into a non-nullable Float slot: parameter x of DrawTexture"
   },
   {
    "name": "textures_bunnymark_plain.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpvou08n0m/textures_bunnymark_plain.rb:1341: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpjavlf5jw/textures_bunnymark_plain.rb:1341: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "textures_gif_player.rb",
    "verdict": "bare-call",
-   "detail": "/tmp/tmp6e16r9zt/textures_gif_player.rb:1381: unsupported call: node 43356 (CallNode `TextFormat`) recv=-/ty-1 argc=3 arg0ty6"
+   "detail": "/tmp/tmp3io3y6yj/textures_gif_player.rb:1381: unsupported call: node 43356 (CallNode `TextFormat`) recv=-/ty-1 argc=3 arg0ty6"
   },
   {
    "name": "textures_image_generation.rb",
@@ -324,12 +375,12 @@
   {
    "name": "textures_mouse_painting.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp14hmom85/textures_mouse_painting.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmpt96v41yh/textures_mouse_painting.rb:1331: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "textures_sprite_anim.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp4t8j0r3g/textures_sprite_anim.rb:1325: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp9k9x7lus/textures_sprite_anim.rb:1325: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   },
   {
    "name": "toon_character_sprites.rb",
@@ -339,7 +390,7 @@
   {
    "name": "utf8_font.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpsnqb7o9c/utf8_font.rb:1355: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
+   "detail": "/tmp/tmp3ennn2fr/utf8_font.rb:1355: undefined method 'create' for a Class: no class in the program defines a class method 'create' (NoMethodError)"
   }
  ]
 }
