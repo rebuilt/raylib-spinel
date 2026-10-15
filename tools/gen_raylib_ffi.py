@@ -302,6 +302,8 @@ esp = existing_set(r"\brl_[A-Za-z0-9_]+", ADAPTER_PATH)
 def _classify_param_t(t):
     """Return a (kind, ...) tuple. Inside shims, kinds carry unwrap data."""
     base = base_of(t)
+    if base in VIEW_PARAM_CLASSES:
+        return ("viewp" if is_ptr(t) else "view", base)
     if not is_ptr(t):
         if base in GC_STRUCTS:
             return ("gc", base, gc_of(base)[0], gc_of(base)[1])
@@ -325,6 +327,25 @@ def _classify_param_t(t):
 PARAM_AS_RAW = {
     "UnloadImageColors": {"colors"},
     "UnloadImagePalette": {"colors"},
+    # array-typed handle parameters: the Ruby side passes a flat buffer, never
+    # a view, so the shim must forward the pointer unchanged.
+    "SetWindowIcons": {"images"},
+    "UnloadModelAnimations": {"animations"},
+}
+
+# Handle classes whose Ruby values are rl_<X> views. A parameter that names one
+# of them must unwrap the view to the payload whether the API declares it by
+# value (`Texture2D texture`) or by pointer (`Image *image`, `Mesh *mesh`):
+# passing the view straight through lets raylib mutate the view bookkeeping
+# (cls_id/p/owner) instead of the payload.
+VIEW_PARAM_CLASSES = {
+    "Image": "RL_IMG", "Texture2D": "RL_TEX", "Texture": "RL_TEX",
+    "TextureCubemap": "RL_TEX", "RenderTexture": "RL_RT",
+    "RenderTexture2D": "RL_RT", "Font": "RL_FONT", "GlyphInfo": "RL_GLYPH",
+    "Model": "RL_MODEL", "Material": "RL_MAT", "Mesh": "RL_MESH",
+    "Shader": "RL_SHDR", "ModelAnimation": "RL_ANIM", "BoneInfo": "RL_BONE",
+    "AutomationEvent": "RL_AEVENT", "AutomationEventList": "RL_AEVLIST",
+    "Transform": "RL_TRANSFORM",
 }
 
 
@@ -380,6 +401,10 @@ VIEW_STRUCTS = {"Vector2": "RL_V2", "Vector3": "RL_V3", "Vector4": "RL_V4",
 
 
 def shim_expr(kind, aname, base=None):
+    if kind == "view":
+        return "*%s(%s)" % (VIEW_PARAM_CLASSES[base], aname)
+    if kind == "viewp":
+        return "%s(%s)" % (VIEW_PARAM_CLASSES[base], aname)
     if kind == "gc":
         klass, emb = gc_of(base)
         if base in VIEW_STRUCTS:
@@ -513,9 +538,19 @@ def emit_shim(fn):
                 and base_of(fn.args[0][1]) == m.group(1) \
                 and m.group(1) in RAW_STRUCTS:
             arg = fn.args[0][0]
-            body_lines.append("  %s *self = (%s *)%s;" % (m.group(1), m.group(1), arg))
-            body_lines.append("  Unload%s(*self);" % m.group(1))
-            body_lines.append("  free(self);")
+            kind0 = classify_param(fn.name, arg, fn.args[0][1])[0]
+            if kind0 in ("view", "viewp"):
+                # View parameter: unload the payload, free only a heap copy
+                # (an embedded/GC payload pointer must not be freed).
+                macro = VIEW_PARAM_CLASSES[base_of(fn.args[0][1])]
+                body_lines.append("  %s *self = %s(%s);" % (m.group(1), macro, arg))
+                body_lines.append("  Unload%s(*self);" % m.group(1))
+                body_lines.append("  if (self != &((rl_%s *)%s)->v) free(self);"
+                                  % (m.group(1), arg))
+            else:
+                body_lines.append("  %s *self = (%s *)%s;" % (m.group(1), m.group(1), arg))
+                body_lines.append("  Unload%s(*self);" % m.group(1))
+                body_lines.append("  free(self);")
         elif c_ret == "void":
             body_lines.append("  %s;" % ret_expr)
         else:
@@ -543,7 +578,7 @@ def wrapper_simple(fn, wrapper_args):
         return ""
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
-    ret = fn.return
+    ret = fn.ret
     ret = {"RenderTexture2D": "RenderTexture", "TextureCubemap": "Texture2D",
            "Texture": "Texture2D"}.get(ret, ret)
     call = "Raylib.rl_%s(%s)" % (name, a)

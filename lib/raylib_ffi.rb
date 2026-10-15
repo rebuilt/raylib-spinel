@@ -13,6 +13,30 @@ module Raylib
   # spinel appends ffi_cflags verbatim to the single compile+link cc invocation.
   ffi_cflags "-I/usr/local/include -Wl,-rpath,'$ORIGIN/../raylib'"
 
+# ====== generated: complete raylib API surface ======
+  ffi_func :rl_ImageFormat, [:ptr, :int], :void
+  ffi_func :rl_ImageAlphaCrop, [:ptr, :float], :void
+  ffi_func :rl_ImageAlphaPremultiply, [:ptr], :void
+  ffi_func :rl_ImageBlurGaussian, [:ptr, :int], :void
+  ffi_func :rl_ImageKernelConvolution, [:ptr, :ptr, :int], :void
+  ffi_func :rl_ImageResize, [:ptr, :int, :int], :void
+  ffi_func :rl_ImageResizeNN, [:ptr, :int, :int], :void
+  ffi_func :rl_ImageMipmaps, [:ptr], :void
+  ffi_func :rl_ImageDither, [:ptr, :int, :int, :int, :int], :void
+  ffi_func :rl_ImageFlipVertical, [:ptr], :void
+  ffi_func :rl_ImageFlipHorizontal, [:ptr], :void
+  ffi_func :rl_ImageRotate, [:ptr, :int], :void
+  ffi_func :rl_ImageRotateCW, [:ptr], :void
+  ffi_func :rl_ImageRotateCCW, [:ptr], :void
+  ffi_func :rl_ImageColorInvert, [:ptr], :void
+  ffi_func :rl_ImageColorGrayscale, [:ptr], :void
+  ffi_func :rl_ImageColorContrast, [:ptr, :int], :void
+  ffi_func :rl_ImageColorBrightness, [:ptr, :int], :void
+  ffi_func :rl_GenTextureMipmaps, [:ptr], :void
+  ffi_func :rl_UploadMesh, [:ptr, :bool], :void
+  ffi_func :rl_GenMeshTangents, [:ptr], :void
+  ffi_func :rl_SetModelMeshMaterial, [:ptr, :int, :int], :void
+
   # Positional-construction fills (see the factory block below).
   ffi_func :rl_Vector2Fill, %i[ptr float float], :void
   ffi_func :rl_Vector4Fill, %i[ptr float float float float], :void
@@ -321,30 +345,12 @@ module Raylib
   ffi_func :rl_ImageFromChannel, [:ptr, :int], :ptr
   ffi_func :rl_ImageText, [:str, :int, :ptr], :ptr
   ffi_func :rl_ImageTextEx, [:ptr, :str, :float, :float, :ptr], :ptr
-  ffi_func :ImageFormat, [:ptr, :int], :void
   ffi_func :rl_ImageToPOT, [:ptr, :ptr], :void
   ffi_func :rl_ImageCrop, [:ptr, :ptr], :void
-  ffi_func :ImageAlphaCrop, [:ptr, :float], :void
   ffi_func :rl_ImageAlphaClear, [:ptr, :ptr, :float], :void
   ffi_func :rl_ImageAlphaMask, [:ptr, :ptr], :void
-  ffi_func :ImageAlphaPremultiply, [:ptr], :void
-  ffi_func :ImageBlurGaussian, [:ptr, :int], :void
-  ffi_func :ImageKernelConvolution, [:ptr, :ptr, :int], :void
-  ffi_func :ImageResize, [:ptr, :int, :int], :void
-  ffi_func :ImageResizeNN, [:ptr, :int, :int], :void
   ffi_func :rl_ImageResizeCanvas, [:ptr, :int, :int, :int, :int, :ptr], :void
-  ffi_func :ImageMipmaps, [:ptr], :void
-  ffi_func :ImageDither, [:ptr, :int, :int, :int, :int], :void
-  ffi_func :ImageFlipVertical, [:ptr], :void
-  ffi_func :ImageFlipHorizontal, [:ptr], :void
-  ffi_func :ImageRotate, [:ptr, :int], :void
-  ffi_func :ImageRotateCW, [:ptr], :void
-  ffi_func :ImageRotateCCW, [:ptr], :void
   ffi_func :rl_ImageColorTint, [:ptr, :ptr], :void
-  ffi_func :ImageColorInvert, [:ptr], :void
-  ffi_func :ImageColorGrayscale, [:ptr], :void
-  ffi_func :ImageColorContrast, [:ptr, :int], :void
-  ffi_func :ImageColorBrightness, [:ptr, :int], :void
   ffi_func :rl_ImageColorReplace, [:ptr, :ptr, :ptr], :void
   ffi_func :rl_LoadImageColors, [:ptr], :ptr
   ffi_func :rl_LoadImagePalette, [:ptr, :int, :ptr], :ptr
@@ -392,7 +398,6 @@ module Raylib
   ffi_func :rl_UnloadRenderTexture, [:ptr], :void
   ffi_func :rl_UpdateTexture, [:ptr, :ptr], :void
   ffi_func :rl_UpdateTextureRec, [:ptr, :ptr, :ptr], :void
-  ffi_func :GenTextureMipmaps, [:ptr], :void
   ffi_func :rl_SetTextureFilter, [:ptr, :int], :void
   ffi_func :rl_SetTextureWrap, [:ptr, :int], :void
   ffi_func :rl_DrawTextureV, [:ptr, :ptr, :ptr], :void
@@ -588,13 +593,11 @@ module Raylib
   ffi_func :rl_DrawBillboard, [:ptr, :ptr, :ptr, :float, :ptr], :void
   ffi_func :rl_DrawBillboardRec, [:ptr, :ptr, :ptr, :ptr, :ptr, :ptr], :void
   ffi_func :rl_DrawBillboardPro, [:ptr, :ptr, :ptr, :ptr, :ptr, :ptr, :ptr, :float, :ptr], :void
-  ffi_func :UploadMesh, [:ptr, :bool], :void
   ffi_func :rl_UpdateMeshBuffer, [:ptr, :int, :ptr, :int, :int], :void
   ffi_func :rl_UnloadMesh, [:ptr], :void
   ffi_func :rl_DrawMesh, [:ptr, :ptr, :ptr], :void
   ffi_func :rl_DrawMeshInstanced, [:ptr, :ptr, :ptr, :int], :void
   ffi_func :rl_GetMeshBoundingBox, [:ptr, :ptr], :void
-  ffi_func :GenMeshTangents, [:ptr], :void
   ffi_func :rl_ExportMesh, [:ptr, :str], :bool
   ffi_func :rl_ExportMeshAsCode, [:ptr, :str], :bool
   ffi_func :rl_GenMeshPoly, [:int, :float], :ptr
@@ -613,7 +616,6 @@ module Raylib
   ffi_func :rl_IsMaterialValid, [:ptr], :bool
   ffi_func :rl_UnloadMaterial, [:ptr], :void
   ffi_func :rl_SetMaterialTexture, [:ptr, :int, :ptr], :void
-  ffi_func :SetModelMeshMaterial, [:ptr, :int, :int], :void
   ffi_func :LoadModelAnimations, [:str, :ptr], :ptr
   ffi_func :rl_UpdateModelAnimation, [:ptr, :ptr, :float], :void
   ffi_func :rl_UpdateModelAnimationEx, [:ptr, :ptr, :float, :ptr, :float, :float], :void
@@ -3778,5 +3780,78 @@ module Raylib
     alias_method :detach_audio_stream_processor, :DetachAudioStreamProcessor
     alias_method :attach_audio_mixed_processor, :AttachAudioMixedProcessor
     alias_method :detach_audio_mixed_processor, :DetachAudioMixedProcessor
+
+    # ====== generated: wrappers + constants ======
+    def self.ImageFormat(image, newFormat)
+      Raylib.rl_ImageFormat(image, newFormat)
+    end
+    def self.ImageAlphaCrop(image, threshold)
+      Raylib.rl_ImageAlphaCrop(image, threshold)
+    end
+    def self.ImageAlphaPremultiply(image)
+      Raylib.rl_ImageAlphaPremultiply(image)
+    end
+    def self.ImageBlurGaussian(image, blurSize)
+      Raylib.rl_ImageBlurGaussian(image, blurSize)
+    end
+    def self.ImageKernelConvolution(image, kernel, kernelSize)
+      Raylib.rl_ImageKernelConvolution(image, kernel, kernelSize)
+    end
+    def self.ImageResize(image, newWidth, newHeight)
+      Raylib.rl_ImageResize(image, newWidth, newHeight)
+    end
+    def self.ImageResizeNN(image, newWidth, newHeight)
+      Raylib.rl_ImageResizeNN(image, newWidth, newHeight)
+    end
+    def self.ImageMipmaps(image)
+      Raylib.rl_ImageMipmaps(image)
+    end
+    def self.ImageDither(image, rBpp, gBpp, bBpp, aBpp)
+      Raylib.rl_ImageDither(image, rBpp, gBpp, bBpp, aBpp)
+    end
+    def self.ImageFlipVertical(image)
+      Raylib.rl_ImageFlipVertical(image)
+    end
+    def self.ImageFlipHorizontal(image)
+      Raylib.rl_ImageFlipHorizontal(image)
+    end
+    def self.ImageRotate(image, degrees)
+      Raylib.rl_ImageRotate(image, degrees)
+    end
+    def self.ImageRotateCW(image)
+      Raylib.rl_ImageRotateCW(image)
+    end
+    def self.ImageRotateCCW(image)
+      Raylib.rl_ImageRotateCCW(image)
+    end
+    def self.ImageColorInvert(image)
+      Raylib.rl_ImageColorInvert(image)
+    end
+    def self.ImageColorGrayscale(image)
+      Raylib.rl_ImageColorGrayscale(image)
+    end
+    def self.ImageColorContrast(image, contrast)
+      Raylib.rl_ImageColorContrast(image, contrast)
+    end
+    def self.ImageColorBrightness(image, brightness)
+      Raylib.rl_ImageColorBrightness(image, brightness)
+    end
+    def self.GenTextureMipmaps(texture)
+      Raylib.rl_GenTextureMipmaps(texture)
+    end
+    def self.UploadMesh(mesh, dynamic)
+      Raylib.rl_UploadMesh(mesh, dynamic)
+    end
+    def self.GenMeshTangents(mesh)
+      Raylib.rl_GenMeshTangents(mesh)
+    end
+    def self.SetModelMeshMaterial(model, meshId, materialId)
+      Raylib.rl_SetModelMeshMaterial(model, meshId, materialId)
+    end
+  end
+
+  # ====== generated: snake_case aliases (MRI gem naming) ======
+  def self.trace_log(p0, p1, p2)
+    Raylib.TraceLog(p0, p1, p2)
   end
 end

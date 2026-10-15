@@ -51,6 +51,29 @@ RAW_OK = {"void", "char", "unsigned char", "float", "double", "int",
           "unsigned int", "long", "size_t", "bool", "rlRenderBatch",
           "ModelAnimPose", "MaterialMap", "RL_V2", "RL_V3"}
 
+# handle-typed parameters the Ruby side deliberately passes as raw pointers:
+# flat buffers / FFI arrays (points, colors, transforms), pointer typedefs
+# (physac PhysicsBody) and the P3 array cases (glyphs, glyphRecs). Anything
+# else with a handle type must be unwrapped.
+RAW_BY_DESIGN = {
+    "UnloadImageColors": {"colors"}, "UnloadImagePalette": {"colors"},
+    "SetWindowIcons": {"images"}, "UnloadModelAnimations": {"animations"},
+    "UnloadFontData": {"glyphs"},
+    "GenImageFontAtlas": {"glyphs", "glyphRecs"},
+    "DrawLineStrip": {"points"}, "DrawTriangleFan": {"points"},
+    "DrawTriangleStrip": {"points"}, "DrawTriangleStrip3D": {"points"},
+    "DrawSplineLinear": {"points"}, "DrawSplineBasis": {"points"},
+    "DrawSplineCatmullRom": {"points"},
+    "DrawSplineBezierQuadratic": {"points"},
+    "DrawSplineBezierCubic": {"points"},
+    "CheckCollisionPointPoly": {"points"},
+    "ImageDrawLineStrip": {"points"}, "ImageDrawTriangleFan": {"points"},
+    "ImageDrawTriangleStrip": {"points"},
+    "DrawMeshInstanced": {"transforms"},
+    "DestroyPhysicsBody": {"body"}, "PhysicsAddTorque": {"body"},
+    "PhysicsShatter": {"body"}, "SetPhysicsBodyRotation": {"body"},
+}
+
 DEF_RE = re.compile(r"^(?:void|int|float|double|bool|char|size_t|unsigned [a-z]+|"
                     r"[A-Za-z_]\w*(?: \w+)? \*?)\s*rl_(\w+)\(([^)]*)\)\s*\{$")
 
@@ -97,9 +120,50 @@ def shims():
     return out
 
 
+DECL_RE = re.compile(r"^\s*ffi_func :(\w+), \[([^\]]*)\]|"
+                     r"^\s*ffi_func :(\w+), %i\[([^\]]*)\]")
+FFI = os.path.join(LIB, "raylib_ffi.rb")
+
+
+def check_direct_decls(funcs):
+    """Direct (non-shim) ffi decls must not take handle parameters.
+
+    A `ffi_func :ImageFormat, [:ptr, :int]` binds raylib directly, so the
+    Ruby-side view pointer reaches raylib without unwrapping.
+    """
+    bad = []
+    for lineno, line in enumerate(open(FFI).read().split("\n"), 1):
+        m = DECL_RE.match(line)
+        if not m:
+            continue
+        name = m.group(1) or m.group(3)
+        raw = m.group(2) if m.group(1) else m.group(4)
+        if name.startswith("rl_"):
+            continue
+        fn = funcs.get(name)
+        if not fn:
+            continue
+        slots = ([s for s in raw.split(",") if s.strip()] if m.group(1)
+                 else raw.split())
+        for fn in funcs.get(name, []):
+            params = fn.get("params", [])
+            if len(slots) != len(params):
+                continue
+            for p in params:
+                base = base_type(p.get("type", ""))
+                if base not in CLASSES or base in RAW_OK:
+                    continue
+                if p["name"] in RAW_BY_DESIGN.get(name, ()):
+                    continue
+                bad.append((lineno, name, p["name"], p["type"]))
+            break
+    return bad
+
+
 def main():
     funcs = load_functions()
     offenders, checked = [], 0
+    whitelisted = 0
     for adapter, lineno, name, params, body in shims():
         cands = funcs.get(name)
         if not cands:
@@ -119,6 +183,9 @@ def main():
             macro = CLASSES.get(base_type(t))
             if not macro or base_type(t) in RAW_OK:
                 continue
+            if p in RAW_BY_DESIGN.get(name, ()):
+                whitelisted += 1
+                continue
             # unwrap present if the body mentions the macro (or a raw cast) with the parameter
             if re.search(r"%s\s*\(\s*%s\s*\)" % (macro, re.escape(p)), text):
                 continue
@@ -134,8 +201,14 @@ def main():
     for adapter, lineno, name, p, t, call in offenders:
         print("%s:%d  rl_%s: param `%s` (%s) not unwrapped\n    %s"
               % (adapter, lineno, name, p, t, call))
-    print("%d offender(s)" % len(offenders))
-    return 1 if offenders else 0
+    direct = check_direct_decls(funcs)
+    for lineno, name, p, t in direct:
+        print("raylib_ffi.rb:%d  ffi_func :%s: param `%s` (%s) bypasses the shim\n"
+              "    bind rl_%s and unwrap with the macro for this class"
+              % (lineno, name, p, t, name))
+    print("%d shim offender(s), %d direct declaration(s), %d whitelisted raw param(s)"
+          % (len(offenders), len(direct), whitelisted))
+    return 1 if (offenders or direct) else 0
 
 
 if __name__ == "__main__":

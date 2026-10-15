@@ -3513,3 +3513,99 @@ void *rl_ModelAnimation_frame_pose_bone_ptr(void *anim, int frame, int bone) {
 long rl_AutomationEventList_events_addr(void *list) {
   return (long)(intptr_t)RL_AEVLIST(list)->events;
 }
+
+/* ================================================================
+ * Generated shims (tools/gen_raylib_ffi.py). Same conventions as the
+ * hand-written shims above; keep in sync by re-running the generator.
+ * ================================================================ */
+
+
+/* ---- generated shims ---- */
+/** ImageFormat(params: void * image, int newFormat -> void) */
+void rl_ImageFormat(void * image, int newFormat) {
+  ImageFormat(RL_IMG(image), newFormat);
+}
+/** ImageAlphaCrop(params: void * image, float threshold -> void) */
+void rl_ImageAlphaCrop(void * image, float threshold) {
+  ImageAlphaCrop(RL_IMG(image), threshold);
+}
+/** ImageAlphaPremultiply(params: void * image -> void) */
+void rl_ImageAlphaPremultiply(void * image) {
+  ImageAlphaPremultiply(RL_IMG(image));
+}
+/** ImageBlurGaussian(params: void * image, int blurSize -> void) */
+void rl_ImageBlurGaussian(void * image, int blurSize) {
+  ImageBlurGaussian(RL_IMG(image), blurSize);
+}
+/** ImageKernelConvolution(params: void * image, void * kernel, int kernelSize -> void) */
+void rl_ImageKernelConvolution(void * image, void * kernel, int kernelSize) {
+  ImageKernelConvolution(RL_IMG(image), kernel, kernelSize);
+}
+/** ImageResize(params: void * image, int newWidth, int newHeight -> void) */
+void rl_ImageResize(void * image, int newWidth, int newHeight) {
+  ImageResize(RL_IMG(image), newWidth, newHeight);
+}
+/** ImageResizeNN(params: void * image, int newWidth, int newHeight -> void) */
+void rl_ImageResizeNN(void * image, int newWidth, int newHeight) {
+  ImageResizeNN(RL_IMG(image), newWidth, newHeight);
+}
+/** ImageMipmaps(params: void * image -> void) */
+void rl_ImageMipmaps(void * image) {
+  ImageMipmaps(RL_IMG(image));
+}
+/** ImageDither(params: void * image, int rBpp, int gBpp, int bBpp, int aBpp -> void) */
+void rl_ImageDither(void * image, int rBpp, int gBpp, int bBpp, int aBpp) {
+  ImageDither(RL_IMG(image), rBpp, gBpp, bBpp, aBpp);
+}
+/** ImageFlipVertical(params: void * image -> void) */
+void rl_ImageFlipVertical(void * image) {
+  ImageFlipVertical(RL_IMG(image));
+}
+/** ImageFlipHorizontal(params: void * image -> void) */
+void rl_ImageFlipHorizontal(void * image) {
+  ImageFlipHorizontal(RL_IMG(image));
+}
+/** ImageRotate(params: void * image, int degrees -> void) */
+void rl_ImageRotate(void * image, int degrees) {
+  ImageRotate(RL_IMG(image), degrees);
+}
+/** ImageRotateCW(params: void * image -> void) */
+void rl_ImageRotateCW(void * image) {
+  ImageRotateCW(RL_IMG(image));
+}
+/** ImageRotateCCW(params: void * image -> void) */
+void rl_ImageRotateCCW(void * image) {
+  ImageRotateCCW(RL_IMG(image));
+}
+/** ImageColorInvert(params: void * image -> void) */
+void rl_ImageColorInvert(void * image) {
+  ImageColorInvert(RL_IMG(image));
+}
+/** ImageColorGrayscale(params: void * image -> void) */
+void rl_ImageColorGrayscale(void * image) {
+  ImageColorGrayscale(RL_IMG(image));
+}
+/** ImageColorContrast(params: void * image, int contrast -> void) */
+void rl_ImageColorContrast(void * image, int contrast) {
+  ImageColorContrast(RL_IMG(image), contrast);
+}
+/** ImageColorBrightness(params: void * image, int brightness -> void) */
+void rl_ImageColorBrightness(void * image, int brightness) {
+  ImageColorBrightness(RL_IMG(image), brightness);
+}
+/** GenTextureMipmaps(params: void * texture -> void) */
+void rl_GenTextureMipmaps(void * texture) {
+  GenTextureMipmaps(RL_TEX(texture));
+}
+/** UploadMesh(params: void * mesh, _Bool dynamic -> void) */
+void rl_UploadMesh(void * mesh, _Bool dynamic) {
+  UploadMesh(RL_MESH(mesh), dynamic);
+}
+/** GenMeshTangents(params: void * mesh -> void) */
+void rl_GenMeshTangents(void * mesh) {
+  GenMeshTangents(RL_MESH(mesh));
+}
+/** SetModelMeshMaterial(params: void * model, int meshId, int materialId -> void) */
+void rl_SetModelMeshMaterial(void * model, int meshId, int materialId) {
+  SetModelMeshMaterial(RL_MODEL(model), meshId, materialId);
+}
