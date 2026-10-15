@@ -46,6 +46,7 @@ module Raylib
 
   # Positional-construction fills (see the factory block below).
   ffi_func :rl_Vector2Fill, %i[ptr float float], :void
+  ffi_func :rl_RectangleFill, [:ptr, :float, :float, :float, :float], :void
   ffi_func :rl_Vector4Fill, %i[ptr float float float float], :void
   ffi_func :rl_MatrixFill,
            %i[ptr float float float float
@@ -1311,6 +1312,12 @@ module Raylib
     def self.Vector2(x, y)
       o = Vector2.new
       Raylib.rl_Vector2Fill(o, x, y)
+      o
+    end
+
+    def self.Rectangle(x, y, w, h)
+      o = Rectangle.new
+      Raylib.rl_RectangleFill(o, x, y, w, h)
       o
     end
 

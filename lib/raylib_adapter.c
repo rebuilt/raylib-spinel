@@ -2698,6 +2698,10 @@ float rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
 void rl_Vector2Fill(rl_Vector2 *o, float x, float y) {
   (*RL_V2(o)) = (Vector2){ x, y };
 }
+
+void rl_RectangleFill(rl_Rectangle *self, double x, double y, double w, double h) {
+  self->v = (Rectangle){ (float)x, (float)y, (float)w, (float)h };
+}
 void rl_Vector4Fill(rl_Vector4 *o, float x, float y, float z, float w) {
   (*RL_V4(o)) = (Vector4){ x, y, z, w };
 }

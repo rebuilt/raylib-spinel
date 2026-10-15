@@ -25,7 +25,6 @@ else
   require_relative "lib/raylib_handles_ffi"
   require_relative "lib/raylib_handles"
   require_relative "lib/raylib_sizes"
-  require_relative "lib/raylib_structs"
   require_relative "lib/rlgl_constants"
 end
 
