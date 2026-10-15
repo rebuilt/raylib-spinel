@@ -160,6 +160,31 @@ def check_direct_decls(funcs):
     return bad
 
 
+def check_defined(funcs):
+    """Every ffi_func the Ruby surface declares must have a C definition."""
+    declared = set()
+    for fname in ("raylib_ffi.rb", "raymath_ffi.rb", "rlgl_ffi.rb",
+                  "physac_ffi.rb", "rcamera_ffi.rb", "raygui_ffi.rb",
+                  "raylib_handles_ffi.rb"):
+        path = os.path.join(LIB, fname)
+        if not os.path.exists(path):
+            continue
+        declared.update(re.findall(r"ffi_func :(rl_\w+)", open(path).read()))
+    defined = set()
+    for fname in ADAPTERS + ["raygui_impl.c", "physac_impl.c"]:
+        path = os.path.join(LIB, fname)
+        if not os.path.exists(path):
+            continue
+        # definition shape: a line starting with the return type, then rl_<name>(
+        # possibly with the signature continued on following lines (re.S), up to
+        # the opening brace. Calls cannot match (they end in `;`, not `{`).
+        text = open(path).read()
+        defined.update(re.findall(
+            r"^[A-Za-z_][\w \t\*]*?\b(rl_\w+)\s*\([^;{}]*\)\s*\{",
+            text, re.M))
+    return sorted(declared - defined)
+
+
 def main():
     funcs = load_functions()
     offenders, checked = [], 0
@@ -206,9 +231,13 @@ def main():
         print("raylib_ffi.rb:%d  ffi_func :%s: param `%s` (%s) bypasses the shim\n"
               "    bind rl_%s and unwrap with the macro for this class"
               % (lineno, name, p, t, name))
-    print("%d shim offender(s), %d direct declaration(s), %d whitelisted raw param(s)"
-          % (len(offenders), len(direct), whitelisted))
-    return 1 if (offenders or direct) else 0
+    missing = check_defined(funcs)
+    for name in missing:
+        print("ffi_func :%s is declared but has no C definition (link error)" % name)
+    print("%d shim offender(s), %d direct declaration(s), %d undefined symbol(s), "
+          "%d whitelisted raw param(s)"
+          % (len(offenders), len(direct), len(missing), whitelisted))
+    return 1 if (offenders or direct or missing) else 0
 
 
 if __name__ == "__main__":

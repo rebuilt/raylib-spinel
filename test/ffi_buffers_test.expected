@@ -1,0 +1,5 @@
+int round-trip: 42
+address is Integer: true
+float array: 1.5,2.5,3.5
+string: abc
+stride read: 8 third: 9
