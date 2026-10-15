@@ -88,6 +88,14 @@ rl_Color *rl_Color_new(sp_int cls_id, sp_int r, sp_int g, sp_int b, sp_int a) {
   return self;
 }
 
+rl_Color *rl_Color_new0(sp_int cls_id) {
+  rl_Color *self = (rl_Color *)sp_gc_alloc(sizeof(rl_Color), NULL, rl_Color_scan);
+  self->cls_id = cls_id;
+  self->p = NULL;
+  self->c = (Color){ 0, 0, 0, 0 };
+  return self;
+}
+
 Color *rl_Color_view(sp_int cls_id, void *p, sp_RbVal owner) {
   rl_Color *self = (rl_Color *)sp_gc_alloc(sizeof(rl_Color), NULL, rl_Color_scan);
   self->cls_id = cls_id;

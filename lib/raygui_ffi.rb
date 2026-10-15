@@ -92,7 +92,7 @@ module Raylib
   ffi_func :rl_GuiColorPanelHSV, %i[float float float float str], :int
   ffi_func :rl_GuiColorPickerHSV, %i[float float float float str], :int
   ffi_func :rl_GuiTextBox, %i[float float float float ptr int int], :int
-  ffi_func :rl_GuiTextInputBox, %i[float float float float str str str int str int int], :int
+  ffi_func :rl_GuiTextInputBox, %i[float float float float str str ptr int str ptr ptr], :int
   ffi_func :rl_GuiListViewEx, %i[float float float float str int int int int], :int
   ffi_func :rl_GuiTabBar, %i[float float float float str int int], :int
   ffi_func :rl_GuiTabBarEx, %i[float float float float str int int int int], :int
@@ -117,13 +117,6 @@ module Raylib
   def self.GuiLoadStyle(file) = Raylib.rl_GuiLoadStyle(file)
   def self.GuiLoadStyleDefault = Raylib.rl_GuiLoadStyleDefault
 
-  def self.GuiButton(x, y, w, h, text) = Raylib.rl_GuiButton(x, y, w, h, text)
-  def self.GuiLabel(x, y, w, h, text) = Raylib.rl_GuiLabel(x, y, w, h, text)
-  def self.GuiLabelButton(x, y, w, h, text) = Raylib.rl_GuiLabelButton(x, y, w, h, text)
-  def self.GuiGroupBox(x, y, w, h, text) = Raylib.rl_GuiGroupBox(x, y, w, h, text)
-  def self.GuiLine(x, y, w, h, text) = Raylib.rl_GuiLine(x, y, w, h, text)
-  def self.GuiPanel(x, y, w, h, text) = Raylib.rl_GuiPanel(x, y, w, h, text)
-  def self.GuiStatusBar(x, y, w, h, text) = Raylib.rl_GuiStatusBar(x, y, w, h, text)
   # raygui 4.x shapes, as the gem binds them: `Rectangle bounds` first, then
   # the control's own parameters. State the control writes back (checked/
   # active/value/scroll/view) is a pointer carrier: an FFI::MemoryPointer in
@@ -236,11 +229,13 @@ module Raylib
     Raylib.rl_GuiDrawIcon(icon_id, x, y, pixel_size, color)
   end
   def self.GuiTextBox(bounds, text, text_size, edit) = Raylib.rl_GuiTextBox(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), text_size, edit ? 1 : 0)
-  def self.GuiTextInputBox(x, y, w, h, title, message, text, text_size, btns,
-                           active, secret)
-    res = Raylib.rl_GuiTextInputBox(x, y, w, h, title, message, text, text_size,
-                                    btns, active, secret ? 1 : 0)
-    [res, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetText]
+  def self.GuiTextInputBox(bounds, title, message, text, text_size, btns, active, secret)
+    # coerce at the boundary: the delegate's parameters are untyped, and a raw
+    # forward lets the inference mistype the slots (B4)
+    Raylib.rl_GuiTextInputBox(bounds.x, bounds.y, bounds.width, bounds.height,
+                              title.to_s, message.to_s, Raylib.ptr_addr(text),
+                              text_size.to_i, btns.to_s,
+                              Raylib.ptr_addr(active), Raylib.ptr_addr(secret))
   end
   def self.GuiGetText = Raylib.rl_Gui_GetText
 
@@ -299,13 +294,6 @@ module Raylib
 
   # Legacy RGui* aliases (the examples use these names).
   # RGuiCheckBox takes the same `int *` as GuiCheckBox (see the note above).
-  def self.RGuiCheckBox(x, y, w, h, text, checked) = Raylib.rl_GuiCheckBox(x, y, w, h, text, checked)
-  def self.RGuiSliderBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSliderBar(x, y, w, h, l, r, value, lo, hi)
-  def self.RGuiSlider(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSlider(x, y, w, h, l, r, value, lo, hi)
-  def self.RGuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit ? 1 : 0)
-  def self.RGuiComboBox(x, y, w, h, text, active) = Raylib.rl_GuiComboBox(x, y, w, h, text, active)
-  def self.RGuiProgressBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiProgressBar(x, y, w, h, l, r, value, lo, hi)
-  def self.RGuiListView(x, y, w, h, text, scroll, active) = Raylib.rl_GuiListView(x, y, w, h, text, scroll, active)
 
   # raygui control + style property constants (raygui 5.0)
   DEFAULT = 0

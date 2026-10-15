@@ -568,10 +568,13 @@
     "shot": "9 0.0726668 1280x1024"
    },
    "spinel": {
-    "compile_error": "C compilation failed"
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "9 0.0726668 1280x1024"
    },
-   "verdict": "spinel-error",
-   "detail": "compile: C compilation failed"
+   "verdict": "ran",
+   "detail": "mri shot=9 0.0726668 1280x1024 | spinel shot=9 0.0726668 1280x1024"
   },
   {
    "name": "gui_controls.rb",
@@ -582,10 +585,13 @@
     "shot": "27336 0.354044 1280x1024"
    },
    "spinel": {
-    "compile_error": "C compilation failed"
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "21775 0.354996 1280x1024"
    },
-   "verdict": "spinel-error",
-   "detail": "compile: C compilation failed"
+   "verdict": "ran",
+   "detail": "mri shot=27336 0.354044 1280x1024 | spinel shot=21775 0.354996 1280x1024"
   },
   {
    "name": "lissajous_curve.rb",

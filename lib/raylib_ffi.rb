@@ -900,6 +900,7 @@ module Raylib
   # is a method on the Color itself (the color is the receiver).
   native_struct "Color", "rl_Color"
   native_new [:int, :int, :int, :int], "rl_Color_new"
+  native_new [], "rl_Color_new0"
   # Views: Color.new(ptr, owner) / Color.new(addr) (gem code indexes
   # LoadImageColors with Color.new(mapPixels + Color.size * i)).
   native_new [:ptr, :any], "rl_Color_view"

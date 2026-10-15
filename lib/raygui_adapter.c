@@ -387,20 +387,30 @@ int rl_GuiTextBox(float x, float y, float w, float h, const char *text,
   return r;
 }
 int rl_GuiTextInputBox(float x, float y, float w, float h, const char *title,
-                       const char *message, const char *text, int textSize,
-                       const char *btnText, int btnActive, int secretView) {
-  (void)textSize;
-  int i = 0;
+                       const char *message, void *text, int textSize,
+                       const char *btnText, void *btnActive, void *secretView) {
+  /* gem shape: text / btnActive / secretView are written back to the caller */
+  size_t cap = textSize > 0 ? (size_t)textSize - 1 : (size_t)1023;
+  size_t i = 0;
   if (text != NULL) {
-    while (text[i] != '\0' && i < 1023) { sp_gui_text_result[i] = text[i]; i++; }
+    const char *t = (const char *)text;
+    while (t[i] != '\0' && i < cap) { sp_gui_text_result[i] = t[i]; i++; }
   }
   sp_gui_text_result[i] = '\0';
-  int b = btnActive;
-  bool secret = secretView != 0;
+  int b = btnActive != NULL ? *(int *)btnActive : 0;
+  bool secret = secretView != NULL ? *(bool *)secretView : false;
   int r = GuiTextInputBox((Rectangle){ x, y, w, h }, title, message,
                           sp_gui_text_result, 1024, btnText, &b, &secret);
-  sp_gui_int_result = b;
-  sp_gui_int_result2 = secret ? 1 : 0;
+  if (text != NULL) {
+    size_t n = 0;
+    while (sp_gui_text_result[n] != '\0' && n < cap) {
+      ((char *)text)[n] = sp_gui_text_result[n];
+      n++;
+    }
+    ((char *)text)[n] = '\0';
+  }
+  if (btnActive != NULL) *(int *)btnActive = b;
+  if (secretView != NULL) *(bool *)secretView = secret;
   return r;
 }
 const char *rl_Gui_GetText(void) { return sp_gui_text_result; }

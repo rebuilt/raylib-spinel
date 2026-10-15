@@ -56,8 +56,8 @@ Invalid upstream (excluded from the target):
 | flocking_optimized.rb | ran | mri shot=6 0.304237 1280x1024 | spinel shot=6 0.304018 1280x1024 |
 | flocking_plain.rb | ran | mri shot=6 0.304072 1280x1024 | spinel shot=6 0.304161 1280x1024 |
 | game_of_life_simple.rb | ran | mri shot=3 0.0134672 1280x1024 | spinel shot=3 0.0134672 1280x1024 |
-| game_of_life_ui.rb | spinel-error | compile: C compilation failed |
-| gui_controls.rb | spinel-error | compile: C compilation failed |
+| game_of_life_ui.rb | ran | mri shot=9 0.0726668 1280x1024 | spinel shot=9 0.0726668 1280x1024 |
+| gui_controls.rb | ran | mri shot=27336 0.354044 1280x1024 | spinel shot=21775 0.354996 1280x1024 |
 | lissajous_curve.rb | ran | mri shot=5 0.220916 1280x1024 | spinel shot=5 0.220916 1280x1024 |
 | models_box_collisions.rb | ran | mri shot=8 0.252021 1280x1024 | spinel shot=8 0.252021 1280x1024 |
 | models_geometric_shapes.rb | ran | mri shot=15 0.237963 1280x1024 | spinel shot=15 0.237963 1280x1024 |
@@ -79,4 +79,4 @@ Invalid upstream (excluded from the target):
 | toon_character_sprites.rb | ran | mri shot=5 0.500409 1280x1024 | spinel shot=5 0.500668 1280x1024 |
 | utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 
-26/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).
+28/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).

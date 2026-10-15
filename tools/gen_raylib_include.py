@@ -33,6 +33,32 @@ FFI_RE = re.compile(r"ffi_func\s+:([A-Za-z_]\w*),\s*(?:%i\[([^\]]*)\]|\[([^\]]*)
 ALIAS_RE = re.compile(r"^\s*alias_method\s+:([A-Za-z_]\w*),\s*:([A-Za-z_]\w*)")
 
 
+def join_signatures(text):
+    """Join a `def self.X(...)` signature that spans lines into one line.
+
+    A signature split across lines (e.g. `def self.RGuiSliderBar(bounds, ...,
+    max_value)`) is invisible to the line-based DEF_RE, so those names got no
+    delegate; a bare call then emitted a call to a symbol the compiler never
+    defined (implicit declaration -> `sp_PolyArray *` from `int`).
+    """
+    out, buf = [], None
+    for line in text.split("\n"):
+        if buf is not None:
+            buf += " " + line.strip()
+            if re.search(r"\)\s*$", line):
+                out.append(buf)
+                buf = None
+            continue
+        m = re.match(r"^(\s*)def self\.(\w+)\s*\((.*)$", line)
+        if m and not re.search(r"\)", m.group(3)):
+            buf = line.rstrip()
+            continue
+        out.append(line)
+    if buf is not None:
+        out.append(buf)
+    return "\n".join(out)
+
+
 def methods(path, skip_shims=True):
     """[(name, args|arity|None)] in source order.
 
@@ -44,7 +70,7 @@ def methods(path, skip_shims=True):
     itself the rlgl API, snake aliases included, so it passes False.
     """
     out, seen = [], set()
-    for line in open(path):
+    for line in join_signatures(open(path).read()).split("\n"):
         if re.match(r"\s*#", line):
             continue
         m = DEF_RE.match(line)
