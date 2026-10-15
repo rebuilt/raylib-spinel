@@ -203,6 +203,12 @@ def prepare_example(src, dst_dir):
 # under CRuby: the called method does not exist). They are reported as
 # `invalid` and excluded from the 70-example target.
 INVALID_EXAMPLES = {
+    "models_animation_lowlevelapi.rb":
+        "calls UnloadModelAnimation (singular); the loaded gem binds only the "
+        "plural UnloadModelAnimations",
+    "shapes_basic_shapes.rb":
+        "calls DrawCircleGradient(x, y, radius, ...); the loaded gem binds the "
+        "raylib-6 signature (Vector2 center, float radius, ...)",
     "textures_background_scrolling.rb":
         "calls unloadtexture (typo; NoMethodError under CRuby)",
     "models_animation_blending.gpu.rb":
@@ -210,7 +216,8 @@ INVALID_EXAMPLES = {
     "textures_bunnymark_optimized.rb":
         "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)",
     "rlgl_compute_shader.rb":
-        "calls rlLoadComputeShaderProgram/rlCompileShader, which the gem's rlgl surface does not expose (respond_to? false under CRuby)",
+        "calls rlLoadComputeShaderProgram/rlCompileShader; the loaded gem exposes "
+        "rlLoadShaderProgramCompute instead and has no rlCompileShader",
 }
 
 
@@ -256,6 +263,15 @@ RUN_EXAMPLES = [
     "template.rb", "text_rectangle_bounds.rb", "textures_image_generation.rb",
     "textures_mouse_painting.rb", "toon_character_sprites.rb", "utf8_font.rb",
 ]
+
+# Not run (reported as skipped): cwd-relative assets the checkout does not
+# ship, or RubyGems reflection rather than the raylib API.
+RUN_SKIP = {
+    "utf8_font.rb": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)",
+    "snake_case_api.rb": "uses Gem::Specification (RubyGems API), not the raylib surface",
+    "snake_case_rlgl.rb": "uses Gem::Specification (RubyGems API), not the raylib surface",
+    "template.rb": "uses Gem::Specification (RubyGems API), not the raylib surface",
+}
 
 RUN_SECONDS = 4
 SHOT_DIR = "/tmp/opencode/corpus_shots"
@@ -336,7 +352,8 @@ def run_example(src, flags):
         out["detail"] = "spinel rc=%s %s" % (sp["rc"], sp["stderr"].strip().splitlines()[-1][:60] if sp["stderr"].strip() else "")
     elif sp["stdout"] != mri["stdout"]:
         out["verdict"], out["detail"] = "stdout-diff", "stdout differs"
-    elif not sp["shot"] or int(sp["shot"].split()[0]) < 3:
+    elif (not sp["shot"] or int(sp["shot"].split()[0]) < 3) and \
+            mri["shot"] and int(mri["shot"].split()[0]) >= 3:
         out["verdict"], out["detail"] = "spinel-blank", "screenshot has no content: %s" % sp["shot"]
     else:
         out["verdict"] = "ran"
@@ -345,10 +362,13 @@ def run_example(src, flags):
 
 
 def section_run(flags, names=None):
-    files = [os.path.join(EXAMPLES, n) for n in (names or RUN_EXAMPLES)]
+    wanted = names or RUN_EXAMPLES
+    skipped = [{"name": n, "verdict": "skipped", "detail": RUN_SKIP[n]}
+               for n in wanted if n in RUN_SKIP]
+    files = [os.path.join(EXAMPLES, n) for n in wanted if n not in RUN_SKIP]
     files = [f for f in files if os.path.exists(f)]
     with ThreadPoolExecutor(max_workers=2) as ex:
-        return list(ex.map(lambda f: run_example(f, flags), files))
+        return skipped + list(ex.map(lambda f: run_example(f, flags), files))
 
 
 
@@ -372,7 +392,13 @@ def main():
     if only == "run":
         result["synthetic"] = old.get("synthetic", [])
         result["examples"] = old.get("examples", [])
-        result["run"] = section_run(flags, names)
+        rerun = section_run(flags, names)
+        if names:
+            keep = {r["name"]: r for r in old.get("run", [])}
+            keep.update({r["name"]: r for r in rerun})
+            result["run"] = [keep[k] for k in sorted(keep)]
+        else:
+            result["run"] = rerun
     else:
         if only != "examples":
             result["synthetic"] = section_synthetic(flags)

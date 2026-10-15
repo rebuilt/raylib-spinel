@@ -124,6 +124,100 @@ module Raylib
     def frame_count = keyframeCount
   end
 
+  # The gem's FFI::Struct#pointer (hand the struct to a C function) is the
+  # single most common struct idiom, e.g. UpdateCamera(camera.pointer, mode),
+  # SetAutomationEventList(list.pointer), ImageFlipVertical(image.pointer).
+  # Our views are native-class instances: a :ptr slot hands C their struct
+  # address, so `pointer` is the view itself. (A native_method returning :ptr
+  # would hand the box instead, which raylib then reads as the struct.)
+  class Vector2
+    def pointer = self
+  end
+  class Vector3
+    def pointer = self
+  end
+  class Vector4
+    def pointer = self
+  end
+  class Color
+    def pointer = self
+  end
+  class Rectangle
+    def pointer = self
+  end
+  class Camera
+    def pointer = self
+  end
+  class Camera2D
+    def pointer = self
+  end
+  class BoundingBox
+    def pointer = self
+  end
+  class Ray
+    def pointer = self
+  end
+  class RayCollision
+    def pointer = self
+  end
+  class Matrix
+    def pointer = self
+  end
+  class NPatchInfo
+    def pointer = self
+  end
+  class VrDeviceInfo
+    def pointer = self
+  end
+  class VrStereoConfig
+    def pointer = self
+  end
+  class FilePathList
+    def pointer = self
+  end
+  class Transform
+    def pointer = self
+  end
+  class AutomationEvent
+    def pointer = self
+  end
+  class AutomationEventList
+    def pointer = self
+  end
+  class Image
+    def pointer = self
+  end
+  class Texture2D
+    def pointer = self
+  end
+  class Font
+    def pointer = self
+  end
+  class GlyphInfo
+    def pointer = self
+  end
+  class RenderTexture
+    def pointer = self
+  end
+  class Model
+    def pointer = self
+  end
+  class Material
+    def pointer = self
+  end
+  class Mesh
+    def pointer = self
+  end
+  class Shader
+    def pointer = self
+  end
+  class ModelAnimation
+    def pointer = self
+  end
+  class BoneInfo
+    def pointer = self
+  end
+
   # FFI::MemoryPointer/FFI::Pointer (the gem idiom) has no C address the AOT
   # compiler can hand to a :ptr slot; the Integer #address it holds is accepted
   # (src/codegen_call_class.c: an Integer, a String, an IO::Buffer or a native

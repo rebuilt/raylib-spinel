@@ -965,7 +965,6 @@ module Raylib
   native_method :with_up, [:float, :float, :float], :self, "rl_Camera_with_up"
   native_method :with_fovy, [:float], :self, "rl_Camera_with_fovy"
   native_method :with_projection, [:int], :self, "rl_Camera_with_projection"
-  native_method :pointer, [], :ptr, "rl_Camera_ptr"
   # Gem-shaped field access (sub-struct views; see raylib_structs.rb).
   native_method :position_ptr, [], :ptr, "rl_Camera_position_ptr"
   native_method :target_ptr, [], :ptr, "rl_Camera_target_ptr"
@@ -1269,6 +1268,8 @@ module Raylib
     DARKPURPLE = Color.new(112, 31, 126, 255)
     BEIGE = Color.new(211, 176, 131, 255)
     BROWN = Color.new(127, 106, 79, 255)
+
+
     DARKBROWN = Color.new(76, 63, 47, 255)
 
     WHITE = Color.new(255, 255, 255, 255)
@@ -1276,7 +1277,6 @@ module Raylib
     BLANK = Color.new(0, 0, 0, 0)
     MAGENTA = Color.new(255, 0, 255, 255)
     RAYWHITE = Color.new(245, 245, 245, 255)
-
 
     # Color factories — thin wrappers over the native ctor (Color.new lowers to
     # rl_Color_new). Kept here (Spinel side) so they compile as Ruby methods on
@@ -2083,6 +2083,7 @@ module Raylib
     end
     def self.GetPixelColor(srcPtr, format)
       _out = Color.new(0, 0, 0, 0)
+
       Raylib.rl_GetPixelColor(srcPtr, format, _out)
       _out
     end
@@ -3880,3 +3881,7 @@ module Raylib
     end
   end
 end
+
+
+
+
