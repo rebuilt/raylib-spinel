@@ -2,8 +2,8 @@
  "synthetic": [
   {
    "name": "01_structs.rb",
-   "verdict": "run-error",
-   "detail": "run-error: undefined method 'min' for an instance of Raylib::BoundingBox (NoMethodError)"
+   "verdict": "same",
+   "detail": ""
   },
   {
    "name": "02_textformat.rb",
@@ -74,8 +74,8 @@
   },
   {
    "name": "core_2d_camera.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmpo5e0k4ks/core_2d_camera.rb:59: unsupported call operator write (unsupported receiver/attr): node 88292 (CallOperatorWriteNode)"
+   "verdict": "refusal",
+   "detail": "/tmp/tmpsevisiz8/core_2d_camera.rb:63: unsupported multiple assignment call target no writer: node 88749 (MultiWriteNode)"
   },
   {
    "name": "core_3d_camera_first_person.rb",
@@ -83,13 +83,12 @@
   },
   {
    "name": "core_3d_split_screen.rb",
-   "verdict": "bare-call",
-   "detail": "/tmp/tmp1f_okugi/core_3d_split_screen.rb:71: unsupported call operator write (unsupported receiver/attr): node 88287 (CallOperatorWriteNode)"
+   "verdict": "analyzed"
   },
   {
    "name": "core_automation_events.rb",
    "verdict": "bare-call",
-   "detail": "/tmp/tmp8reoc3ya/core_automation_events.rb:123: unsupported call operator write (unsupported receiver/attr): node 88498 (CallOperatorWriteNode)"
+   "detail": "/tmp/tmpbraiwnwz/core_automation_events.rb:177: unsupported call: node 89205 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0"
   },
   {
    "name": "core_drop_files.rb",
@@ -147,7 +146,7 @@
   {
    "name": "models_animation_lowlevelapi.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:568: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 93536 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:568: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 93973 (LocalVariableReadNode)"
   },
   {
    "name": "models_billboard.rb",
@@ -180,7 +179,7 @@
   {
    "name": "models_loading_m3d.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp3hatm8ar/models_loading_m3d.rb:42: unsupported comparison: node 88172 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
+   "detail": "/tmp/tmp4vn8q7nq/models_loading_m3d.rb:42: unsupported comparison: node 88609 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "models_mesh_generation.rb",
@@ -209,7 +208,7 @@
   {
    "name": "physics_demo.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmph44c6srw/physics_demo.rb:59: unsupported comparison: node 88290 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
+   "detail": "/tmp/tmpqd26v8rp/physics_demo.rb:59: unsupported comparison: node 88727 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "procedural_texture.rb",
@@ -223,7 +222,7 @@
   {
    "name": "raylib_with_imgui.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmps3rwfj_y/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
+   "detail": "/tmp/tmpgpbeo06p/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
   },
   {
    "name": "raylib_with_tileson.rb",
@@ -238,12 +237,12 @@
   {
    "name": "reversi_board.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp5gmex1ud/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
+   "detail": "/tmp/tmplpcoi9zy/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "rlgl_compute_shader.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:161: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 91319 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:161: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 91756 (LocalVariableReadNode)"
   },
   {
    "name": "shaders_basic_lighting.rb",
@@ -288,7 +287,7 @@
   {
    "name": "text_draw_3d.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmppsrbd2y0/text_draw_3d.rb:45: unsupported comparison: node 88274 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
+   "detail": "/tmp/tmp_rpel92j/text_draw_3d.rb:45: unsupported comparison: node 88711 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty3"
   },
   {
    "name": "text_font_filters.rb",
@@ -297,17 +296,17 @@
   {
    "name": "text_font_sdf.rb",
    "verdict": "refusal",
-   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:423: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 92629 (LocalVariableReadNode)"
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:423: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 93066 (LocalVariableReadNode)"
   },
   {
    "name": "text_rectangle_bounds.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp0tklt6u0/text_rectangle_bounds.rb:97: unsupported comparison: node 88456 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
+   "detail": "/tmp/tmpq6w209r_/text_rectangle_bounds.rb:97: unsupported comparison: node 88893 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
   },
   {
    "name": "text_unicode.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmp84ueijvc/text_unicode.rb:204: unsupported comparison: node 89263 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
+   "detail": "/tmp/tmpl4wuoq6f/text_unicode.rb:204: unsupported comparison: node 89700 (CallNode `>`) recv=CallNode/ty0 argc=1 arg0ty5"
   },
   {
    "name": "textures_background_scrolling.rb",
