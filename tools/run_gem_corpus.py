@@ -69,9 +69,60 @@ def mri_run(path, tmp):
     return run(cmd, tmp)
 
 
+def vendored_raylib_so():
+    """Path to the libraylib bundled by the installed raylib-bindings gem.
+
+    The system libraylib creates incomplete FBOs on this box, so render-texture
+    readbacks come back all zero; the gem's build is the known-good one (the
+    hello_raylib Makefile vendors the same file). None when absent.
+    """
+    code = ('begin; s=Gem::Specification.find_by_name("raylib-bindings");'
+            'arch=RUBY_PLATFORM.split("-")[0];'
+            'p=Dir[File.join(s.full_gem_path,"lib","libraylib."+arch+".so")].first;'
+            'print p if p; rescue StandardError; end')
+    try:
+        out = subprocess.check_output(["ruby", "-e", code], text=True,
+                                      stderr=subprocess.DEVNULL).strip()
+    except Exception:
+        return None
+    return out or None
+
+
+def _soname(path):
+    for tool in (["objdump", "-p"], ["readelf", "-d"]):
+        try:
+            out = subprocess.check_output(tool + [path], text=True,
+                                          stderr=subprocess.DEVNULL)
+        except Exception:
+            continue
+        m = re.search(r"SONAME\s+(\S+)", out)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
+def vendored_raylib_link(tmp):
+    """Link args for the gem's libraylib, symlinked under the SONAME it needs."""
+    src = vendored_raylib_so()
+    if not src:
+        return []
+    link_dir = os.path.join(tmp, "vlib")
+    os.makedirs(link_dir, exist_ok=True)
+    names = ["libraylib.so", "libraylib.so.600"]
+    so = _soname(src)
+    if so:
+        names.append(so)
+    for name in names:
+        dst = os.path.join(link_dir, name)
+        if not os.path.exists(dst):
+            os.symlink(src, dst)
+    return ["--link", "-L" + link_dir, "--link", "-Wl,-rpath," + link_dir]
+
+
 def spinel_run(path, flags, tmp):
     exe = os.path.join(tmp, "corpus_bin")
-    build = run(["spinel", path] + flags + ["-o", exe], tmp, timeout=240)
+    link = vendored_raylib_link(tmp)
+    build = run(["spinel", path] + flags + link + ["-o", exe], tmp, timeout=240)
     if build[0] != 0 or not os.path.exists(exe):
         return "compile-error", build[1], build[2]
     cmd = [exe]

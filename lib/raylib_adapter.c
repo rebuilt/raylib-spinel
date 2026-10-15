@@ -208,6 +208,9 @@ void rl_DrawRenderTexturePro(void *target, float rotation, void *tint) {
 void *rl_RenderTexture_texture_ptr(void *target) {
   return &(RL_RT(target))->texture;
 }
+void *rl_RenderTexture_depth_ptr(void *target) {
+  return &(RL_RT(target))->depth;
+}
 void *rl_LoadImageFromRenderTexture(void *target) {
   RenderTexture2D *rt = RL_RT(target);
   Image *r = (Image *)malloc(sizeof(Image));
@@ -2766,7 +2769,8 @@ int rl_Model_meshCount(void *model) { return (RL_MODEL(model))->meshCount; }
 
 /* ModelAnimation array element and frame count. */
 void *rl_ModelAnimationAt_ptr(void *anims, int index) {
-  return &(RL_ANIM(anims))[index];
+  /* `anims` is the raw array LoadModelAnimations returned, not a view. */
+  return &((ModelAnimation *)anims)[index];
 }
 int rl_ModelAnimation_frameCount(void *anim) {
   return (RL_ANIM(anim))->keyframeCount;

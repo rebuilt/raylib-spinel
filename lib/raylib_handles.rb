@@ -158,12 +158,22 @@ module Raylib
   end
 
   # Scene-facing names for the renamed raw shims: the *_ptr symbols return raw
-  # interior/heap pointers, these return views.
-  def self.rl_FontTexture(font) = font.texture
-  def self.rl_RenderTexture_texture(target) = target.texture
-  def self.rl_RenderTexture_depth(target) = target.depth
-  def self.rl_Model_material(model, index) = model.material(index)
-  def self.rl_Model_mesh(model, index) = model.mesh(index)
+  # interior/heap pointers, these return views. They build the view straight
+  # from the pointer shim instead of sending the Ruby accessor: when the AOT
+  # compiler cannot pin the receiver's type (an array element, a struct field),
+  # a `font.texture` send becomes a polymorphic call that misses the native
+  # class arm ("undefined method 'texture' for an instance of Raylib::Font"),
+  # while an ffi_func argument unboxes the same value.
+  def self.rl_FontTexture(font) =
+    Texture2D.new(Raylib.rl_Font_texture_ptr(font), font)
+  def self.rl_RenderTexture_texture(target) =
+    Texture2D.new(Raylib.rl_RenderTexture_texture_ptr(target), target)
+  def self.rl_RenderTexture_depth(target) =
+    Texture2D.new(Raylib.rl_RenderTexture_depth_ptr(target), target)
+  def self.rl_Model_material(model, index) =
+    Material.new(Raylib.rl_Model_material_ptr(model, index), model)
+  def self.rl_Model_mesh(model, index) =
+    Mesh.new(Raylib.rl_Model_mesh_ptr(model, index), model)
 
   def self.rl_ModelAnimationAt(anims, index)
     # `anims` is a raw heap pointer (LoadModelAnimations); no GC owner.

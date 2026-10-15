@@ -1,0 +1,11 @@
+created: 8x8 format=7
+format after ImageFormat: 7
+pixel(1,1): 0,255,0,255
+pixel(1,6) after flip: 0,255,0,255
+after ImageResize: 4x4
+pixel(0,3) after resize: 216,39,0,255
+after ImageRotateCW: 4x4
+pixel(2,1) after grayscale: 76,76,76,255
+sizes: v2=8 v3=12 rect=16 color=4 glyph=40 transform=40
+sizes: font=48 image=24 texture=20 material=40 mesh=120 model=136
+sizes: camera=44 camera2d=24 bbox=24 matrix=64 anim=48
