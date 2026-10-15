@@ -56,7 +56,7 @@ module Raylib
   ffi_func :rl_Gui_GetFloat, [], :float
   ffi_func :rl_Gui_GetInt, [], :int
   ffi_func :rl_GuiTextBoxFloat, %i[float float float float str int], :int
-  ffi_func :rl_GuiScrollPanel, %i[float float float float str float float float float], :int
+  ffi_func :rl_GuiScrollPanel, %i[float float float float str ptr ptr ptr], :int
   ffi_func :rl_GuiToggleGroup, %i[float float float float str int], :int
   ffi_func :rl_GuiToggleSlider, %i[float float float float str int], :int
   ffi_func :rl_GuiColorBarAlpha, %i[float float float float str float], :int
@@ -91,7 +91,7 @@ module Raylib
   ffi_func :rl_GuiColorPanel, %i[float float float float str], :int
   ffi_func :rl_GuiColorPanelHSV, %i[float float float float str], :int
   ffi_func :rl_GuiColorPickerHSV, %i[float float float float str], :int
-  ffi_func :rl_GuiTextBox, %i[float float float float str int int], :int
+  ffi_func :rl_GuiTextBox, %i[float float float float ptr int int], :int
   ffi_func :rl_GuiTextInputBox, %i[float float float float str str str int str int int], :int
   ffi_func :rl_GuiListViewEx, %i[float float float float str int int int int], :int
   ffi_func :rl_GuiTabBar, %i[float float float float str int int], :int
@@ -124,22 +124,31 @@ module Raylib
   def self.GuiLine(x, y, w, h, text) = Raylib.rl_GuiLine(x, y, w, h, text)
   def self.GuiPanel(x, y, w, h, text) = Raylib.rl_GuiPanel(x, y, w, h, text)
   def self.GuiStatusBar(x, y, w, h, text) = Raylib.rl_GuiStatusBar(x, y, w, h, text)
-  # `checked` is an `int *` carrier (IO::Buffer / ffi_buffer): the adapter
-  # reads and writes the state through it, so a bare boolean would be address
-  # 0/1. Use GuiCheckBoxValue(x, y, w, h, text, checked) for the boolean form.
-  def self.GuiCheckBox(x, y, w, h, text, checked) = Raylib.rl_GuiCheckBox(x, y, w, h, text, checked)
-  def self.GuiComboBox(x, y, w, h, text, active) = Raylib.rl_GuiComboBox(x, y, w, h, text, active)
-  def self.GuiDropdownBox(x, y, w, h, text, active, edit) = Raylib.rl_GuiDropdownBox(x, y, w, h, text, active, edit ? 1 : 0)
-  def self.GuiSpinner(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiSpinner(x, y, w, h, text, value, lo, hi, edit ? 1 : 0)
-  def self.GuiValueBox(x, y, w, h, text, value, lo, hi, edit) = Raylib.rl_GuiValueBox(x, y, w, h, text, value, lo, hi, edit ? 1 : 0)
-  def self.GuiSlider(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSlider(x, y, w, h, l, r, value, lo, hi)
-  def self.GuiSliderBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiSliderBar(x, y, w, h, l, r, value, lo, hi)
-  def self.GuiProgressBar(x, y, w, h, l, r, value, lo, hi) = Raylib.rl_GuiProgressBar(x, y, w, h, l, r, value, lo, hi)
-  def self.GuiWindowBox(x, y, w, h, title) = Raylib.rl_GuiWindowBox(x, y, w, h, title)
-  def self.GuiMessageBox(x, y, w, h, title, message, btns, active) = Raylib.rl_GuiMessageBox(x, y, w, h, title, message, btns, active)
-  def self.GuiListView(x, y, w, h, text, scroll, active) = Raylib.rl_GuiListView(x, y, w, h, text, scroll, active)
-  def self.GuiColorPicker(x, y, w, h, text, color) = Raylib.rl_GuiColorPicker(x, y, w, h, text, color)
-  def self.GuiGrid(x, y, w, h, text, spacing, subdivs, cell) = Raylib.rl_GuiGrid(x, y, w, h, text, spacing, subdivs, cell)
+  # raygui 4.x shapes, as the gem binds them: `Rectangle bounds` first, then
+  # the control's own parameters. State the control writes back (checked/
+  # active/value/scroll/view) is a pointer carrier: an FFI::MemoryPointer in
+  # gem code, an Integer address, a struct view (coerced), or nil. The value
+  # shims (GuiCheckBoxValue, GuiSliderBarValue, ...) below are unchanged.
+  def self.GuiButton(a1, a2) = Raylib.rl_GuiButton(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiLabel(a1, a2) = Raylib.rl_GuiLabel(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiLabelButton(a1, a2) = Raylib.rl_GuiLabelButton(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiGroupBox(a1, a2) = Raylib.rl_GuiGroupBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiLine(a1, a2) = Raylib.rl_GuiLine(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiPanel(a1, a2) = Raylib.rl_GuiPanel(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiStatusBar(a1, a2) = Raylib.rl_GuiStatusBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiCheckBox(a1, a2, a3) = Raylib.rl_GuiCheckBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3))
+  def self.GuiComboBox(a1, a2, a3) = Raylib.rl_GuiComboBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3))
+  def self.GuiDropdownBox(a1, a2, a3, a4) = Raylib.rl_GuiDropdownBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4 ? 1 : 0)
+  def self.GuiSpinner(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSpinner(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, a6 ? 1 : 0)
+  def self.GuiValueBox(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiValueBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, a6 ? 1 : 0)
+  def self.GuiSlider(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSlider(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
+  def self.GuiSliderBar(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSliderBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
+  def self.GuiProgressBar(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiProgressBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
+  def self.GuiWindowBox(a1, a2) = Raylib.rl_GuiWindowBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
+  def self.GuiMessageBox(a1, a2, a3, a4, a5) = Raylib.rl_GuiMessageBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), Raylib.ptr_addr(a5))
+  def self.GuiListView(a1, a2, a3, a4) = Raylib.rl_GuiListView(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4))
+  def self.GuiColorPicker(a1, a2, a3) = Raylib.rl_GuiColorPicker(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.color_addr(a3))
+  def self.GuiGrid(a1, a2, a3, a4, a5) = Raylib.rl_GuiGrid(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), a3, a4, Raylib.vector2_addr(a5))
 
   # Value-returning helpers: run the control, then read the updated value.
   def self.GuiCheckBoxValue(x, y, w, h, text, checked)
@@ -177,7 +186,7 @@ module Raylib
   end
 
   def self.GuiTextBoxFloat(x, y, w, h, text, edit) = Raylib.rl_GuiTextBoxFloat(x, y, w, h, text, edit ? 1 : 0)
-  def self.GuiScrollPanel(x, y, w, h, text, cx, cy, cw, ch) = Raylib.rl_GuiScrollPanel(x, y, w, h, text, cx, cy, cw, ch)
+  def self.GuiScrollPanel(bounds, text, content, scroll, view) = Raylib.rl_GuiScrollPanel(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.rectangle_addr(content), Raylib.vector2_addr(scroll), Raylib.rectangle_addr(view))
   def self.GuiIconText(icon, text) = Raylib.rl_GuiIconText(icon, text)
 
   def self.GuiValueBoxValue(x, y, w, h, text, value, lo, hi, edit)
@@ -226,10 +235,7 @@ module Raylib
   def self.GuiDrawIcon(icon_id, x, y, pixel_size, color)
     Raylib.rl_GuiDrawIcon(icon_id, x, y, pixel_size, color)
   end
-  def self.GuiTextBox(x, y, w, h, text, text_size, edit)
-    res = Raylib.rl_GuiTextBox(x, y, w, h, text, text_size, edit ? 1 : 0)
-    [res, Raylib.rl_Gui_GetText]
-  end
+  def self.GuiTextBox(bounds, text, text_size, edit) = Raylib.rl_GuiTextBox(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), text_size, edit ? 1 : 0)
   def self.GuiTextInputBox(x, y, w, h, title, message, text, text_size, btns,
                            active, secret)
     res = Raylib.rl_GuiTextInputBox(x, y, w, h, title, message, text, text_size,

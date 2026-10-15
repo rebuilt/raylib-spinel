@@ -226,6 +226,13 @@ module Raylib
   # through untouched.
   def self.ptr_addr(x) = x.respond_to?(:address) ? x.address : x
 
+  # View -> payload address for raygui's struct-pointer parameters (the gem
+  # hands an FFI::Struct's address; ours sits behind the view). Integer
+  # addresses and address-like objects pass through ptr_addr.
+  def self.vector2_addr(v) = v.is_a?(Vector2) ? Raylib.rl_Vector2_payload(v) : Raylib.ptr_addr(v)
+  def self.color_addr(v) = v.is_a?(Color) ? Raylib.rl_Color_payload(v) : Raylib.ptr_addr(v)
+  def self.rectangle_addr(v) = v.is_a?(Rectangle) ? Raylib.rl_Rectangle_payload(v) : Raylib.ptr_addr(v)
+
   # Scene-facing names for the renamed raw shims: the *_ptr symbols return raw
   # interior/heap pointers, these return views. They build the view straight
   # from the pointer shim instead of sending the Ruby accessor: when the AOT

@@ -185,6 +185,31 @@ def check_defined(funcs):
     return sorted(declared - defined)
 
 
+# A `native_method` returning :ptr hands the *box* when its value is passed
+# into a :ptr slot (matz/spinel box semantics); only a native-class instance is
+# handed over as its struct address. That trap cost four segfaults once
+# (Camera#pointer). These are known and unused; a new one is worth a look.
+PTR_NATIVE_METHOD_ALLOW = {"texture_ptr", "depth_ptr", "recv_ptr", "position_ptr",
+                           "target_ptr", "up_ptr", "min_ptr", "max_ptr", "t_ptr",
+                           "r_ptr", "s_ptr", "image_ptr", "shader_ptr",
+                           "bone_ptr", "material_ptr", "mesh_ptr", "frame_ptr", "offset_ptr",
+                           "pose_bone_ptr", "frame_pose_ptr"}
+
+
+def check_ptr_native_methods():
+    """native_method declarations returning :ptr, minus the known allowlist."""
+    out = []
+    for fname in sorted(os.listdir(LIB)):
+        if not fname.endswith("_ffi.rb") and fname != "raylib_handles_ffi.rb":
+            continue
+        path = os.path.join(LIB, fname)
+        for i, line in enumerate(open(path).read().split("\n"), 1):
+            m = re.match(r"\s*native_method :(\w+), \[[^\]]*\], :ptr,", line)
+            if m and m.group(1) not in PTR_NATIVE_METHOD_ALLOW:
+                out.append((fname, i, m.group(1)))
+    return out
+
+
 def main():
     funcs = load_functions()
     offenders, checked = [], 0
@@ -234,10 +259,16 @@ def main():
     missing = check_defined(funcs)
     for name in missing:
         print("ffi_func :%s is declared but has no C definition (link error)" % name)
+    traps = check_ptr_native_methods()
+    for fname, lineno, name in traps:
+        print("%s:%d  native_method :%s returns :ptr -- passing its value into a "
+              ":ptr slot hands the box, not the view (use a plain Ruby method "
+              "returning the view, or add it to the allowlist with a comment)"
+              % (fname, lineno, name))
     print("%d shim offender(s), %d direct declaration(s), %d undefined symbol(s), "
-          "%d whitelisted raw param(s)"
-          % (len(offenders), len(direct), len(missing), whitelisted))
-    return 1 if (offenders or direct or missing) else 0
+          "%d whitelisted raw param(s), %d new :ptr native_method(s)"
+          % (len(offenders), len(direct), len(missing), whitelisted, len(traps)))
+    return 1 if (offenders or direct or missing or traps) else 0
 
 
 if __name__ == "__main__":

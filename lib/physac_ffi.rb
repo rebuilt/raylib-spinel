@@ -58,16 +58,21 @@ module Raylib
   def self.ClosePhysics = Raylib.rl_ClosePhysics
   def self.SetPhysicsGravity(x, y) = Raylib.rl_SetPhysicsGravity(x, y)
   def self.SetPhysicsTimeStep(delta) = Raylib.rl_SetPhysicsTimeStep(delta)
-  def self.CreatePhysicsBodyCircle(x, y, radius, density) = Raylib.rl_CreatePhysicsBodyCircle(x, y, radius, density)
-  def self.CreatePhysicsBodyRectangle(x, y, w, h, density) = Raylib.rl_CreatePhysicsBodyRectangle(x, y, w, h, density)
-  def self.CreatePhysicsBodyPolygon(x, y, radius, sides, density) = Raylib.rl_CreatePhysicsBodyPolygon(x, y, radius, sides, density)
-  def self.PhysicsAddForce(body, x, y) = Raylib.rl_PhysicsAddForce(body, x, y)
+  def self.CreatePhysicsBodyCircle(pos, radius, density) = Raylib.rl_CreatePhysicsBodyCircle(pos.x, pos.y, radius, density)
+  def self.CreatePhysicsBodyRectangle(pos, width, height, density) = Raylib.rl_CreatePhysicsBodyRectangle(pos.x, pos.y, width, height, density)
+  def self.CreatePhysicsBodyPolygon(pos, radius, sides, density) = Raylib.rl_CreatePhysicsBodyPolygon(pos.x, pos.y, radius, sides, density)
+  def self.PhysicsAddForce(body, force) = Raylib.rl_PhysicsAddForce(body, force.x, force.y)
   def self.PhysicsAddTorque(body, amount) = Raylib.rl_PhysicsAddTorque(body, amount)
   def self.GetPhysicsBody(index) = Raylib.rl_GetPhysicsBody(index)
   def self.GetPhysicsBodiesCount = Raylib.rl_GetPhysicsBodiesCount
   def self.GetPhysicsShapeType(index) = Raylib.rl_GetPhysicsShapeType(index)
   def self.GetPhysicsShapeVerticesCount(index) = Raylib.rl_GetPhysicsShapeVerticesCount(index)
-  def self.GetPhysicsShapeVertex(body, vertex, out) = Raylib.rl_GetPhysicsShapeVertex(body, vertex, out)
+  # gem shape: returns the vertex (a Vector2)
+  def self.GetPhysicsShapeVertex(body, vertex)
+    out = Vector2.new
+    Raylib.rl_GetPhysicsShapeVertex(body, vertex, out)
+    out
+  end
   def self.PhysicsBodySetEnabled(body, enabled) = Raylib.rl_PhysicsBodySetEnabled(body, enabled)
   def self.PhysicsBodyGetEnabled(body) = Raylib.rl_PhysicsBodyGetEnabled(body)
   def self.PhysicsBodyGetPosY(body) = Raylib.rl_PhysicsBodyGetPosY(body)

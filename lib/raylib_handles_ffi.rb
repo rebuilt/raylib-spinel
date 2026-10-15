@@ -20,6 +20,9 @@ module Raylib
   # Interior pointers into the payload of a handle (for sub-struct views).
   # ffi_funcs (not native_methods): only ffi :ptr returns feed an [:any] ctor.
   ffi_func :rl_Font_texture_ptr, [:ptr], :ptr
+  ffi_func :rl_Vector2_payload, [:ptr], :long
+  ffi_func :rl_Color_payload, [:ptr], :long
+  ffi_func :rl_Rectangle_payload, [:ptr], :long
   ffi_func :rl_Font_recs_addr, [:ptr], :long
   ffi_func :rl_Font_glyphs_addr, [:ptr], :long
   ffi_func :rl_GlyphInfo_image_ptr, [:ptr], :ptr

@@ -64,7 +64,7 @@ Invalid upstream (excluded from the target):
 | models_rlgl_solar_system.rb | ran | mri shot=7 0.262474 1280x1024 | spinel shot=7 0.262474 1280x1024 |
 | models_waving_cubes.rb | ran | mri shot=25 0.217051 1280x1024 | spinel shot=25 0.225764 1280x1024 |
 | particles_fireworks.rb | ran | mri shot=2 0.00192638 1280x1024 | spinel shot=2 0.00192638 1280x1024 |
-| physics_demo.rb | spinel-error | compile: C compilation failed |
+| physics_demo.rb | ran | mri shot=7 0.00206353 1280x1024 | spinel shot=7 0.00206353 1280x1024 |
 | procedural_texture.rb | ran | mri shot=715 0.0945784 1280x1024 | spinel shot=715 0.0945784 1280x1024 |
 | shapes_basic_shapes.rb | mri-error | mri rc=1 	from /tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17:in '<main>' |
 | shapes_draw_circle_sector.rb | ran | mri shot=14 0.250008 1280x1024 | spinel shot=14 0.250008 1280x1024 |
@@ -78,4 +78,4 @@ Invalid upstream (excluded from the target):
 | toon_character_sprites.rb | ran | mri shot=5 0.500409 1280x1024 | spinel shot=5 0.500668 1280x1024 |
 | utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 
-25/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).
+26/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).

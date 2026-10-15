@@ -84,14 +84,20 @@ def methods(path, skip_shims=True):
 
 
 def call(name, args):
-    """(parameter list, argument list) for a delegator, verbatim."""
+    """(parameter list, argument list) for a delegator.
+
+    Defaults appear in the parameter list (dual-shape wrappers accept two
+    arities) but never in the call: forwarding `p2 = nil` would evaluate an
+    assignment and pass nil.
+    """
     if isinstance(args, int):
         names = ["p%d" % i for i in range(args)]
-    elif args is None:
-        names = []
-    else:
-        names = [p.strip() for p in args.split(",") if p.strip()]
-    return ", ".join(names), ", ".join(names)
+        return ", ".join(names), ", ".join(names)
+    if args is None:
+        return "", ""
+    params = [p.strip() for p in args.split(",") if p.strip()]
+    call_args = [p.split("=")[0].strip() for p in params]
+    return ", ".join(params), ", ".join(call_args)
 
 
 def main():

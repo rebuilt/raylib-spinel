@@ -200,12 +200,24 @@ int rl_GuiTextBoxFloat(float x, float y, float w, float h, const char *text,
   buf[i] = '\0';
   return GuiTextBox((Rectangle){ x, y, w, h }, buf, 1024, editMode != 0);
 }
-int rl_GuiScrollPanel(float x, float y, float w, float h, const char *text,
-                      float cx, float cy, float cw, float ch) {
+/* Scalar shape (the scene ports): x, y, w, h, text, content x/y/w/h. */
+int rl_GuiScrollPanelScalar(float x, float y, float w, float h, const char *text,
+                            float cx, float cy, float cw, float ch) {
   Rectangle view = { 0 };
   Vector2 scroll = { 0 };
   return GuiScrollPanel((Rectangle){ x, y, w, h }, text,
                         (Rectangle){ cx, cy, cw, ch }, &scroll, &view);
+}
+int rl_GuiScrollPanel(float x, float y, float w, float h, const char *text,
+                      void *content, void *scroll, void *view) {
+  /* gem shape: content is a Rectangle, scroll/view are written back */
+  Rectangle c = content ? *(Rectangle *)content : (Rectangle){ 0, 0, 0, 0 };
+  Vector2 s = scroll ? *(Vector2 *)scroll : (Vector2){ 0, 0 };
+  Rectangle v = view ? *(Rectangle *)view : (Rectangle){ 0, 0, 0, 0 };
+  int r = GuiScrollPanel((Rectangle){ x, y, w, h }, text, c, &s, &v);
+  if (scroll) *(Vector2 *)scroll = s;
+  if (view) *(Rectangle *)view = v;
+  return r;
 }
 int rl_GuiToggleGroup(float x, float y, float w, float h, const char *text,
                       int active) {
@@ -357,14 +369,22 @@ float rl_Gui_GetHsvV(void) { return sp_gui_hsv_v; }
 /* ---- editable text buffers ---- */
 int rl_GuiTextBox(float x, float y, float w, float h, const char *text,
                   int textSize, int edit) {
-  (void)textSize;
   int i = 0;
   if (text != NULL) {
     while (text[i] != '\0' && i < 1023) { sp_gui_text_result[i] = text[i]; i++; }
   }
   sp_gui_text_result[i] = '\0';
-  return GuiTextBox((Rectangle){ x, y, w, h }, sp_gui_text_result, 1024,
-                    edit != 0);
+  int r = GuiTextBox((Rectangle){ x, y, w, h }, sp_gui_text_result, 1024,
+                     edit != 0);
+  /* gem semantics: the caller's buffer (an FFI::MemoryPointer there, a String
+   * or buffer here) receives the edited text. */
+  if (text != NULL && edit != 0) {
+    size_t want = textSize > 0 ? (size_t)textSize - 1 : (size_t)1023;
+    size_t n = 0;
+    while (sp_gui_text_result[n] != '\0' && n < want) { ((char *)text)[n] = sp_gui_text_result[n]; n++; }
+    ((char *)text)[n] = '\0';
+  }
+  return r;
 }
 int rl_GuiTextInputBox(float x, float y, float w, float h, const char *title,
                        const char *message, const char *text, int textSize,

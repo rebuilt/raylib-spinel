@@ -710,10 +710,13 @@
     "shot": "7 0.00206353 1280x1024"
    },
    "spinel": {
-    "compile_error": "C compilation failed"
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "7 0.00206353 1280x1024"
    },
-   "verdict": "spinel-error",
-   "detail": "compile: C compilation failed"
+   "verdict": "ran",
+   "detail": "mri shot=7 0.00206353 1280x1024 | spinel shot=7 0.00206353 1280x1024"
   },
   {
    "name": "procedural_texture.rb",
