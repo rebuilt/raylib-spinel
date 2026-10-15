@@ -25,8 +25,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIB = os.path.join(ROOT, "lib")
 FILES = ["raylib_adapter.c", "raymath_adapter.c", "rlgl_adapter.c",
          "rcamera_adapter.c", "physac_adapter.c"]
-CLASSES = (("Vector2", "RL_V2"), ("Vector3", "RL_V3"),
-           ("Vector4", "RL_V4"), ("Rectangle", "RL_RECT"))
+# class, macro, payload member (vectors/rectangles embed `v`, Color `c`)
+CLASSES = (("Vector2", "RL_V2", "v"), ("Vector3", "RL_V3", "v"),
+           ("Vector4", "RL_V4", "v"), ("Rectangle", "RL_RECT", "v"),
+           ("Color", "RL_COLOR", "c"), ("Transform", "RL_TRANSFORM", "v"))
 
 MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -35,6 +37,8 @@ MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view p
 #define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
 #define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
 #define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
+#define RL_COLOR(o) (((rl_Color *)(o))->p ? ((rl_Color *)(o))->p : &((rl_Color *)(o))->c)
+#define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
 
 """
 
@@ -65,11 +69,11 @@ def function_spans(text):
     return out
 
 
-def rewrite_body(body, var, macro):
-    """`var->v.x` -> `macro(var)->x`; a bare `var->v` -> `(*macro(var))`."""
-    body = re.sub(r"\b%s->v\.(\w+)" % re.escape(var),
+def rewrite_body(body, var, macro, member="v"):
+    """`var->member.x` -> `macro(var)->x`; bare `var->member` -> `(*macro(var))`."""
+    body = re.sub(r"\b%s->%s\.(\w+)" % (re.escape(var), member),
                   r"%s(%s)->\1" % (macro, var), body)
-    body = re.sub(r"\b%s->v\b(?!\.)" % re.escape(var),
+    body = re.sub(r"\b%s->%s\b(?!\.)" % (re.escape(var), member),
                   r"(*%s(%s))" % (macro, var), body)
     return body
 
@@ -107,7 +111,7 @@ def main():
             text = (text[:m.end()] + "\n"
                     + "/* --- P2 view payload access (owned vs view objects). */\n"
                     + "\n".join(missing) + "\n\n" + text[m.end():])
-        for name, _macro in CLASSES:
+        for name, _macro, _member in CLASSES:
             text = add_struct_fields(text, name)
             text = add_scan(text, name)
 
@@ -117,17 +121,18 @@ def main():
             m = re.search(r"rl_(\w+) \*(\w+)\s*(?:[\),]|\()", sig)
             if not m:
                 continue
-            macro = dict(CLASSES).get(m.group(1))
-            if not macro:
+            spec = {c: (mac, mem) for c, mac, mem in CLASSES}.get(m.group(1))
+            if not spec:
                 continue
+            macro, member = spec
             var = m.group(2)
-            newbody = rewrite_body(body, var, macro)
+            newbody = rewrite_body(body, var, macro, member)
             if newbody != body:
                 stats["body"] += 1
                 edits.append([start, end, sig + newbody])
 
         # constructor init: every object of the class allocated here gets p = NULL
-        for name, _macro in CLASSES:
+        for name, _macro, _member in CLASSES:
             alloc = re.compile(
                 r"rl_%s \*(\w+) = \(rl_%s \*\)(?:sp_gc_alloc|malloc)\b"
                 % (name, name))
@@ -145,15 +150,29 @@ def main():
         # cast sites: only those not inside a rewritten function body
         spans = [(s, e) for s, e, _rep in edits]
         claimed = []
-        for name, macro in CLASSES:
-            for m in re.finditer(r"\(\(rl_%s ?\*\)(\w+)\)->v\.(\w+)" % name, text):
+        for name, macro, member in CLASSES:
+            # ((X *)x)->member.field -> MACRO(x)->field
+            for m in re.finditer(r"\(\(rl_%s ?\*\)(\w+)\)->%s\.(\w+)"
+                                 % (name, member), text):
                 if any(s <= m.start() < e for s, e in spans):
                     continue
                 edits.append([m.start(), m.end(),
                               "%s(%s)->%s" % (macro, m.group(1), m.group(2))])
                 claimed.append((m.start(), m.end()))
                 stats["cast"] += 1
-            for m in re.finditer(r"\(\(rl_%s ?\*\)(\w+)\)->v\b" % name, text):
+            # &((X *)x)->member -> MACRO(x)
+            for m in re.finditer(r"&\(\(rl_%s ?\*\)(\w+)\)->%s\b" % (name, member),
+                                 text):
+                if any(s <= m.start() < e for s, e in spans):
+                    continue
+                if any(s <= m.start() < e for s, e in claimed):
+                    continue
+                edits.append([m.start(), m.end(), "%s(%s)" % (macro, m.group(1))])
+                claimed.append((m.start(), m.end()))
+                stats["cast"] += 1
+            # ((X *)x)->member -> *MACRO(x)
+            for m in re.finditer(r"\(\(rl_%s ?\*\)(\w+)\)->%s\b" % (name, member),
+                                 text):
                 if any(s <= m.start() < e for s, e in spans):
                     continue
                 if any(s <= m.start() < e for s, e in claimed):
@@ -165,7 +184,7 @@ def main():
         for s, e, rep in edits:
             text = text[:s] + rep + text[e:]
 
-        for name, _macro in (CLASSES if fname == "raylib_adapter.c" else ()):
+        for name, _macro, _member in (CLASSES if fname == "raylib_adapter.c" else ()):
             if "rl_%s_view(sp_int cls_id" % name in text:
                 continue
             anchor = re.search(

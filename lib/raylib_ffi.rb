@@ -428,18 +428,18 @@ module Raylib
   ffi_func :rl_LoadFontAtlas_ptr, %i[str int int int int int int], :ptr
   ffi_func :rl_DrawRectangleLinesExF, %i[float float float float float ptr], :void
   ffi_func :rl_CheckCollisionPointRecF, %i[ptr float float float float], :bool
-  ffi_func :rl_Model_material, [:ptr, :int], :ptr
+  ffi_func :rl_Model_material_ptr, [:ptr, :int], :ptr
   ffi_func :rl_Model_transform, [:ptr, :ptr], :void
   ffi_func :rl_Model_set_transform, [:ptr, :ptr], :void
-  ffi_func :rl_Model_mesh, [:ptr, :int], :ptr
+  ffi_func :rl_Model_mesh_ptr, [:ptr, :int], :ptr
   ffi_func :rl_Model_meshCount, [:ptr], :int
-  ffi_func :rl_ModelAnimationAt, [:ptr, :int], :ptr
+  ffi_func :rl_ModelAnimationAt_ptr, [:ptr, :int], :ptr
   ffi_func :rl_ModelAnimation_frameCount, [:ptr], :int
   ffi_func :rl_Model_boneCount, [:ptr], :int
   ffi_func :rl_Model_boneParent, [:ptr, :int], :int
   ffi_func :rl_Model_bindPoseTranslation, [:ptr, :int, :ptr], :void
   ffi_func :rl_ModelAnimation_framePoseTranslation, [:ptr, :int, :int, :ptr], :void
-  ffi_func :rl_LoadShaderFS, [:str], :ptr
+  ffi_func :rl_LoadShaderFS_ptr, [:str], :ptr
   ffi_func :rl_SetShaderValueFloat, [:ptr, :int, :float, :int], :void
   ffi_func :rl_SetShaderValueVec2, [:ptr, :int, :float, :float, :int], :void
   ffi_func :rl_SetShaderValueVec3, [:ptr, :int, :float, :float, :float, :int], :void
@@ -889,6 +889,10 @@ module Raylib
   # is a method on the Color itself (the color is the receiver).
   native_struct "Color", "rl_Color"
   native_new [:int, :int, :int, :int], "rl_Color_new"
+  # Views: Color.new(ptr, owner) / Color.new(addr) (gem code indexes
+  # LoadImageColors with Color.new(mapPixels + Color.size * i)).
+  native_new [:ptr, :any], "rl_Color_view"
+  native_new [:any], "rl_Color_view_addr"
   native_method :fill_background, [], :void, "rl_Color_fill_background"
   native_method :draw_texture, [:any, :int, :int], :void, "rl_Color_draw_texture"
   native_method :draw_text, [:string, :int, :int, :int], :void, "rl_Color_draw_text"
@@ -1357,10 +1361,10 @@ module Raylib
       Raylib.rl_UnloadVrStereoConfig(config)
     end
     def self.LoadShader(vsFileName, fsFileName)
-      Raylib.rl_LoadShader(vsFileName, fsFileName)
+      Shader.new(Raylib.rl_LoadShader(vsFileName, fsFileName), nil)
     end
     def self.LoadShaderFromMemory(vsCode, fsCode)
-      Raylib.rl_LoadShaderFromMemory(vsCode, fsCode)
+      Shader.new(Raylib.rl_LoadShaderFromMemory(vsCode, fsCode), nil)
     end
     def self.IsShaderValid(shader)
       Raylib.rl_IsShaderValid(shader)
@@ -2182,10 +2186,10 @@ module Raylib
       Raylib.rl_DrawRay(ray, color)
     end
     def self.LoadModel(fileName)
-      Raylib.rl_LoadModel(fileName)
+      Model.new(Raylib.rl_LoadModel(fileName), nil)
     end
     def self.LoadModelFromMesh(mesh)
-      Raylib.rl_LoadModelFromMesh(mesh)
+      Model.new(Raylib.rl_LoadModelFromMesh(mesh), nil)
     end
     def self.IsModelValid(model)
       Raylib.rl_IsModelValid(model)
@@ -2246,40 +2250,40 @@ module Raylib
       Raylib.rl_ExportMeshAsCode(mesh, fileName)
     end
     def self.GenMeshPoly(sides, radius)
-      Raylib.rl_GenMeshPoly(sides, radius)
+      Mesh.new(Raylib.rl_GenMeshPoly(sides, radius), nil)
     end
     def self.GenMeshPlane(width, length, resX, resZ)
-      Raylib.rl_GenMeshPlane(width, length, resX, resZ)
+      Mesh.new(Raylib.rl_GenMeshPlane(width, length, resX, resZ), nil)
     end
     def self.GenMeshCube(width, height, length)
-      Raylib.rl_GenMeshCube(width, height, length)
+      Mesh.new(Raylib.rl_GenMeshCube(width, height, length), nil)
     end
     def self.GenMeshSphere(radius, rings, slices)
-      Raylib.rl_GenMeshSphere(radius, rings, slices)
+      Mesh.new(Raylib.rl_GenMeshSphere(radius, rings, slices), nil)
     end
     def self.GenMeshHemiSphere(radius, rings, slices)
-      Raylib.rl_GenMeshHemiSphere(radius, rings, slices)
+      Mesh.new(Raylib.rl_GenMeshHemiSphere(radius, rings, slices), nil)
     end
     def self.GenMeshCylinder(radius, height, slices)
-      Raylib.rl_GenMeshCylinder(radius, height, slices)
+      Mesh.new(Raylib.rl_GenMeshCylinder(radius, height, slices), nil)
     end
     def self.GenMeshCone(radius, height, slices)
-      Raylib.rl_GenMeshCone(radius, height, slices)
+      Mesh.new(Raylib.rl_GenMeshCone(radius, height, slices), nil)
     end
     def self.GenMeshTorus(radius, size, radSeg, sides)
-      Raylib.rl_GenMeshTorus(radius, size, radSeg, sides)
+      Mesh.new(Raylib.rl_GenMeshTorus(radius, size, radSeg, sides), nil)
     end
     def self.GenMeshKnot(radius, size, radSeg, sides)
-      Raylib.rl_GenMeshKnot(radius, size, radSeg, sides)
+      Mesh.new(Raylib.rl_GenMeshKnot(radius, size, radSeg, sides), nil)
     end
     def self.GenMeshHeightmap(heightmap, size)
-      Raylib.rl_GenMeshHeightmap(heightmap, size)
+      Mesh.new(Raylib.rl_GenMeshHeightmap(heightmap, size), nil)
     end
     def self.GenMeshCubicmap(cubicmap, cubeSize)
-      Raylib.rl_GenMeshCubicmap(cubicmap, cubeSize)
+      Mesh.new(Raylib.rl_GenMeshCubicmap(cubicmap, cubeSize), nil)
     end
     def self.LoadMaterialDefault()
-      Raylib.rl_LoadMaterialDefault()
+      Material.new(Raylib.rl_LoadMaterialDefault(), nil)
     end
     def self.IsMaterialValid(material)
       Raylib.rl_IsMaterialValid(material)

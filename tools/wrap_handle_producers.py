@@ -26,14 +26,21 @@ FFI = os.path.join(ROOT, "lib", "raylib_ffi.rb")
 API = os.path.join(os.path.dirname(ROOT), "raylib-bindings", "generator",
                    "raylib_api.json")
 
-HANDLES = {"Image", "Texture2D", "Font", "GlyphInfo", "RenderTexture"}
+HANDLES = {"Image", "Texture2D", "Font", "GlyphInfo", "RenderTexture",
+           "Model", "Material", "Mesh", "Shader", "ModelAnimation"}
 
 # custom shims whose wrappers return a handle (not in the API JSON)
 CUSTOM = {
     "rl_ImageFromImageF_ptr": "Image",
     "rl_LoadFontAtlas_ptr": "Font",
     "rl_GetGlyphInfo": "GlyphInfo",
+    "rl_ModelAnimationAt_ptr": "ModelAnimation",
+    "rl_LoadShaderFS_ptr": "Shader",
 }
+
+# custom shims that return interior pointers, wrapped in Ruby instead (their
+# scene-facing names are defined in raylib_handles.rb)
+SKIP = {"rl_Model_material_ptr", "rl_Model_mesh_ptr"}
 
 
 def handle_returns():
@@ -61,6 +68,8 @@ def main():
     wanted = handle_returns()
     total = 0
     for name, klass in sorted(wanted.items()):
+        if name in SKIP:
+            continue
         text, n = wrap_wrapper(text, name, klass)
         total += n
     for shim, klass in CUSTOM.items():

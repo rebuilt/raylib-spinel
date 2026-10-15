@@ -375,7 +375,8 @@ gen_shim_c = []       # adapter shim functions
 gen_wrap = []         # wrappers (inside Spinel guard)
 
 
-VIEW_STRUCTS = {"Vector2": "RL_V2", "Vector3": "RL_V3", "Vector4": "RL_V4"}
+VIEW_STRUCTS = {"Vector2": "RL_V2", "Vector3": "RL_V3", "Vector4": "RL_V4",
+                "Rectangle": "RL_RECT", "Color": "RL_COLOR"}
 
 
 def shim_expr(kind, aname, base=None):

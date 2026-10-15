@@ -7,6 +7,14 @@
 #include "rl_handle_views.h"
 
 /* --- P2 view payload access (owned vs view objects). */
+#define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
+
+
+/* --- P2 view payload access (owned vs view objects). */
+#define RL_COLOR(o) (((rl_Color *)(o))->p ? ((rl_Color *)(o))->p : &((rl_Color *)(o))->c)
+
+
+/* --- P2 view payload access (owned vs view objects). */
 #define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
 
 
@@ -255,12 +263,18 @@ static double rl_Matrix_set_m15(rl_Matrix *self, double m15) {
 
 /* rl_Color — GC-embedded Color (see rcamera_ffi.rb) */typedef struct rl_Color_s {
   sp_int cls_id;
+  Color *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Color c;
 } rl_Color;
-static void rl_Color_scan(void *p) { (void)p; }
+static void rl_Color_scan(void *p) {
+  rl_Color *s = (rl_Color *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Color *rl_Color_new(sp_int cls_id) {
   rl_Color *self = (rl_Color *)sp_gc_alloc(sizeof(rl_Color), NULL, rl_Color_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->c = (Color){ 0 };
   return self;
 }

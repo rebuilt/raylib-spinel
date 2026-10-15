@@ -46,7 +46,24 @@ CLASSES = [
         ("value", "value", "int"), ("offsetX", "offsetX", "int"),
         ("offsetY", "offsetY", "int"), ("advanceX", "advanceX", "int")]),
     ("RenderTexture", "RenderTexture", "RL_RT", []),
+    ("Model", "Model", "RL_MODEL", [
+        ("meshCount", "meshCount", "int"), ("materialCount", "materialCount", "int"),
+        ("boneCount", "skeleton.boneCount", "int")]),
+    ("Material", "Material", "RL_MAT", []),
+    ("Mesh", "Mesh", "RL_MESH", [
+        ("vertexCount", "vertexCount", "int"),
+        ("triangleCount", "triangleCount", "int")]),
+    ("Shader", "Shader", "RL_SHDR", [("id", "id", "int")]),
+    ("ModelAnimation", "ModelAnimation", "RL_ANIM", [
+        ("keyframeCount", "keyframeCount", "int"),
+        ("boneCount", "boneCount", "int")]),
+    ("BoneInfo", "BoneInfo", "RL_BONE", [
+        ("parent_bone_index", "parent", "int")]),
 ]
+
+# Classes whose struct comes from the migration script (no preamble/owned ctor
+# emitted here): only an unboxing view ctor is added, after rl_h_unbox.
+EXTRA_VIEW_CTORS = [("Transform", "Transform", "RL_TRANSFORM")]
 
 INT_TYPES = {"int", "unsigned int", "unsigned char", "char", "short"}
 
@@ -113,6 +130,17 @@ def implementation():
         out.append("  s->cls_id = cls_id;")
         out.append("  s->p = (%s *)rl_h_unbox(addr);" % payload)
         out.append("  s->owner = sp_box_nil();")
+        out.append("  return s;")
+        out.append("}")
+        out.append("")
+    for name, payload, macro in EXTRA_VIEW_CTORS:
+        out.append("rl_%s *rl_%s_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {"
+                   % (name, name))
+        out.append("  rl_%s *s = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);"
+                   % (name, name, name, name))
+        out.append("  s->cls_id = cls_id;")
+        out.append("  s->p = (%s *)rl_h_unbox(pv);" % payload)
+        out.append("  s->owner = owner;")
         out.append("  return s;")
         out.append("}")
         out.append("")

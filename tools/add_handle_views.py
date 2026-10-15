@@ -30,6 +30,11 @@ CLASSES = [
     ("Font", "RL_FONT", []),
     ("GlyphInfo", "RL_GLYPH", []),
     ("RenderTexture", "RL_RT", ["RenderTexture2D"]),
+    ("Model", "RL_MODEL", []),
+    ("Material", "RL_MAT", []),
+    ("Mesh", "RL_MESH", []),
+    ("Shader", "RL_SHDR", []),
+    ("ModelAnimation", "RL_ANIM", []),
 ]
 
 MASK_MARKERS = [

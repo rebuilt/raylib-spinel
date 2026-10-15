@@ -5,6 +5,14 @@
 #include "rl_handle_views.h"
 
 /* --- P2 view payload access (owned vs view objects). */
+#define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
+
+
+/* --- P2 view payload access (owned vs view objects). */
+#define RL_COLOR(o) (((rl_Color *)(o))->p ? ((rl_Color *)(o))->p : &((rl_Color *)(o))->c)
+
+
+/* --- P2 view payload access (owned vs view objects). */
 #define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
 
 

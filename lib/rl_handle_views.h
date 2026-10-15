@@ -38,4 +38,46 @@ typedef struct rl_RenderTexture_s {
   RenderTexture v;             /* owned payload */
 } rl_RenderTexture;
 #define RL_RT(o) (((rl_RenderTexture *)(o))->p ? ((rl_RenderTexture *)(o))->p : &((rl_RenderTexture *)(o))->v)
+typedef struct rl_Model_s {
+  sp_int cls_id;
+  Model *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  Model v;             /* owned payload */
+} rl_Model;
+#define RL_MODEL(o) (((rl_Model *)(o))->p ? ((rl_Model *)(o))->p : &((rl_Model *)(o))->v)
+typedef struct rl_Material_s {
+  sp_int cls_id;
+  Material *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  Material v;             /* owned payload */
+} rl_Material;
+#define RL_MAT(o) (((rl_Material *)(o))->p ? ((rl_Material *)(o))->p : &((rl_Material *)(o))->v)
+typedef struct rl_Mesh_s {
+  sp_int cls_id;
+  Mesh *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  Mesh v;             /* owned payload */
+} rl_Mesh;
+#define RL_MESH(o) (((rl_Mesh *)(o))->p ? ((rl_Mesh *)(o))->p : &((rl_Mesh *)(o))->v)
+typedef struct rl_Shader_s {
+  sp_int cls_id;
+  Shader *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  Shader v;             /* owned payload */
+} rl_Shader;
+#define RL_SHDR(o) (((rl_Shader *)(o))->p ? ((rl_Shader *)(o))->p : &((rl_Shader *)(o))->v)
+typedef struct rl_ModelAnimation_s {
+  sp_int cls_id;
+  ModelAnimation *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  ModelAnimation v;             /* owned payload */
+} rl_ModelAnimation;
+#define RL_ANIM(o) (((rl_ModelAnimation *)(o))->p ? ((rl_ModelAnimation *)(o))->p : &((rl_ModelAnimation *)(o))->v)
+typedef struct rl_BoneInfo_s {
+  sp_int cls_id;
+  BoneInfo *p;            /* NULL: owned; non-NULL: view */
+  sp_RbVal owner;    /* view: GC-marked owner (nil if none) */
+  BoneInfo v;             /* owned payload */
+} rl_BoneInfo;
+#define RL_BONE(o) (((rl_BoneInfo *)(o))->p ? ((rl_BoneInfo *)(o))->p : &((rl_BoneInfo *)(o))->v)
 /* ==== end handle-class views preamble ==== */
