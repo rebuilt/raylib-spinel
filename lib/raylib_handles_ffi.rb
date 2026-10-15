@@ -35,27 +35,39 @@ module Raylib
   native_new [], "rl_Image_new"
   native_new [:any, :any], "rl_Image_view"
   native_method :width, [], :int, "rl_m_Image_width"
+  native_method :width=, [:int], :int, "rl_m_Image_set_width"
   native_method :height, [], :int, "rl_m_Image_height"
+  native_method :height=, [:int], :int, "rl_m_Image_set_height"
   native_method :mipmaps, [], :int, "rl_m_Image_mipmaps"
+  native_method :mipmaps=, [:int], :int, "rl_m_Image_set_mipmaps"
   native_method :format, [], :int, "rl_m_Image_format"
+  native_method :format=, [:int], :int, "rl_m_Image_set_format"
 
   # -------------------------------------------------------------- Texture2D
   native_struct "Texture2D", "rl_Texture2D"
   native_new [], "rl_Texture2D_new"
   native_new [:any, :any], "rl_Texture2D_view"
   native_method :id, [], :int, "rl_m_Texture2D_id"
+  native_method :id=, [:int], :int, "rl_m_Texture2D_set_id"
   native_method :width, [], :int, "rl_m_Texture2D_width"
+  native_method :width=, [:int], :int, "rl_m_Texture2D_set_width"
   native_method :height, [], :int, "rl_m_Texture2D_height"
+  native_method :height=, [:int], :int, "rl_m_Texture2D_set_height"
   native_method :mipmaps, [], :int, "rl_m_Texture2D_mipmaps"
+  native_method :mipmaps=, [:int], :int, "rl_m_Texture2D_set_mipmaps"
   native_method :format, [], :int, "rl_m_Texture2D_format"
+  native_method :format=, [:int], :int, "rl_m_Texture2D_set_format"
 
   # ------------------------------------------------------------------- Font
   native_struct "Font", "rl_Font"
   native_new [], "rl_Font_new"
   native_new [:any, :any], "rl_Font_view"
   native_method :baseSize, [], :int, "rl_m_Font_baseSize"
+  native_method :baseSize=, [:int], :int, "rl_m_Font_set_baseSize"
   native_method :glyphCount, [], :int, "rl_m_Font_glyphCount"
+  native_method :glyphCount=, [:int], :int, "rl_m_Font_set_glyphCount"
   native_method :glyphPadding, [], :int, "rl_m_Font_glyphPadding"
+  native_method :glyphPadding=, [:int], :int, "rl_m_Font_set_glyphPadding"
   native_method :texture_ptr, [], :ptr, "rl_Font_texture_ptr"
 
   # -------------------------------------------------------------- GlyphInfo
@@ -64,9 +76,13 @@ module Raylib
   native_new [:any, :any], "rl_GlyphInfo_view"
   native_new [:any], "rl_GlyphInfo_view_addr"
   native_method :value, [], :int, "rl_m_GlyphInfo_value"
+  native_method :value=, [:int], :int, "rl_m_GlyphInfo_set_value"
   native_method :offsetX, [], :int, "rl_m_GlyphInfo_offsetX"
+  native_method :offsetX=, [:int], :int, "rl_m_GlyphInfo_set_offsetX"
   native_method :offsetY, [], :int, "rl_m_GlyphInfo_offsetY"
+  native_method :offsetY=, [:int], :int, "rl_m_GlyphInfo_set_offsetY"
   native_method :advanceX, [], :int, "rl_m_GlyphInfo_advanceX"
+  native_method :advanceX=, [:int], :int, "rl_m_GlyphInfo_set_advanceX"
 
   # --------------------------------------------------------- RenderTexture
   native_struct "RenderTexture", "rl_RenderTexture"
@@ -88,8 +104,11 @@ module Raylib
   native_new [:any, :any], "rl_Model_view"
   native_new [:any], "rl_Model_view_addr"
   native_method :meshCount, [], :int, "rl_m_Model_meshCount"
+  native_method :meshCount=, [:int], :int, "rl_m_Model_set_meshCount"
   native_method :materialCount, [], :int, "rl_m_Model_materialCount"
+  native_method :materialCount=, [:int], :int, "rl_m_Model_set_materialCount"
   native_method :boneCount, [], :int, "rl_m_Model_boneCount"
+  native_method :boneCount=, [:int], :int, "rl_m_Model_set_boneCount"
 
   native_struct "Material", "rl_Material"
   native_new [], "rl_Material_new"
@@ -101,13 +120,16 @@ module Raylib
   native_new [:any, :any], "rl_Mesh_view"
   native_new [:any], "rl_Mesh_view_addr"
   native_method :vertexCount, [], :int, "rl_m_Mesh_vertexCount"
+  native_method :vertexCount=, [:int], :int, "rl_m_Mesh_set_vertexCount"
   native_method :triangleCount, [], :int, "rl_m_Mesh_triangleCount"
+  native_method :triangleCount=, [:int], :int, "rl_m_Mesh_set_triangleCount"
 
   native_struct "Shader", "rl_Shader"
   native_new [], "rl_Shader_new"
   native_new [:any, :any], "rl_Shader_view"
   native_new [:any], "rl_Shader_view_addr"
   native_method :id, [], :int, "rl_m_Shader_id"
+  native_method :id=, [:int], :int, "rl_m_Shader_set_id"
 
   ffi_func :rl_Model_bone_ptr, [:ptr, :int], :ptr
   ffi_func :rl_ModelAnimation_frame_pose_bone_ptr, [:ptr, :int, :int], :ptr
@@ -117,6 +139,7 @@ module Raylib
   native_new [:any, :any], "rl_BoneInfo_view"
   native_new [:any], "rl_BoneInfo_view_addr"
   native_method :parent_bone_index, [], :int, "rl_m_BoneInfo_parent_bone_index"
+  native_method :parent_bone_index=, [:int], :int, "rl_m_BoneInfo_set_parent_bone_index"
 
   native_struct "Transform", "rl_Transform"
   native_new [:any, :any], "rl_Transform_view_any"
@@ -127,5 +150,7 @@ module Raylib
   native_new [:any, :any], "rl_ModelAnimation_view"
   native_new [:any], "rl_ModelAnimation_view_addr"
   native_method :keyframeCount, [], :int, "rl_m_ModelAnimation_keyframeCount"
+  native_method :keyframeCount=, [:int], :int, "rl_m_ModelAnimation_set_keyframeCount"
   native_method :boneCount, [], :int, "rl_m_ModelAnimation_boneCount"
+  native_method :boneCount=, [:int], :int, "rl_m_ModelAnimation_set_boneCount"
 end

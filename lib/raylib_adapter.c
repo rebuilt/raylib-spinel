@@ -3666,3 +3666,31 @@ unsigned int rl_LoadShaderBuffer(unsigned int size, void * data, int usage) {
 long rl_Vector2_payload(rl_Vector2 *self) { return (long)(intptr_t)RL_V2(self); }
 long rl_Color_payload(rl_Color *self) { return (long)(intptr_t)RL_COLOR(self); }
 long rl_Rectangle_payload(rl_Rectangle *self) { return (long)(intptr_t)RL_RECT(self); }
+
+/* Field setters (the gem's FFI structs are writable; the getters are
+ * rl_m_<Class>_<field> above). */
+sp_int rl_m_Image_set_width(rl_Image *self, sp_int v) { RL_IMG(self)->width = (int)v; return v; }
+sp_int rl_m_Image_set_height(rl_Image *self, sp_int v) { RL_IMG(self)->height = (int)v; return v; }
+sp_int rl_m_Image_set_mipmaps(rl_Image *self, sp_int v) { RL_IMG(self)->mipmaps = (int)v; return v; }
+sp_int rl_m_Image_set_format(rl_Image *self, sp_int v) { RL_IMG(self)->format = (int)v; return v; }
+sp_int rl_m_Texture2D_set_id(rl_Texture2D *self, sp_int v) { RL_TEX(self)->id = (unsigned int)v; return v; }
+sp_int rl_m_Texture2D_set_width(rl_Texture2D *self, sp_int v) { RL_TEX(self)->width = (int)v; return v; }
+sp_int rl_m_Texture2D_set_height(rl_Texture2D *self, sp_int v) { RL_TEX(self)->height = (int)v; return v; }
+sp_int rl_m_Texture2D_set_mipmaps(rl_Texture2D *self, sp_int v) { RL_TEX(self)->mipmaps = (int)v; return v; }
+sp_int rl_m_Texture2D_set_format(rl_Texture2D *self, sp_int v) { RL_TEX(self)->format = (int)v; return v; }
+sp_int rl_m_Font_set_baseSize(rl_Font *self, sp_int v) { RL_FONT(self)->baseSize = (int)v; return v; }
+sp_int rl_m_Font_set_glyphCount(rl_Font *self, sp_int v) { RL_FONT(self)->glyphCount = (int)v; return v; }
+sp_int rl_m_Font_set_glyphPadding(rl_Font *self, sp_int v) { RL_FONT(self)->glyphPadding = (int)v; return v; }
+sp_int rl_m_GlyphInfo_set_value(rl_GlyphInfo *self, sp_int v) { RL_GLYPH(self)->value = (int)v; return v; }
+sp_int rl_m_GlyphInfo_set_offsetX(rl_GlyphInfo *self, sp_int v) { RL_GLYPH(self)->offsetX = (int)v; return v; }
+sp_int rl_m_GlyphInfo_set_offsetY(rl_GlyphInfo *self, sp_int v) { RL_GLYPH(self)->offsetY = (int)v; return v; }
+sp_int rl_m_GlyphInfo_set_advanceX(rl_GlyphInfo *self, sp_int v) { RL_GLYPH(self)->advanceX = (int)v; return v; }
+sp_int rl_m_Model_set_meshCount(rl_Model *self, sp_int v) { RL_MODEL(self)->meshCount = (int)v; return v; }
+sp_int rl_m_Model_set_materialCount(rl_Model *self, sp_int v) { RL_MODEL(self)->materialCount = (int)v; return v; }
+sp_int rl_m_Model_set_boneCount(rl_Model *self, sp_int v) { RL_MODEL(self)->skeleton.boneCount = (int)v; return v; }
+sp_int rl_m_Mesh_set_vertexCount(rl_Mesh *self, sp_int v) { RL_MESH(self)->vertexCount = (int)v; return v; }
+sp_int rl_m_Mesh_set_triangleCount(rl_Mesh *self, sp_int v) { RL_MESH(self)->triangleCount = (int)v; return v; }
+sp_int rl_m_Shader_set_id(rl_Shader *self, sp_int v) { RL_SHDR(self)->id = (unsigned int)v; return v; }
+sp_int rl_m_ModelAnimation_set_keyframeCount(rl_ModelAnimation *self, sp_int v) { RL_ANIM(self)->keyframeCount = (int)v; return v; }
+sp_int rl_m_ModelAnimation_set_boneCount(rl_ModelAnimation *self, sp_int v) { RL_ANIM(self)->boneCount = (int)v; return v; }
+sp_int rl_m_BoneInfo_set_parent_bone_index(rl_BoneInfo *self, sp_int v) { RL_BONE(self)->parent = (int)v; return v; }
