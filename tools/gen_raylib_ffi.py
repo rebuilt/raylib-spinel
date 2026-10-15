@@ -356,7 +356,17 @@ def classify_param(fn_name, aname, t):
 
 
 
+# Functions whose pointer parameters are buffers the gem fills or reads with
+# FFI::MemoryPointer. They must go through a shim so a Ruby wrapper exists:
+# tools/coerce_ptr_args.py then passes the Integer #address (a user-class
+# object cannot fill a :ptr slot; see src/codegen_call_class.c).
+FORCE_SHIM = {"LoadModelAnimations", "LoadFileData", "LoadCodepoints",
+              "LoadFontData", "SetShaderValue", "EncodeDataBase64"}
+
+
 def func_needs_shim(fn):
+    if fn.name in FORCE_SHIM:
+        return True
     for aname, t in fn.args:
         if classify_param(fn.name, aname, t)[0] != "flat":
             return True
@@ -545,8 +555,10 @@ def emit_shim(fn):
                 macro = VIEW_PARAM_CLASSES[base_of(fn.args[0][1])]
                 body_lines.append("  %s *self = %s(%s);" % (m.group(1), macro, arg))
                 body_lines.append("  Unload%s(*self);" % m.group(1))
-                body_lines.append("  if (self != &((rl_%s *)%s)->v) free(self);"
-                                  % (m.group(1), arg))
+                # only a heap copy this library made may be freed (see
+                # tools/guard_unload_frees.py: accessors pass an owner)
+                body_lines.append("  if (self != &((rl_%s *)%s)->v && ((rl_%s *)%s)->owner.tag == SP_TAG_NIL) free(self);"
+                                  % (m.group(1), arg, m.group(1), arg))
             else:
                 body_lines.append("  %s *self = (%s *)%s;" % (m.group(1), m.group(1), arg))
                 body_lines.append("  Unload%s(*self);" % m.group(1))

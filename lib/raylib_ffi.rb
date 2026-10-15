@@ -14,6 +14,13 @@ module Raylib
   ffi_cflags "-I/usr/local/include -Wl,-rpath,'$ORIGIN/../raylib'"
 
 # ====== generated: complete raylib API surface ======
+  ffi_func :rl_LoadFileData, [:str, :ptr], :ptr
+  ffi_func :rl_EncodeDataBase64, [:ptr, :int, :ptr], :ptr
+  ffi_func :rl_LoadFontData, [:ptr, :int, :int, :ptr, :int, :int, :ptr], :ptr
+  ffi_func :rl_LoadCodepoints, [:str, :ptr], :ptr
+  ffi_func :rl_LoadModelAnimations, [:str, :ptr], :ptr
+
+# ====== generated: complete raylib API surface ======
   ffi_func :rl_ImageFormat, [:ptr, :int], :void
   ffi_func :rl_ImageAlphaCrop, [:ptr, :float], :void
   ffi_func :rl_ImageAlphaPremultiply, [:ptr], :void
@@ -144,7 +151,6 @@ module Raylib
   ffi_func :MemAlloc, [:uint], :ptr
   ffi_func :MemRealloc, [:ptr, :uint], :ptr
   ffi_func :MemFree, [:ptr], :void
-  ffi_func :LoadFileData, [:str, :ptr], :ptr
   ffi_func :UnloadFileData, [:ptr], :void
   ffi_func :SaveFileData, [:str, :ptr, :int], :bool
   ffi_func :ExportDataAsCode, [:ptr, :int, :str], :bool
@@ -193,7 +199,6 @@ module Raylib
   ffi_func :GetDirectoryFileCountEx, [:str, :str, :bool], :uint
   ffi_func :CompressData, [:ptr, :int, :ptr], :ptr
   ffi_func :DecompressData, [:ptr, :int, :ptr], :ptr
-  ffi_func :EncodeDataBase64, [:ptr, :int, :ptr], :str
   ffi_func :DecodeDataBase64, [:str, :ptr], :ptr
   ffi_func :ComputeCRC32, [:ptr, :int], :uint
   ffi_func :ComputeMD5, [:ptr, :int], :ptr
@@ -512,7 +517,6 @@ module Raylib
   ffi_func :rl_LoadFontFromImage, [:ptr, :ptr, :int], :ptr
   ffi_func :rl_LoadFontFromMemory, [:str, :ptr, :int, :int, :ptr, :int], :ptr
   ffi_func :rl_IsFontValid, [:ptr], :bool
-  ffi_func :LoadFontData, [:ptr, :int, :int, :ptr, :int, :int, :ptr], :ptr
   ffi_func :rl_GenImageFontAtlas, [:ptr, :ptr, :int, :int, :int, :int], :ptr
   ffi_func :UnloadFontData, [:ptr, :int], :void
   ffi_func :rl_UnloadFont, [:ptr], :void
@@ -530,7 +534,6 @@ module Raylib
   ffi_func :rl_GetGlyphAtlasRec, [:ptr, :int, :ptr], :void
   ffi_func :LoadUTF8, [:ptr, :int], :str
   ffi_func :UnloadUTF8, [:str], :void
-  ffi_func :LoadCodepoints, [:str, :ptr], :ptr
   ffi_func :UnloadCodepoints, [:ptr], :void
   ffi_func :GetCodepointCount, [:str], :int
   ffi_func :GetCodepoint, [:str, :ptr], :int
@@ -616,7 +619,6 @@ module Raylib
   ffi_func :rl_IsMaterialValid, [:ptr], :bool
   ffi_func :rl_UnloadMaterial, [:ptr], :void
   ffi_func :rl_SetMaterialTexture, [:ptr, :int, :ptr], :void
-  ffi_func :LoadModelAnimations, [:str, :ptr], :ptr
   ffi_func :rl_UpdateModelAnimation, [:ptr, :ptr, :float], :void
   ffi_func :rl_UpdateModelAnimationEx, [:ptr, :ptr, :float, :ptr, :float, :float], :void
   ffi_func :UnloadModelAnimations, [:ptr, :int], :void
@@ -1385,7 +1387,8 @@ module Raylib
       Raylib.rl_GetShaderLocationAttrib(shader, attribName)
     end
     def self.SetShaderValue(shader, locIndex, value, uniformType)
-      Raylib.rl_SetShaderValue(shader, (locIndex || 0).to_i, value,
+      Raylib.rl_SetShaderValue(shader, (locIndex || 0).to_i, Raylib.ptr_addr(value),
+
                                (uniformType || 0).to_i)
     end
     def self.SetShaderValueV(shader, locIndex, value, uniformType, count)
@@ -1550,7 +1553,7 @@ module Raylib
       Raylib.rl_DrawLineEx(startPos, endPos, thick, color)
     end
     def self.DrawLineStrip(points, pointCount, color)
-      Raylib.rl_DrawLineStrip(points, pointCount, color)
+      Raylib.rl_DrawLineStrip(Raylib.ptr_addr(points), pointCount, color)
     end
     def self.DrawLineBezier(startPos, endPos, thick, color)
       Raylib.rl_DrawLineBezier(startPos, endPos, thick, color)
@@ -1568,10 +1571,10 @@ module Raylib
       Raylib.rl_DrawTriangleLinesEx(v1, v2, v3, thick, color)
     end
     def self.DrawTriangleFan(points, pointCount, color)
-      Raylib.rl_DrawTriangleFan(points, pointCount, color)
+      Raylib.rl_DrawTriangleFan(Raylib.ptr_addr(points), pointCount, color)
     end
     def self.DrawTriangleStrip(points, pointCount, color)
-      Raylib.rl_DrawTriangleStrip(points, pointCount, color)
+      Raylib.rl_DrawTriangleStrip(Raylib.ptr_addr(points), pointCount, color)
     end
     def self.DrawRectangleV(position, size, color)
       Raylib.rl_DrawRectangleV(position, size, color)
@@ -1661,19 +1664,19 @@ module Raylib
       Raylib.rl_DrawRingLinesEx(center, innerRadius, outerRadius, startAngle, endAngle, segments, thick, color)
     end
     def self.DrawSplineLinear(points, pointCount, thick, color)
-      Raylib.rl_DrawSplineLinear(points, pointCount, thick, color)
+      Raylib.rl_DrawSplineLinear(Raylib.ptr_addr(points), pointCount, thick, color)
     end
     def self.DrawSplineBasis(points, pointCount, thick, color)
-      Raylib.rl_DrawSplineBasis(points, pointCount, thick, color)
+      Raylib.rl_DrawSplineBasis(Raylib.ptr_addr(points), pointCount, thick, color)
     end
     def self.DrawSplineCatmullRom(points, pointCount, thick, color)
-      Raylib.rl_DrawSplineCatmullRom(points, pointCount, thick, color)
+      Raylib.rl_DrawSplineCatmullRom(Raylib.ptr_addr(points), pointCount, thick, color)
     end
     def self.DrawSplineBezierQuadratic(points, pointCount, thick, color)
-      Raylib.rl_DrawSplineBezierQuadratic(points, pointCount, thick, color)
+      Raylib.rl_DrawSplineBezierQuadratic(Raylib.ptr_addr(points), pointCount, thick, color)
     end
     def self.DrawSplineBezierCubic(points, pointCount, thick, color)
-      Raylib.rl_DrawSplineBezierCubic(points, pointCount, thick, color)
+      Raylib.rl_DrawSplineBezierCubic(Raylib.ptr_addr(points), pointCount, thick, color)
     end
     def self.DrawSplineSegmentLinear(p1, p2, thick, color)
       Raylib.rl_DrawSplineSegmentLinear(p1, p2, thick, color)
@@ -1740,7 +1743,7 @@ module Raylib
       Raylib.rl_CheckCollisionPointLine(point, p1, p2, threshold)
     end
     def self.CheckCollisionPointPoly(point, points, pointCount)
-      Raylib.rl_CheckCollisionPointPoly(point, points, pointCount)
+      Raylib.rl_CheckCollisionPointPoly(point, Raylib.ptr_addr(points), pointCount)
     end
     def self.CheckCollisionLines(startPos1, endPos1, startPos2, endPos2, collisionPoint)
       Raylib.rl_CheckCollisionLines(startPos1, endPos1, startPos2, endPos2, collisionPoint)
@@ -1757,13 +1760,16 @@ module Raylib
       Image.new(Raylib.rl_LoadImageRaw(fileName, width, height, format, headerSize), nil)
     end
     def self.LoadImageAnim(fileName, frames)
-      Image.new(Raylib.rl_LoadImageAnim(fileName, frames), nil)
+      Image.new(Raylib.rl_LoadImageAnim(fileName, Raylib.ptr_addr(frames)), nil)
+
     end
     def self.LoadImageAnimFromMemory(fileType, fileData, dataSize, frames)
-      Image.new(Raylib.rl_LoadImageAnimFromMemory(fileType, fileData, dataSize, frames), nil)
+      Image.new(Raylib.rl_LoadImageAnimFromMemory(fileType, fileData, dataSize, Raylib.ptr_addr(frames)), nil)
+
     end
     def self.LoadImageFromMemory(fileType, fileData, dataSize)
-      Image.new(Raylib.rl_LoadImageFromMemory(fileType, fileData, dataSize), nil)
+      Image.new(Raylib.rl_LoadImageFromMemory(fileType, Raylib.ptr_addr(fileData), dataSize), nil)
+
     end
     def self.LoadImageFromTexture(texture)
       Image.new(Raylib.rl_LoadImageFromTexture(texture), nil)
@@ -1853,7 +1859,7 @@ module Raylib
       Raylib.rl_LoadImageColors(image)
     end
     def self.LoadImagePalette(image, maxPaletteSize, colorCount)
-      Raylib.rl_LoadImagePalette(image, maxPaletteSize, colorCount)
+      Raylib.rl_LoadImagePalette(image, maxPaletteSize, Raylib.ptr_addr(colorCount))
     end
     def self.UnloadImageColors(colors)
       Raylib.rl_UnloadImageColors(colors)
@@ -1890,7 +1896,7 @@ module Raylib
       Raylib.rl_ImageDrawLineEx(dst, start, kw_end, thick, color)
     end
     def self.ImageDrawLineStrip(dst, points, pointCount, color)
-      Raylib.rl_ImageDrawLineStrip(dst, points, pointCount, color)
+      Raylib.rl_ImageDrawLineStrip(dst, Raylib.ptr_addr(points), pointCount, color)
     end
     def self.ImageDrawTriangle(dst, v1, v2, v3, color)
       Raylib.rl_ImageDrawTriangle(dst, v1, v2, v3, color)
@@ -1902,10 +1908,10 @@ module Raylib
       Raylib.rl_ImageDrawTriangleLines(dst, v1, v2, v3, color)
     end
     def self.ImageDrawTriangleFan(dst, points, pointCount, color)
-      Raylib.rl_ImageDrawTriangleFan(dst, points, pointCount, color)
+      Raylib.rl_ImageDrawTriangleFan(dst, Raylib.ptr_addr(points), pointCount, color)
     end
     def self.ImageDrawTriangleStrip(dst, points, pointCount, color)
-      Raylib.rl_ImageDrawTriangleStrip(dst, points, pointCount, color)
+      Raylib.rl_ImageDrawTriangleStrip(dst, Raylib.ptr_addr(points), pointCount, color)
     end
     def self.ImageDrawRectangle(dst, posX, posY, width, height, color)
       Raylib.rl_ImageDrawRectangle(dst, posX, posY, width, height, color)
@@ -2096,13 +2102,15 @@ module Raylib
       Font.new(Raylib.rl_LoadFontFromImage(image, key, firstChar), nil)
     end
     def self.LoadFontFromMemory(fileType, fileData, dataSize, fontSize, codepoints, codepointCount)
-      Font.new(Raylib.rl_LoadFontFromMemory(fileType, fileData, dataSize, fontSize, codepoints, codepointCount), nil)
+      Font.new(Raylib.rl_LoadFontFromMemory(fileType, Raylib.ptr_addr(fileData), dataSize, fontSize, codepoints, codepointCount), nil)
+
     end
     def self.IsFontValid(font)
       Raylib.rl_IsFontValid(font)
     end
     def self.GenImageFontAtlas(glyphs, glyphRecs, glyphCount, fontSize, padding, packMethod)
-      Image.new(Raylib.rl_GenImageFontAtlas(glyphs, glyphRecs, glyphCount, fontSize, padding, packMethod), nil)
+      Image.new(Raylib.rl_GenImageFontAtlas(Raylib.ptr_addr(glyphs), Raylib.ptr_addr(glyphRecs), glyphCount, fontSize, padding, packMethod), nil)
+
     end
     def self.UnloadFont(font)
       Raylib.rl_UnloadFont(font)
@@ -2156,7 +2164,7 @@ module Raylib
       Raylib.rl_DrawTriangle3D(v1, v2, v3, color)
     end
     def self.DrawTriangleStrip3D(points, pointCount, color)
-      Raylib.rl_DrawTriangleStrip3D(points, pointCount, color)
+      Raylib.rl_DrawTriangleStrip3D(Raylib.ptr_addr(points), pointCount, color)
     end
     def self.DrawCubeV(position, size, color)
       Raylib.rl_DrawCubeV(position, size, color)
@@ -2236,7 +2244,7 @@ module Raylib
       Raylib.rl_DrawBillboardPro(camera, texture, rec, position, up, size, origin, rotation, tint)
     end
     def self.UpdateMeshBuffer(mesh, index, data, dataSize, offset)
-      Raylib.rl_UpdateMeshBuffer(mesh, index, data, dataSize, offset)
+      Raylib.rl_UpdateMeshBuffer(mesh, index, Raylib.ptr_addr(data), dataSize, offset)
     end
     def self.UnloadMesh(mesh)
       Raylib.rl_UnloadMesh(mesh)
@@ -3853,5 +3861,22 @@ module Raylib
   # ====== generated: snake_case aliases (MRI gem naming) ======
   def self.trace_log(p0, p1, p2)
     Raylib.TraceLog(p0, p1, p2)
+
+    # ====== generated: wrappers + constants ======
+    def self.LoadFileData(fileName, dataSize)
+      Raylib.rl_LoadFileData(fileName, Raylib.ptr_addr(dataSize))
+    end
+    def self.EncodeDataBase64(data, dataSize, outputSize)
+      Raylib.rl_EncodeDataBase64(data, dataSize, Raylib.ptr_addr(outputSize))
+    end
+    def self.LoadFontData(fileData, dataSize, fontSize, codepoints, codepointCount, type, glyphCount)
+      Raylib.rl_LoadFontData(Raylib.ptr_addr(fileData), dataSize, fontSize, Raylib.ptr_addr(codepoints), codepointCount, type, glyphCount)
+    end
+    def self.LoadCodepoints(text, count)
+      Raylib.rl_LoadCodepoints(text, Raylib.ptr_addr(count))
+    end
+    def self.LoadModelAnimations(fileName, animCount)
+      Raylib.rl_LoadModelAnimations(fileName, Raylib.ptr_addr(animCount))
+    end
   end
 end

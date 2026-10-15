@@ -124,6 +124,14 @@ module Raylib
     def frame_count = keyframeCount
   end
 
+  # FFI::MemoryPointer/FFI::Pointer (the gem idiom) has no C address the AOT
+  # compiler can hand to a :ptr slot; the Integer #address it holds is accepted
+  # (src/codegen_call_class.c: an Integer, a String, an IO::Buffer or a native
+  # class instance may fill a pointer argument). Values without an address —
+  # Integer addresses, boxed pointers returned by :ptr functions, nil — pass
+  # through untouched.
+  def self.ptr_addr(x) = x.respond_to?(:address) ? x.address : x
+
   # Scene-facing names for the renamed raw shims: the *_ptr symbols return raw
   # interior/heap pointers, these return views. They build the view straight
   # from the pointer shim instead of sending the Ruby accessor: when the AOT
@@ -143,8 +151,10 @@ module Raylib
     Mesh.new(Raylib.rl_Model_mesh_ptr(model, index), model)
 
   def self.rl_ModelAnimationAt(anims, index)
-    # `anims` is a raw heap pointer (LoadModelAnimations); no GC owner.
-    ModelAnimation.new(Raylib.rl_ModelAnimationAt_ptr(anims, index), nil)
+    # `anims` is the raw heap pointer from LoadModelAnimations. Passing it as
+    # the owner marks the view borrowed: UnloadModelAnimation must not free a
+    # pointer into the animations array.
+    ModelAnimation.new(Raylib.rl_ModelAnimationAt_ptr(anims, index), anims)
   end
 
   def self.rl_LoadShaderFS(fsFileName)

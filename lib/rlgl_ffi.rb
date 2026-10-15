@@ -6,6 +6,11 @@ module Rlgl
   ffi_cflags "-I/usr/local/include"
 
 # ====== generated: complete rlgl API surface ======
+  ffi_func :rlLoadShaderBuffer, [:uint, :ptr, :int], :uint
+  ffi_func :rlUpdateShaderBuffer, [:uint, :ptr, :uint, :uint], :void
+  ffi_func :rlReadShaderBuffer, [:uint, :ptr, :uint, :uint], :void
+
+# ====== generated: complete rlgl API surface ======
   ffi_func :rlMatrixMode, [:int], :void
   ffi_func :rlPushMatrix, [], :void
   ffi_func :rlPopMatrix, [], :void
@@ -150,11 +155,23 @@ module Rlgl
   ffi_func :rlSetUniformSampler, [:int, :uint], :void
   ffi_func :rlSetShader, [:uint, :ptr], :void
   ffi_func :rlComputeShaderDispatch, [:uint, :uint, :uint], :void
-  ffi_func :rlLoadShaderBuffer, [:uint, :ptr, :int], :uint
+  ffi_func :rlLoadShaderBuffer_ptr, [:uint, :ptr, :int], :uint
   ffi_func :rlUnloadShaderBuffer, [:uint], :void
-  ffi_func :rlUpdateShaderBuffer, [:uint, :ptr, :uint, :uint], :void
+  ffi_func :rlUpdateShaderBuffer_ptr, [:uint, :ptr, :uint, :uint], :void
   ffi_func :rlBindShaderBuffer, [:uint, :uint], :void
-  ffi_func :rlReadShaderBuffer, [:uint, :ptr, :uint, :uint], :void
+  ffi_func :rlReadShaderBuffer_ptr, [:uint, :ptr, :uint, :uint], :void
+  # Shader-buffer data/dest are flat buffers: gem code passes FFI::MemoryPointer,
+  # which cannot fill a :ptr slot, so the Integer address goes instead. The
+  # *_ptr symbols are the C shims (raylib_adapter.c) that forward unchanged.
+  def self.rlUpdateShaderBuffer(id, data, size, offset)
+    Rlgl.rlUpdateShaderBuffer_ptr(id, Raylib.ptr_addr(data), size, offset)
+  end
+  def self.rlReadShaderBuffer(id, dest, size, offset)
+    Rlgl.rlReadShaderBuffer_ptr(id, Raylib.ptr_addr(dest), size, offset)
+  end
+  def self.rlLoadShaderBuffer(size, data, usage)
+    Rlgl.rlLoadShaderBuffer_ptr(size, Raylib.ptr_addr(data), usage)
+  end
   ffi_func :rlCopyShaderBuffer, [:uint, :uint, :uint, :uint, :uint], :void
   ffi_func :rlGetShaderBufferSize, [:uint], :uint
   ffi_func :rlBindImageTexture, [:uint, :uint, :int, :bool], :void

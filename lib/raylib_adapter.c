@@ -246,7 +246,7 @@ void rl_UnloadTexture(void *tex) {
   if (tex) {
     Texture2D *self = RL_TEX(tex);   /* the view points at the heap copy */
     UnloadTexture(*self);
-    free(self);
+    if (self != &((rl_Texture2D *)tex)->v && ((rl_Texture2D *)tex)->owner.tag == SP_TAG_NIL) free(self);
   }
 }
 
@@ -1141,7 +1141,7 @@ void rl_SetShaderValueTexture(void * shader, int locIndex, void * texture) {
 void rl_UnloadShader(void * shader) {
   Shader *self = RL_SHDR(shader);
   UnloadShader(*self);
-  free(self);
+  if (self != &((rl_Shader *)shader)->v && ((rl_Shader *)shader)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** GetScreenToWorldRay(params: void * position, void * camera, void * _out -> void) */
 void rl_GetScreenToWorldRay(void * position, void * camera, void * _out) {
@@ -1595,7 +1595,7 @@ _Bool rl_IsImageValid(void * image) {
 void rl_UnloadImage(void * image) {
   Image *self = RL_IMG(image);
   UnloadImage(*self);
-  free(self);
+  if (self != &((rl_Image *)image)->v && ((rl_Image *)image)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** ExportImage(params: void * image, const char * fileName -> _Bool) */
 _Bool rl_ExportImage(void * image, const char * fileName) {
@@ -2064,7 +2064,7 @@ void * rl_GenImageFontAtlas(void * glyphs, void * glyphRecs, int glyphCount, int
 void rl_UnloadFont(void * font) {
   Font *self = RL_FONT(font);
   UnloadFont(*self);
-  free(self);
+  if (self != &((rl_Font *)font)->v && ((rl_Font *)font)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** ExportFontAsCode(params: void * font, const char * fileName -> _Bool) */
 _Bool rl_ExportFontAsCode(void * font, const char * fileName) {
@@ -2196,7 +2196,7 @@ _Bool rl_IsModelValid(void * model) {
 void rl_UnloadModel(void * model) {
   Model *self = RL_MODEL(model);
   UnloadModel(*self);
-  free(self);
+  if (self != &((rl_Model *)model)->v && ((rl_Model *)model)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** GetModelBoundingBox(params: void * model, void * _out -> void) */
 void rl_GetModelBoundingBox(void * model, void * _out) {
@@ -2242,7 +2242,7 @@ void rl_UpdateMeshBuffer(void * mesh, int index, void * data, int dataSize, int 
 void rl_UnloadMesh(void * mesh) {
   Mesh *self = RL_MESH(mesh);
   UnloadMesh(*self);
-  free(self);
+  if (self != &((rl_Mesh *)mesh)->v && ((rl_Mesh *)mesh)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** DrawMesh(params: void * mesh, void * material, void * transform -> void) */
 void rl_DrawMesh(void * mesh, void * material, void * transform) {
@@ -2344,7 +2344,7 @@ _Bool rl_IsMaterialValid(void * material) {
 void rl_UnloadMaterial(void * material) {
   Material *self = RL_MAT(material);
   UnloadMaterial(*self);
-  free(self);
+  if (self != &((rl_Material *)material)->v && ((rl_Material *)material)->owner.tag == SP_TAG_NIL) free(self);
 }
 /** SetMaterialTexture(params: void * material, int mapType, void * texture -> void) */
 void rl_SetMaterialTexture(void * material, int mapType, void * texture) {
@@ -3612,4 +3612,46 @@ void rl_GenMeshTangents(void * mesh) {
 /** SetModelMeshMaterial(params: void * model, int meshId, int materialId -> void) */
 void rl_SetModelMeshMaterial(void * model, int meshId, int materialId) {
   SetModelMeshMaterial(RL_MODEL(model), meshId, materialId);
+}
+
+/* ================================================================
+ * Generated shims (tools/gen_raylib_ffi.py). Same conventions as the
+ * hand-written shims above; keep in sync by re-running the generator.
+ * ================================================================ */
+
+
+/* ---- generated shims ---- */
+/** LoadFileData(params: const char * fileName, void * dataSize -> void *) */
+void * rl_LoadFileData(const char * fileName, void * dataSize) {
+  return LoadFileData(fileName, dataSize);
+}
+/** EncodeDataBase64(params: void * data, int dataSize, void * outputSize -> void *) */
+void * rl_EncodeDataBase64(void * data, int dataSize, void * outputSize) {
+  return EncodeDataBase64(data, dataSize, outputSize);
+}
+/** LoadFontData(params: void * fileData, int dataSize, int fontSize, void * codepoints, int codepointCount, int type, void * glyphCount -> void *) */
+void * rl_LoadFontData(void * fileData, int dataSize, int fontSize, void * codepoints, int codepointCount, int type, void * glyphCount) {
+  return LoadFontData(fileData, dataSize, fontSize, codepoints, codepointCount, type, glyphCount);
+}
+/** LoadCodepoints(params: const char * text, void * count -> void *) */
+void * rl_LoadCodepoints(const char * text, void * count) {
+  return LoadCodepoints(text, count);
+}
+/** LoadModelAnimations(params: const char * fileName, void * animCount -> void *) */
+void * rl_LoadModelAnimations(const char * fileName, void * animCount) {
+  return LoadModelAnimations(fileName, animCount);
+}
+
+/* rlgl shader-buffer shims: same calls under distinct names so the Ruby
+ * surface (rlgl_ffi.rb) can coerce FFI::MemoryPointer to its address. */
+void rl_UpdateShaderBuffer(unsigned int id, void * data, unsigned int size,
+                           unsigned int offset) {
+  rlUpdateShaderBuffer(id, data, size, offset);
+}
+void rl_ReadShaderBuffer(unsigned int id, void * dest, unsigned int size,
+                         unsigned int offset) {
+  rlReadShaderBuffer(id, dest, size, offset);
+}
+unsigned int rl_LoadShaderBuffer(unsigned int size, void * data, int usage) {
+  return rlLoadShaderBuffer(size, data, usage);
 }

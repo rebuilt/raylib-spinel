@@ -11,8 +11,16 @@ Two sections:
      surface is loaded); each is analyzed with `spinel -c` to record whether
      unmodified gem-API code compiles.
 
-Reports: reference/reports/gem_corpus.md (+ .json worklist).
-Usage: python3 tools/run_gem_corpus.py [--only synthetic|examples]
+  C. run: the asset-free examples from B actually RUN under CRuby and under
+     Spinel, each under its own Xvfb for a few seconds; stdout, exit status and
+     a screenshot (unique colours / mean brightness) are compared. This is the
+     "compile/run unchanged" evidence: analysis alone cannot see a black
+     render texture or a run-time TypeError.
+
+Reports: reference/reports/gem_corpus.md (+ .json worklist). Skipped sections
+keep their previous results (the report is merged, not replaced).
+Usage: python3 tools/run_gem_corpus.py [--only synthetic|examples|run]
+                                      [--run-examples NAME ...]
 """
 
 import json
@@ -201,6 +209,8 @@ INVALID_EXAMPLES = {
         "calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)",
     "textures_bunnymark_optimized.rb":
         "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)",
+    "rlgl_compute_shader.rb":
+        "calls rlLoadComputeShaderProgram/rlCompileShader, which the gem's rlgl surface does not expose (respond_to? false under CRuby)",
 }
 
 
@@ -227,14 +237,152 @@ def section_examples(flags):
                            files))
 
 
+# ------------------------------------------------------------------- run --
+
+# Asset-free examples from the analyzed set (no RAYLIB_*/resources paths; the
+# gem's resource checkout is not present here). Audio is excluded: no device.
+RUN_EXAMPLES = [
+    "basic_loop.rb", "bitmap_font.rb", "core_2d_camera.rb",
+    "core_3d_camera_first_person.rb", "core_3d_split_screen.rb",
+    "core_automation_events.rb", "core_drop_files.rb", "core_loading_thread.rb",
+    "core_world_screen.rb", "flocking_optimized.rb", "flocking_plain.rb",
+    "game_of_life_simple.rb", "game_of_life_ui.rb", "gui_controls.rb",
+    "lissajous_curve.rb", "models_box_collisions.rb",
+    "models_geometric_shapes.rb", "models_mesh_generation.rb",
+    "models_rlgl_solar_system.rb", "models_waving_cubes.rb",
+    "particles_fireworks.rb", "physics_demo.rb", "procedural_texture.rb",
+    "shapes_basic_shapes.rb", "shapes_draw_circle_sector.rb",
+    "shapes_lines_bezier.rb", "snake_case_api.rb", "snake_case_rlgl.rb",
+    "template.rb", "text_rectangle_bounds.rb", "textures_image_generation.rb",
+    "textures_mouse_painting.rb", "toon_character_sprites.rb", "utf8_font.rb",
+]
+
+RUN_SECONDS = 4
+SHOT_DIR = "/tmp/opencode/corpus_shots"
+
+CAPTURE_SH = """#!/bin/bash
+# $@ is the program; xvfb-run already provides DISPLAY.
+"$@" >stdout.txt 2>stderr.txt &
+pid=$!
+sleep %(seconds)d
+import -window root shot.png 2>/dev/null
+kill $pid 2>/dev/null
+wait $pid 2>/dev/null
+echo $? > rc.txt
+exit 0
+"""
+
+# the program was killed by the harness on purpose (SIGTERM), or exited by
+# itself at the end of its own loop
+OK_RC = {0, 143, 137}
+
+
+def image_stats(path):
+    """(unique colours, mean brightness, WxH) for a screenshot, or None."""
+    if not os.path.exists(path):
+        return None
+    rc, out, _ = run(["identify", "-format", "%k %[fx:mean] %wx%h", path + "[0]"],
+                     os.path.dirname(path), timeout=30)
+    return out.strip() if rc == 0 and out.strip() else None
+
+
+def capture_run(argv, tmp, tag):
+    """Run argv under xvfb, kill it after RUN_SECONDS, keep stdout + a frame."""
+    helper = os.path.join(tmp, "capture.sh")
+    open(helper, "w").write(CAPTURE_SH % {"seconds": RUN_SECONDS})
+    run(["xvfb-run", "-a", "bash", helper] + argv, tmp, timeout=RUN_SECONDS + 90)
+    def read(name, default=""):
+        p = os.path.join(tmp, name)
+        return open(p).read() if os.path.exists(p) else default
+    shot = os.path.join(tmp, "shot.png")
+    stats = image_stats(shot)
+    if stats:
+        os.makedirs(SHOT_DIR, exist_ok=True)
+        shutil.copy(shot, os.path.join(SHOT_DIR, tag + ".png"))
+    try:
+        rc = int(read("rc.txt", "-1").strip() or -1)
+    except ValueError:
+        rc = -1
+    return {"rc": rc, "stdout": normalize(read("stdout.txt")),
+            "stderr": read("stderr.txt"), "shot": stats}
+
+
+def run_example(src, flags):
+    name = os.path.basename(src)
+    out = {"name": name, "mri": None, "spinel": None}
+    for kind in ("mri", "spinel"):
+        with tempfile.TemporaryDirectory() as tmp:
+            dst = prepare_example(src, tmp)
+            if kind == "spinel":
+                exe = os.path.join(tmp, "ex_bin")
+                link = vendored_raylib_link(tmp)
+                rc, _o, err = run(["spinel", dst] + flags + link + ["-o", exe],
+                                  tmp, timeout=300)
+                if rc != 0 or not os.path.exists(exe):
+                    out["spinel"] = {"compile_error": first_spinel_error(err)}
+                    continue
+                argv = [exe]
+            else:
+                argv = ["ruby", "-I", ROOT, "-I", os.path.join(EXAMPLES, "util"), dst]
+            out[kind] = capture_run(argv, tmp, "%s.%s" % (name[:-3], kind))
+    mri, sp = out["mri"], out["spinel"]
+    if isinstance(sp, dict) and "compile_error" in sp:
+        out["verdict"], out["detail"] = "spinel-error", "compile: " + sp["compile_error"][:80]
+    elif mri is None or mri["rc"] not in OK_RC:
+        out["verdict"] = "mri-error"
+        out["detail"] = "mri rc=%s %s" % (mri["rc"] if mri else "?", mri["stderr"].strip().splitlines()[-1][:60] if mri and mri["stderr"].strip() else "")
+    elif sp["rc"] not in OK_RC:
+        out["verdict"] = "spinel-error"
+        out["detail"] = "spinel rc=%s %s" % (sp["rc"], sp["stderr"].strip().splitlines()[-1][:60] if sp["stderr"].strip() else "")
+    elif sp["stdout"] != mri["stdout"]:
+        out["verdict"], out["detail"] = "stdout-diff", "stdout differs"
+    elif not sp["shot"] or int(sp["shot"].split()[0]) < 3:
+        out["verdict"], out["detail"] = "spinel-blank", "screenshot has no content: %s" % sp["shot"]
+    else:
+        out["verdict"] = "ran"
+        out["detail"] = "mri shot=%s | spinel shot=%s" % (mri["shot"], sp["shot"])
+    return out
+
+
+def section_run(flags, names=None):
+    files = [os.path.join(EXAMPLES, n) for n in (names or RUN_EXAMPLES)]
+    files = [f for f in files if os.path.exists(f)]
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        return list(ex.map(lambda f: run_example(f, flags), files))
+
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
+    names = None
+    if "--run-examples" in sys.argv:
+        names = [a if a.endswith(".rb") else a + ".rb"
+                 for a in sys.argv[sys.argv.index("--run-examples") + 1:]
+                 if not a.startswith("--")]
     flags = spinel_flags()
-    result = {"synthetic": [], "examples": []}
-    if only != "examples":
-        result["synthetic"] = section_synthetic(flags)
-    if only != "synthetic":
-        result["examples"] = section_examples(flags)
+    # merge: a section that is not re-run keeps its previous results
+    old = {}
+    old_path = os.path.join(REPORTS, "gem_corpus.json")
+    if os.path.exists(old_path):
+        try:
+            old = json.load(open(old_path))
+        except ValueError:
+            old = {}
+    result = {"synthetic": [], "examples": [], "run": []}
+    if only == "run":
+        result["synthetic"] = old.get("synthetic", [])
+        result["examples"] = old.get("examples", [])
+        result["run"] = section_run(flags, names)
+    else:
+        if only != "examples":
+            result["synthetic"] = section_synthetic(flags)
+        else:
+            result["synthetic"] = old.get("synthetic", [])
+        if only != "synthetic":
+            result["examples"] = section_examples(flags)
+        else:
+            result["examples"] = old.get("examples", [])
+        result["run"] = old.get("run", [])
 
     os.makedirs(REPORTS, exist_ok=True)
     json.dump(result, open(os.path.join(REPORTS, "gem_corpus.json"), "w"), indent=1)
@@ -270,6 +418,16 @@ def main():
         if bare:
             md.append("First bare-call blocker (same shape for all %d):\n" % len(bare))
             md.append("```\n%s\n```\n" % bare[0]["detail"])
+
+    if result["run"]:
+        md.append("## Examples run (asset-free subset, CRuby vs Spinel under Xvfb)\n")
+        md.append("| example | verdict | detail |")
+        md.append("| --- | --- | --- |")
+        for r in result["run"]:
+            md.append("| %s | %s | %s |" % (r["name"], r["verdict"], r["detail"]))
+        ok = sum(1 for r in result["run"] if r["verdict"] == "ran")
+        md.append("\n%d/%d ran identically enough to render content under both engines "
+                  "(screenshots kept in %s).\n" % (ok, len(result["run"]), SHOT_DIR))
 
     open(os.path.join(REPORTS, "gem_corpus.md"), "w").write("\n".join(md))
     print("\n".join(md))

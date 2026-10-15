@@ -117,6 +117,7 @@ module Raylib
 
   native_struct "Transform", "rl_Transform"
   native_new [:any, :any], "rl_Transform_view_any"
+  native_new [:any], "rl_Transform_view_addr"
 
   native_struct "ModelAnimation", "rl_ModelAnimation"
   native_new [], "rl_ModelAnimation_new"
