@@ -17,8 +17,9 @@ Tool: `tools/run_gem_corpus.py`. Oracle: CRuby + raylib-bindings; Spinel: `spine
 | 09_textures.rb | same |  |
 | 10_models.rb | same |  |
 | 11_render_texture.rb | same |  |
+| 12_field_index.rb | same |  |
 
-11/11 run identically under both engines.
+12/12 run identically under both engines.
 
 ## raylib-bindings examples (loader line replaced, `spinel -c`)
 

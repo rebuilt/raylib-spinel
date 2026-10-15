@@ -54,6 +54,11 @@
    "name": "11_render_texture.rb",
    "verdict": "same",
    "detail": ""
+  },
+  {
+   "name": "12_field_index.rb",
+   "verdict": "same",
+   "detail": ""
   }
  ],
  "examples": [

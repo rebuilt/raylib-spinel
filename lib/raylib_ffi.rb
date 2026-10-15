@@ -904,10 +904,6 @@ module Raylib
   # LoadImageColors with Color.new(mapPixels + Color.size * i)).
   native_new [:ptr, :any], "rl_Color_view"
   native_new [:any], "rl_Color_view_addr"
-  native_method :fill_background, [], :void, "rl_Color_fill_background"
-  native_method :draw_texture, [:any, :int, :int], :void, "rl_Color_draw_texture"
-  native_method :draw_text, [:string, :int, :int, :int], :void, "rl_Color_draw_text"
-  native_method :draw_text_int, [:string, :int, :int, :int, :int], :void, "rl_Color_draw_text_int"
   native_method :r, [], :int, "rl_Color_r"
   native_method :g, [], :int, "rl_Color_g"
   native_method :b, [], :int, "rl_Color_b"

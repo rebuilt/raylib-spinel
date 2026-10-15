@@ -169,7 +169,10 @@ def check_defined(funcs):
         path = os.path.join(LIB, fname)
         if not os.path.exists(path):
             continue
-        declared.update(re.findall(r"ffi_func :(rl_\w+)", open(path).read()))
+        text = open(path).read()
+        declared.update(re.findall(r"ffi_func :(rl_\w+)", text))
+        # native_method declarations name a C accessor too
+        declared.update(re.findall(r'native_method :[\w=]+, \[[^\]]*\], :\w+, "(rl_\w+)"', text))
     defined = set()
     for fname in ADAPTERS + ["raygui_impl.c", "physac_impl.c"]:
         path = os.path.join(LIB, fname)
