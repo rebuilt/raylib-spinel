@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include "spinel/runtime.h"
 
+/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
+ * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
+ * by rl_VectorN_view, where the payload lives in the owner's C struct. */
+#define RL_V2(o) (((rl_Vector2 *)(o))->p ? ((rl_Vector2 *)(o))->p : &((rl_Vector2 *)(o))->v)
+#define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
+#define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
+
+
 /* rlgl_adapter.c — rl_ shims for Spinel AOT */
 
 /* Generated shims (tools/gen_rlgl.py) */
@@ -16,36 +24,54 @@
 
 /* rl_Vector2 — GC-embedded Vector2 (see rlgl_ffi.rb) */typedef struct rl_Vector2_s {
   sp_int cls_id;
+  Vector2 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector2 v;
 } rl_Vector2;
-static void rl_Vector2_scan(void *p) { (void)p; }
+static void rl_Vector2_scan(void *p) {
+  rl_Vector2 *s = (rl_Vector2 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
   rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector2){ 0 };
   return self;
 }
 
 /* rl_Vector3 — GC-embedded Vector3 (see rlgl_ffi.rb) */typedef struct rl_Vector3_s {
   sp_int cls_id;
+  Vector3 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector3 v;
 } rl_Vector3;
-static void rl_Vector3_scan(void *p) { (void)p; }
+static void rl_Vector3_scan(void *p) {
+  rl_Vector3 *s = (rl_Vector3 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector3 *rl_Vector3_new(sp_int cls_id) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector3){ 0 };
   return self;
 }
 
 /* rl_Vector4 — GC-embedded Vector4 (see rlgl_ffi.rb) */typedef struct rl_Vector4_s {
   sp_int cls_id;
+  Vector4 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector4 v;
 } rl_Vector4;
-static void rl_Vector4_scan(void *p) { (void)p; }
+static void rl_Vector4_scan(void *p) {
+  rl_Vector4 *s = (rl_Vector4 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
   rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector4){ 0 };
   return self;
 }

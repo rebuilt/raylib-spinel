@@ -171,23 +171,103 @@ module Raylib
 
   class Camera2D
     def self.size = 24
+
+    # Sub-struct views (the gem's camera.offset / camera.target Vector2s).
+    def offset = Vector2.new(offset_ptr, self)
+    def target = Vector2.new(target_ptr, self)
+
+    def with_offset(x, y)
+      offset.set(x, y)
+      self
+    end
+
+    def with_target(x, y)
+      target.set(x, y)
+      self
+    end
+
+    def with_rotation(rotation)
+      self.rotation = rotation
+      self
+    end
+
+    def with_zoom(zoom)
+      self.zoom = zoom
+      self
+    end
   end
 
   class Camera
     def self.size = 44
+
+    # Sub-struct views (the gem's camera.position / .target / .up Vector3s).
+    def position = Vector3.new(position_ptr, self)
+    def target = Vector3.new(target_ptr, self)
+    def up = Vector3.new(up_ptr, self)
+
+    def with_position(x, y, z)
+      position.set(x, y, z)
+      self
+    end
+
+    def with_target(x, y, z)
+      target.set(x, y, z)
+      self
+    end
+
+    def with_up(x, y, z)
+      up.set(x, y, z)
+      self
+    end
+
+    def with_fovy(fovy)
+      self.fovy = fovy
+      self
+    end
+
+    def with_projection(projection)
+      self.projection = projection
+      self
+    end
   end
 
   class BoundingBox
     def self.size = 24
 
-    # The gem's 6-float form; the 2-argument (Vector3 min/max) form lives in
-    # raylib_structs_views.rb with the sub-struct views.
-    def self.create(x1, y1, z1, x2, y2, z2)
+    # Sub-struct views (bounding_box.min / .max Vector3s).
+    def min = Vector3.new(min_ptr, self)
+    def max = Vector3.new(max_ptr, self)
+
+    # The gem's factory: create(min_vector, max_vector) or
+    # create(min_x, min_y, min_z, max_x, max_y, max_z). The optional tail keeps
+    # both arities in one method; the branches read either the vectors or the
+    # scalars, so each call site stays typed.
+    def self.create(a, b, c = nil, d = nil, e = nil, f = nil)
       bb = BoundingBox.new
-      bb.with_min(x1.to_f, y1.to_f, z1.to_f)
-      bb.with_max(x2.to_f, y2.to_f, z2.to_f)
+      if c.nil?
+        bb.min.set(a.x, a.y, a.z)
+        bb.max.set(b.x, b.y, b.z)
+      else
+        bb.with_min(a.to_f, b.to_f, c.to_f)
+        bb.with_max(d.to_f, e.to_f, f.to_f)
+      end
       bb
     end
+  end
+
+  class Transform
+    def self.size = 40
+
+    # raylib's Transform { Vector3 translation; Quaternion rotation; Vector3
+    # scale; } (rotation is 16 bytes, hence size 40). The gem exposes both the
+    # layout names and the t/r/s shorthand; all are reads (views).
+    def translation = Vector3.new(t_ptr, self)
+    def rotation = Vector4.new(r_ptr, self)
+    def scale = Vector3.new(s_ptr, self)
+
+    def t = translation
+    def r = rotation
+    def s = scale
   end
 
   class Ray

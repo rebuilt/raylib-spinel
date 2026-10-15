@@ -375,12 +375,21 @@ gen_shim_c = []       # adapter shim functions
 gen_wrap = []         # wrappers (inside Spinel guard)
 
 
+VIEW_STRUCTS = {"Vector2": "RL_V2", "Vector3": "RL_V3", "Vector4": "RL_V4"}
+
+
 def shim_expr(kind, aname, base=None):
     if kind == "gc":
         klass, emb = gc_of(base)
+        if base in VIEW_STRUCTS:
+            # P2 view layout: the payload is a separate pointer (RL_Vx
+            # unwraps owned vs view objects).
+            return "*%s(%s)" % (VIEW_STRUCTS[base], aname)
         return "((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "gcp":
         klass, emb = gc_of(base)
+        if base in VIEW_STRUCTS:
+            return "%s(%s)" % (VIEW_STRUCTS[base], aname)
         return "&((rl_%s*)%s)->%s" % (klass, aname, emb)
     if kind == "raw":
         return "*(%s *)%s" % (base, aname)
@@ -482,7 +491,10 @@ def emit_shim(fn):
         body_lines.append("  return %s;" % ret_expr)
     elif out_class is not None:
         klass, emb = gc_of(ret_base)
-        body_lines.append("  ((rl_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
+        if ret_base in VIEW_STRUCTS:
+            body_lines.append("  *%s(_out) = %s;" % (VIEW_STRUCTS[ret_base], ret_expr))
+        else:
+            body_lines.append("  ((rl_%s*)_out)->%s = %s;" % (klass, emb, ret_expr))
         c_ret = "void"
         ffi_ret = ":void"
     elif c_ret == "void *":

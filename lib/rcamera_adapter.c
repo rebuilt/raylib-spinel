@@ -5,6 +5,14 @@
 #include <stdlib.h>
 #include "spinel/runtime.h"
 
+/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
+ * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
+ * by rl_VectorN_view, where the payload lives in the owner's C struct. */
+#define RL_V2(o) (((rl_Vector2 *)(o))->p ? ((rl_Vector2 *)(o))->p : &((rl_Vector2 *)(o))->v)
+#define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
+#define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
+
+
 /* rcamera_adapter.c — rl_ shims for Spinel AOT */
 
 /* Generated shims (tools/gen_rcamera.py) */
@@ -17,60 +25,72 @@
 
 /* rl_Vector2 — GC-embedded Vector2 (see rcamera_ffi.rb) */typedef struct rl_Vector2_s {
   sp_int cls_id;
+  Vector2 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector2 v;
 } rl_Vector2;
-static void rl_Vector2_scan(void *p) { (void)p; }
+static void rl_Vector2_scan(void *p) {
+  rl_Vector2 *s = (rl_Vector2 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
   rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector2){ 0 };
   return self;
 }
 static double rl_Vector2_x(rl_Vector2 *self) {
-  return (double)self->v.x;
+  return (double)RL_V2(self)->x;
 }
 static double rl_Vector2_set_x(rl_Vector2 *self, double x) {
-  self->v.x = (float)x;
+  RL_V2(self)->x = (float)x;
   return x;
 }
 static double rl_Vector2_y(rl_Vector2 *self) {
-  return (double)self->v.y;
+  return (double)RL_V2(self)->y;
 }
 static double rl_Vector2_set_y(rl_Vector2 *self, double y) {
-  self->v.y = (float)y;
+  RL_V2(self)->y = (float)y;
   return y;
 }
 
 /* rl_Vector3 — GC-embedded Vector3 (see rcamera_ffi.rb) */typedef struct rl_Vector3_s {
   sp_int cls_id;
+  Vector3 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector3 v;
 } rl_Vector3;
-static void rl_Vector3_scan(void *p) { (void)p; }
+static void rl_Vector3_scan(void *p) {
+  rl_Vector3 *s = (rl_Vector3 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector3 *rl_Vector3_new(sp_int cls_id) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector3){ 0 };
   return self;
 }
 static double rl_Vector3_x(rl_Vector3 *self) {
-  return (double)self->v.x;
+  return (double)RL_V3(self)->x;
 }
 static double rl_Vector3_set_x(rl_Vector3 *self, double x) {
-  self->v.x = (float)x;
+  RL_V3(self)->x = (float)x;
   return x;
 }
 static double rl_Vector3_y(rl_Vector3 *self) {
-  return (double)self->v.y;
+  return (double)RL_V3(self)->y;
 }
 static double rl_Vector3_set_y(rl_Vector3 *self, double y) {
-  self->v.y = (float)y;
+  RL_V3(self)->y = (float)y;
   return y;
 }
 static double rl_Vector3_z(rl_Vector3 *self) {
-  return (double)self->v.z;
+  return (double)RL_V3(self)->z;
 }
 static double rl_Vector3_set_z(rl_Vector3 *self, double z) {
-  self->v.z = (float)z;
+  RL_V3(self)->z = (float)z;
   return z;
 }
 
@@ -88,12 +108,18 @@ static rl_Camera *rl_Camera_new(sp_int cls_id) {
 
 /* rl_Vector4 — GC-embedded Vector4 (see rcamera_ffi.rb) */typedef struct rl_Vector4_s {
   sp_int cls_id;
+  Vector4 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector4 v;
 } rl_Vector4;
-static void rl_Vector4_scan(void *p) { (void)p; }
+static void rl_Vector4_scan(void *p) {
+  rl_Vector4 *s = (rl_Vector4 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
   rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector4){ 0 };
   return self;
 }
@@ -249,15 +275,15 @@ static rl_Rectangle *rl_Rectangle_new(sp_int cls_id) {
 /* ---- generated shims ---- */
 /** GetCameraForward(params: void * camera, void * _out -> void) */
 void rl_GetCameraForward(void * camera, void * _out) {
-  ((rl_Vector3*)_out)->v = GetCameraForward(&((rl_Camera*)camera)->c);
+  *RL_V3(_out) = GetCameraForward(&((rl_Camera*)camera)->c);
 }
 /** GetCameraUp(params: void * camera, void * _out -> void) */
 void rl_GetCameraUp(void * camera, void * _out) {
-  ((rl_Vector3*)_out)->v = GetCameraUp(&((rl_Camera*)camera)->c);
+  *RL_V3(_out) = GetCameraUp(&((rl_Camera*)camera)->c);
 }
 /** GetCameraRight(params: void * camera, void * _out -> void) */
 void rl_GetCameraRight(void * camera, void * _out) {
-  ((rl_Vector3*)_out)->v = GetCameraRight(&((rl_Camera*)camera)->c);
+  *RL_V3(_out) = GetCameraRight(&((rl_Camera*)camera)->c);
 }
 /** CameraMoveForward(params: void * camera, float distance, _Bool moveInWorldPlane -> void) */
 void rl_CameraMoveForward(void * camera, float distance, _Bool moveInWorldPlane) {

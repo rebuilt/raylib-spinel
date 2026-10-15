@@ -695,6 +695,7 @@ module Raylib
   ffi_func :rl_DetachAudioMixedProcessor, [:ptr], :void
   native_struct "Vector4", "rl_Vector4"
   native_new [], "rl_Vector4_new"
+  native_new [:ptr, :any], "rl_Vector4_view"
   native_method :x, [], :float, "rl_Vector4_x"
   native_method :x=, [:float], :float, "rl_Vector4_set_x"
   native_method :y, [], :float, "rl_Vector4_y"
@@ -715,6 +716,8 @@ module Raylib
   native_method :height=, [:float], :float, "rl_Rectangle_set_height"
   native_struct "Camera2D", "rl_Camera2D"
   native_new [], "rl_Camera2D_new"
+  native_method :offset_ptr, [], :ptr, "rl_Camera2D_offset_ptr"
+  native_method :target_ptr, [], :ptr, "rl_Camera2D_target_ptr"
   native_method :rotation, [], :float, "rl_Camera2D_rotation"
   native_method :rotation=, [:float], :float, "rl_Camera2D_set_rotation"
   native_method :zoom, [], :float, "rl_Camera2D_zoom"
@@ -723,6 +726,14 @@ module Raylib
   native_new [], "rl_BoundingBox_new"
   native_method :with_min, %i[float float float], :self, "rl_BoundingBox_with_min"
   native_method :with_max, %i[float float float], :self, "rl_BoundingBox_with_max"
+  native_method :min_ptr, [], :ptr, "rl_BoundingBox_min_ptr"
+  native_method :max_ptr, [], :ptr, "rl_BoundingBox_max_ptr"
+  # Transform (3 Vector3s): the gem helper class, views for t/r/s.
+  native_struct "Transform", "rl_Transform"
+  native_new [], "rl_Transform_new"
+  native_method :t_ptr, [], :ptr, "rl_Transform_t_ptr"
+  native_method :r_ptr, [], :ptr, "rl_Transform_r_ptr"
+  native_method :s_ptr, [], :ptr, "rl_Transform_s_ptr"
   native_struct "Ray", "rl_Ray"
   native_new [], "rl_Ray_new"
   native_struct "RayCollision", "rl_RayCollision"
@@ -814,6 +825,8 @@ module Raylib
   native_method :count=, [:int], :int, "rl_AutomationEventList_set_count"
   native_struct "Vector2", "rl_Vector2"
   native_new [], "rl_Vector2_new"
+  # View constructor: payload pointer + owner (kept alive by the view's scan).
+  native_new [:ptr, :any], "rl_Vector2_view"
   native_method :x, [], :float, "rl_Vector2_x"
   native_method :x=, [:float], :float, "rl_Vector2_set_x"
   native_method :y, [], :float, "rl_Vector2_y"
@@ -918,6 +931,7 @@ module Raylib
   # pointer; field-read with .x/.y/.z.
   native_struct "Vector3", "rl_Vector3"
   native_new [:float, :float, :float], "rl_Vector3_new"
+  native_new [:ptr, :any], "rl_Vector3_view"
   native_method :x, [], :float, "rl_Vector3_x"
   native_method :y, [], :float, "rl_Vector3_y"
   native_method :z, [], :float, "rl_Vector3_z"
@@ -935,6 +949,14 @@ module Raylib
   native_method :with_fovy, [:float], :self, "rl_Camera_with_fovy"
   native_method :with_projection, [:int], :self, "rl_Camera_with_projection"
   native_method :pointer, [], :ptr, "rl_Camera_ptr"
+  # Gem-shaped field access (sub-struct views; see raylib_structs.rb).
+  native_method :position_ptr, [], :ptr, "rl_Camera_position_ptr"
+  native_method :target_ptr, [], :ptr, "rl_Camera_target_ptr"
+  native_method :up_ptr, [], :ptr, "rl_Camera_up_ptr"
+  native_method :fovy, [], :float, "rl_Camera_fovy"
+  native_method :fovy=, [:float], :float, "rl_Camera_set_fovy"
+  native_method :projection, [], :int, "rl_Camera_projection"
+  native_method :projection=, [:int], :int, "rl_Camera_set_projection"
 
   # Constants — only define under Spinel (MRI gets them from the gem).
   # RUBY_ENGINE is a compile-time constant under AOT ("spinel") and "ruby"

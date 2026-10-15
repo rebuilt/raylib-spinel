@@ -5,6 +5,14 @@
 #include <stdlib.h>
 #include "spinel/runtime.h"
 
+/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
+ * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
+ * by rl_VectorN_view, where the payload lives in the owner's C struct. */
+#define RL_V2(o) (((rl_Vector2 *)(o))->p ? ((rl_Vector2 *)(o))->p : &((rl_Vector2 *)(o))->v)
+#define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
+#define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
+
+
 /* ================================================================
  * raylib_adapter.c — rl_ shims for Spinel AOT
  *
@@ -64,6 +72,8 @@ sp_int rl_Color_set_a(rl_Color *self, sp_int a) { self->c.a = (unsigned char)a; 
  * instead of mistaking the cls_id header for the coordinates. */
 typedef struct rl_Vector2_s {
   sp_int cls_id;
+  Vector2 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector2 v;
 } rl_Vector2;
 
@@ -74,13 +84,14 @@ typedef struct rl_Vector2_s {
 void *Vector2Create(float x, float y) {
   rl_Vector2 *v = (rl_Vector2 *)malloc(sizeof(rl_Vector2));
   v->cls_id = 0;
+  v->p = NULL;
   v->v = (Vector2){ x, y };
   return v;
 }
-float Vector2GetX(void *v) { return ((rl_Vector2 *)v)->v.x; }
-float Vector2GetY(void *v) { return ((rl_Vector2 *)v)->v.y; }
-void Vector2SetX(void *v, float x) { ((rl_Vector2 *)v)->v.x = x; }
-void Vector2SetY(void *v, float y) { ((rl_Vector2 *)v)->v.y = y; }
+float Vector2GetX(void *v) { return RL_V2(v)->x; }
+float Vector2GetY(void *v) { return RL_V2(v)->y; }
+void Vector2SetX(void *v, float x) { RL_V2(v)->x = x; }
+void Vector2SetY(void *v, float y) { RL_V2(v)->y = y; }
 
 /* rl_Camera — GC-embedded Camera3D (see raylib_ffi.rb). Declared early so
  * rl_Camera3DCreate returns the same header+embedded layout the
@@ -108,7 +119,7 @@ int rl_TextureHeight(void *texture) { return (int)((Texture *)texture)->height; 
 void rl_DrawTextureRec4(void *texture, float x, float y, float w, float h,
                         void *position, void *tint) {
   Rectangle src = { x, y, w, h };
-  DrawTextureRec(*(Texture2D *)texture, src, ((rl_Vector2 *)position)->v,
+  DrawTextureRec(*(Texture2D *)texture, src, *RL_V2(position),
                  ((rl_Color *)tint)->c);
 }
 void rl_BeginMode2DF(float target_x, float target_y, float offset_x,
@@ -203,7 +214,7 @@ void rl_UnloadTexture(void *tex) {
 
 /* ---- Shape shims: Vector2 and Color passed as pointers ---- */
 void rl_DrawCircleV(void *center, float radius, void *color) {
-  DrawCircleV(((rl_Vector2 *)center)->v, radius, ((rl_Color *)color)->c);
+  DrawCircleV(*RL_V2(center), radius, ((rl_Color *)color)->c);
 }
 void rl_DrawPixel(int x, int y, void *color) {
   DrawPixel(x, y, ((rl_Color *)color)->c);
@@ -252,7 +263,7 @@ void rl_DrawPixelsPacked(const double *xs, const double *ys,
   rlSetTexture(0);
 }
 void rl_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
-  DrawTriangle(((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v,
+  DrawTriangle(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3),
                ((rl_Color *)color)->c);
 }
 
@@ -265,23 +276,37 @@ void rl_DrawTriangle(void *v1, void *v2, void *v3, void *color) {
  * ================================================================ */
 typedef struct rl_Vector3_s {
   sp_int cls_id;   /* object header */
+  Vector3 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector3 v;       /* raylib Vector3 */
 } rl_Vector3;
 
-static void rl_Vector3_scan(void *p) { (void)p; }
+static void rl_Vector3_scan(void *p) {
+  rl_Vector3 *s = (rl_Vector3 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 
 rl_Vector3 *rl_Vector3_new(sp_int cls_id, double x, double y, double z) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector3){ (float)x, (float)y, (float)z };
   return self;
 }
-double rl_Vector3_x(rl_Vector3 *self) { return self->v.x; }
-double rl_Vector3_y(rl_Vector3 *self) { return self->v.y; }
-double rl_Vector3_z(rl_Vector3 *self) { return self->v.z; }
-double rl_Vector3_set_x(rl_Vector3 *self, double x) { self->v.x = (float)x; return x; }
-double rl_Vector3_set_y(rl_Vector3 *self, double y) { self->v.y = (float)y; return y; }
-double rl_Vector3_set_z(rl_Vector3 *self, double z) { self->v.z = (float)z; return z; }
+
+Vector3 *rl_Vector3_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
+  self->cls_id = cls_id;
+  self->p = (Vector3 *)p;
+  self->owner = owner;
+  return self;
+}
+double rl_Vector3_x(rl_Vector3 *self) { return RL_V3(self)->x; }
+double rl_Vector3_y(rl_Vector3 *self) { return RL_V3(self)->y; }
+double rl_Vector3_z(rl_Vector3 *self) { return RL_V3(self)->z; }
+double rl_Vector3_set_x(rl_Vector3 *self, double x) { RL_V3(self)->x = (float)x; return x; }
+double rl_Vector3_set_y(rl_Vector3 *self, double y) { RL_V3(self)->y = (float)y; return y; }
+double rl_Vector3_set_z(rl_Vector3 *self, double z) { RL_V3(self)->z = (float)z; return z; }
 void *rl_Vector3_ptr(rl_Vector3 *self) { return self; }
 
 
@@ -322,6 +347,17 @@ rl_Camera *rl_Camera_with_projection(rl_Camera *self, int projection) {
 }
 void *rl_Camera_ptr(rl_Camera *self) { return self; }
 
+/* Sub-struct views (P2): interior pointers into the embedded Camera3D; the
+ * Ruby layer wraps them with Vector3.new(ptr, self) so writes reach the
+ * camera and the view keeps it alive (owner is GC-marked by the view's scan). */
+void *rl_Camera_position_ptr(rl_Camera *self) { return (void *)&self->c.position; }
+void *rl_Camera_target_ptr(rl_Camera *self) { return (void *)&self->c.target; }
+void *rl_Camera_up_ptr(rl_Camera *self) { return (void *)&self->c.up; }
+double rl_Camera_fovy(rl_Camera *self) { return (double)self->c.fovy; }
+double rl_Camera_set_fovy(rl_Camera *self, double v) { self->c.fovy = (float)v; return v; }
+sp_int rl_Camera_projection(rl_Camera *self) { return (sp_int)self->c.projection; }
+sp_int rl_Camera_set_projection(rl_Camera *self, sp_int p) { self->c.projection = (int)p; return p; }
+
 
 /* ================================================================
  * 3D / extra drawing shims for the columns example.
@@ -340,13 +376,13 @@ void rl_UpdateCamera(void *camera, int mode) {
   UpdateCamera(&((rl_Camera *)camera)->c, mode);
 }
 void rl_DrawPlane(void *pos, void *size, void *color) {
-  DrawPlane(((rl_Vector3 *)pos)->v, ((rl_Vector2 *)size)->v, ((rl_Color *)color)->c);
+  DrawPlane(*RL_V3(pos), *RL_V2(size), ((rl_Color *)color)->c);
 }
 void rl_DrawCube(void *pos, float w, float h, float l, void *color) {
-  DrawCube(((rl_Vector3 *)pos)->v, w, h, l, ((rl_Color *)color)->c);
+  DrawCube(*RL_V3(pos), w, h, l, ((rl_Color *)color)->c);
 }
 void rl_DrawCubeWires(void *pos, float w, float h, float l, void *color) {
-  DrawCubeWires(((rl_Vector3 *)pos)->v, w, h, l, ((rl_Color *)color)->c);
+  DrawCubeWires(*RL_V3(pos), w, h, l, ((rl_Color *)color)->c);
 }
 void rl_DrawRectangle(int x, int y, int w, int h, void *color) {
   DrawRectangle(x, y, w, h, ((rl_Color *)color)->c);
@@ -363,41 +399,55 @@ void rl_DrawRectangleLines(int x, int y, int w, int h, void *color) {
 
 /* rl_Vector4 — GC-embedded Vector4 (see raylib_ffi.rb) */typedef struct rl_Vector4_s {
   sp_int cls_id;
+  Vector4 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector4 v;
 } rl_Vector4;
-static void rl_Vector4_scan(void *p) { (void)p; }
+static void rl_Vector4_scan(void *p) {
+  rl_Vector4 *s = (rl_Vector4 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
   rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector4){ 0 };
   return self;
 }
+
+Vector4 *rl_Vector4_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
+  self->cls_id = cls_id;
+  self->p = (Vector4 *)p;
+  self->owner = owner;
+  return self;
+}
 double rl_Vector4_x(rl_Vector4 *self) {
-  return (double)self->v.x;
+  return (double)RL_V4(self)->x;
 }
 double rl_Vector4_set_x(rl_Vector4 *self, double x) {
-  self->v.x = (float)x;
+  RL_V4(self)->x = (float)x;
   return x;
 }
 double rl_Vector4_y(rl_Vector4 *self) {
-  return (double)self->v.y;
+  return (double)RL_V4(self)->y;
 }
 double rl_Vector4_set_y(rl_Vector4 *self, double y) {
-  self->v.y = (float)y;
+  RL_V4(self)->y = (float)y;
   return y;
 }
 double rl_Vector4_z(rl_Vector4 *self) {
-  return (double)self->v.z;
+  return (double)RL_V4(self)->z;
 }
 double rl_Vector4_set_z(rl_Vector4 *self, double z) {
-  self->v.z = (float)z;
+  RL_V4(self)->z = (float)z;
   return z;
 }
 double rl_Vector4_w(rl_Vector4 *self) {
-  return (double)self->v.w;
+  return (double)RL_V4(self)->w;
 }
 double rl_Vector4_set_w(rl_Vector4 *self, double w) {
-  self->v.w = (float)w;
+  RL_V4(self)->w = (float)w;
   return w;
 }
 
@@ -455,6 +505,9 @@ rl_Camera2D *rl_Camera2D_new(sp_int cls_id) {
 double rl_Camera2D_rotation(rl_Camera2D *self) {
   return (double)self->v.rotation;
 }
+/* Sub-struct views (P2): offset/target point into the embedded Camera2D. */
+void *rl_Camera2D_offset_ptr(rl_Camera2D *self) { return (void *)&self->v.offset; }
+void *rl_Camera2D_target_ptr(rl_Camera2D *self) { return (void *)&self->v.target; }
 double rl_Camera2D_set_rotation(rl_Camera2D *self, double rotation) {
   self->v.rotation = (float)rotation;
   return rotation;
@@ -486,6 +539,25 @@ rl_BoundingBox *rl_BoundingBox_with_max(rl_BoundingBox *self, double x, double y
   self->v.max = (Vector3){ (float)x, (float)y, (float)z };
   return self;
 }
+/* Sub-struct views (P2): min/max point into the embedded BoundingBox. */
+void *rl_BoundingBox_min_ptr(rl_BoundingBox *self) { return (void *)&self->v.min; }
+void *rl_BoundingBox_max_ptr(rl_BoundingBox *self) { return (void *)&self->v.max; }
+
+/* rl_Transform - GC-embedded Transform (translation/rotation/scale); t/r/s are views. */
+typedef struct rl_Transform_s {
+  sp_int cls_id;
+  Transform v;
+} rl_Transform;
+static void rl_Transform_scan(void *p) { (void)p; }
+rl_Transform *rl_Transform_new(sp_int cls_id) {
+  rl_Transform *self = (rl_Transform *)sp_gc_alloc(sizeof(rl_Transform), NULL, rl_Transform_scan);
+  self->cls_id = cls_id;
+  self->v = (Transform){ 0 };
+  return self;
+}
+void *rl_Transform_t_ptr(rl_Transform *self) { return (void *)&self->v.translation; }
+void *rl_Transform_r_ptr(rl_Transform *self) { return (void *)&self->v.rotation; }
+void *rl_Transform_s_ptr(rl_Transform *self) { return (void *)&self->v.scale; }
 
 /* rl_Ray — GC-embedded Ray (see raylib_ffi.rb) */typedef struct rl_Ray_s {
   sp_int cls_id;
@@ -845,25 +917,37 @@ int rl_AutomationEventList_set_count(rl_AutomationEventList *self, int count) {
 }
 
 /* rl_Vector2 runtime methods (struct declared near the top) */
-static void rl_Vector2_scan(void *p) { (void)p; }
+static void rl_Vector2_scan(void *p) {
+  rl_Vector2 *s = (rl_Vector2 *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
   rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector2){ 0 };
   return self;
 }
+
+Vector2 *rl_Vector2_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
+  self->cls_id = cls_id;
+  self->p = (Vector2 *)p;
+  self->owner = owner;
+  return self;
+}
 double rl_Vector2_x(rl_Vector2 *self) {
-  return (double)self->v.x;
+  return (double)RL_V2(self)->x;
 }
 double rl_Vector2_set_x(rl_Vector2 *self, double x) {
-  self->v.x = (float)x;
+  RL_V2(self)->x = (float)x;
   return x;
 }
 double rl_Vector2_y(rl_Vector2 *self) {
-  return (double)self->v.y;
+  return (double)RL_V2(self)->y;
 }
 double rl_Vector2_set_y(rl_Vector2 *self, double y) {
-  self->v.y = (float)y;
+  RL_V2(self)->y = (float)y;
   return y;
 }
 
@@ -874,15 +958,15 @@ void rl_SetWindowIcon(void * image) {
 }
 /** GetMonitorPosition(params: int monitor, void * _out -> void) */
 void rl_GetMonitorPosition(int monitor, void * _out) {
-  ((rl_Vector2*)_out)->v = GetMonitorPosition(monitor);
+  *RL_V2(_out) = GetMonitorPosition(monitor);
 }
 /** GetWindowPosition(params: void * _out -> void) */
 void rl_GetWindowPosition(void * _out) {
-  ((rl_Vector2*)_out)->v = GetWindowPosition();
+  *RL_V2(_out) = GetWindowPosition();
 }
 /** GetWindowScaleDPI(params: void * _out -> void) */
 void rl_GetWindowScaleDPI(void * _out) {
-  ((rl_Vector2*)_out)->v = GetWindowScaleDPI();
+  *RL_V2(_out) = GetWindowScaleDPI();
 }
 /** GetClipboardImage(params: void -> void *) */
 void * rl_GetClipboardImage(void) {
@@ -962,27 +1046,27 @@ void rl_UnloadShader(void * shader) {
 }
 /** GetScreenToWorldRay(params: void * position, void * camera, void * _out -> void) */
 void rl_GetScreenToWorldRay(void * position, void * camera, void * _out) {
-  ((rl_Ray*)_out)->v = GetScreenToWorldRay(((rl_Vector2 *)position)->v, ((rl_Camera*)camera)->c);
+  ((rl_Ray*)_out)->v = GetScreenToWorldRay(*RL_V2(position), ((rl_Camera*)camera)->c);
 }
 /** GetScreenToWorldRayEx(params: void * position, void * camera, int width, int height, void * _out -> void) */
 void rl_GetScreenToWorldRayEx(void * position, void * camera, int width, int height, void * _out) {
-  ((rl_Ray*)_out)->v = GetScreenToWorldRayEx(((rl_Vector2 *)position)->v, ((rl_Camera*)camera)->c, width, height);
+  ((rl_Ray*)_out)->v = GetScreenToWorldRayEx(*RL_V2(position), ((rl_Camera*)camera)->c, width, height);
 }
 /** GetWorldToScreen(params: void * position, void * camera, void * _out -> void) */
 void rl_GetWorldToScreen(void * position, void * camera, void * _out) {
-  ((rl_Vector2*)_out)->v = GetWorldToScreen(((rl_Vector3*)position)->v, ((rl_Camera*)camera)->c);
+  *RL_V2(_out) = GetWorldToScreen(*RL_V3(position), ((rl_Camera*)camera)->c);
 }
 /** GetWorldToScreenEx(params: void * position, void * camera, int width, int height, void * _out -> void) */
 void rl_GetWorldToScreenEx(void * position, void * camera, int width, int height, void * _out) {
-  ((rl_Vector2*)_out)->v = GetWorldToScreenEx(((rl_Vector3*)position)->v, ((rl_Camera*)camera)->c, width, height);
+  *RL_V2(_out) = GetWorldToScreenEx(*RL_V3(position), ((rl_Camera*)camera)->c, width, height);
 }
 /** GetWorldToScreen2D(params: void * position, void * camera, void * _out -> void) */
 void rl_GetWorldToScreen2D(void * position, void * camera, void * _out) {
-  ((rl_Vector2*)_out)->v = GetWorldToScreen2D(((rl_Vector2 *)position)->v, ((rl_Camera2D*)camera)->v);
+  *RL_V2(_out) = GetWorldToScreen2D(*RL_V2(position), ((rl_Camera2D*)camera)->v);
 }
 /** GetScreenToWorld2D(params: void * position, void * camera, void * _out -> void) */
 void rl_GetScreenToWorld2D(void * position, void * camera, void * _out) {
-  ((rl_Vector2*)_out)->v = GetScreenToWorld2D(((rl_Vector2 *)position)->v, ((rl_Camera2D*)camera)->v);
+  *RL_V2(_out) = GetScreenToWorld2D(*RL_V2(position), ((rl_Camera2D*)camera)->v);
 }
 /** GetCameraMatrix(params: void * camera, void * _out -> void) */
 void rl_GetCameraMatrix(void * camera, void * _out) {
@@ -1054,31 +1138,31 @@ void rl_PlayAutomationEvent(void * event) {
 }
 /** GetMousePosition(params: void * _out -> void) */
 void rl_GetMousePosition(void * _out) {
-  ((rl_Vector2*)_out)->v = GetMousePosition();
+  *RL_V2(_out) = GetMousePosition();
 }
 /** GetMouseDelta(params: void * _out -> void) */
 void rl_GetMouseDelta(void * _out) {
-  ((rl_Vector2*)_out)->v = GetMouseDelta();
+  *RL_V2(_out) = GetMouseDelta();
 }
 /** GetMouseWheelMoveV(params: void * _out -> void) */
 void rl_GetMouseWheelMoveV(void * _out) {
-  ((rl_Vector2*)_out)->v = GetMouseWheelMoveV();
+  *RL_V2(_out) = GetMouseWheelMoveV();
 }
 /** GetTouchPosition(params: int index, void * _out -> void) */
 void rl_GetTouchPosition(int index, void * _out) {
-  ((rl_Vector2*)_out)->v = GetTouchPosition(index);
+  *RL_V2(_out) = GetTouchPosition(index);
 }
 /** GetGestureDragVector(params: void * _out -> void) */
 void rl_GetGestureDragVector(void * _out) {
-  ((rl_Vector2*)_out)->v = GetGestureDragVector();
+  *RL_V2(_out) = GetGestureDragVector();
 }
 /** GetGesturePinchVector(params: void * _out -> void) */
 void rl_GetGesturePinchVector(void * _out) {
-  ((rl_Vector2*)_out)->v = GetGesturePinchVector();
+  *RL_V2(_out) = GetGesturePinchVector();
 }
 /** UpdateCameraPro(params: void * camera, void * movement, void * rotation, float zoom -> void) */
 void rl_UpdateCameraPro(void * camera, void * movement, void * rotation, float zoom) {
-  UpdateCameraPro(&((rl_Camera*)camera)->c, ((rl_Vector3*)movement)->v, ((rl_Vector3*)rotation)->v, zoom);
+  UpdateCameraPro(&((rl_Camera*)camera)->c, *RL_V3(movement), *RL_V3(rotation), zoom);
 }
 /** SetShapesTexture(params: void * texture, void * rec -> void) */
 void rl_SetShapesTexture(void * texture, void * rec) {
@@ -1096,7 +1180,7 @@ void rl_GetShapesTextureRectangle(void * _out) {
 }
 /** DrawPixelV(params: void * position, void * color -> void) */
 void rl_DrawPixelV(void * position, void * color) {
-  DrawPixelV(((rl_Vector2 *)position)->v, ((rl_Color*)color)->c);
+  DrawPixelV(*RL_V2(position), ((rl_Color*)color)->c);
 }
 /** DrawLine(params: int startPosX, int startPosY, int endPosX, int endPosY, void * color -> void) */
 void rl_DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, void * color) {
@@ -1104,11 +1188,11 @@ void rl_DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, void * 
 }
 /** DrawLineV(params: void * startPos, void * endPos, void * color -> void) */
 void rl_DrawLineV(void * startPos, void * endPos, void * color) {
-  DrawLineV(((rl_Vector2 *)startPos)->v, ((rl_Vector2 *)endPos)->v, ((rl_Color*)color)->c);
+  DrawLineV(*RL_V2(startPos), *RL_V2(endPos), ((rl_Color*)color)->c);
 }
 /** DrawLineEx(params: void * startPos, void * endPos, float thick, void * color -> void) */
 void rl_DrawLineEx(void * startPos, void * endPos, float thick, void * color) {
-  DrawLineEx(((rl_Vector2 *)startPos)->v, ((rl_Vector2 *)endPos)->v, thick, ((rl_Color*)color)->c);
+  DrawLineEx(*RL_V2(startPos), *RL_V2(endPos), thick, ((rl_Color*)color)->c);
 }
 /** DrawLineStrip(params: void * points, int pointCount, void * color -> void) */
 void rl_DrawLineStrip(void * points, int pointCount, void * color) {
@@ -1116,23 +1200,23 @@ void rl_DrawLineStrip(void * points, int pointCount, void * color) {
 }
 /** DrawLineBezier(params: void * startPos, void * endPos, float thick, void * color -> void) */
 void rl_DrawLineBezier(void * startPos, void * endPos, float thick, void * color) {
-  DrawLineBezier(((rl_Vector2 *)startPos)->v, ((rl_Vector2 *)endPos)->v, thick, ((rl_Color*)color)->c);
+  DrawLineBezier(*RL_V2(startPos), *RL_V2(endPos), thick, ((rl_Color*)color)->c);
 }
 /** DrawLineDashed(params: void * startPos, void * endPos, int dashSize, int spaceSize, void * color -> void) */
 void rl_DrawLineDashed(void * startPos, void * endPos, int dashSize, int spaceSize, void * color) {
-  DrawLineDashed(((rl_Vector2 *)startPos)->v, ((rl_Vector2 *)endPos)->v, dashSize, spaceSize, ((rl_Color*)color)->c);
+  DrawLineDashed(*RL_V2(startPos), *RL_V2(endPos), dashSize, spaceSize, ((rl_Color*)color)->c);
 }
 /** DrawTriangleGradient(params: void * v1, void * v2, void * v3, void * c1, void * c2, void * c3 -> void) */
 void rl_DrawTriangleGradient(void * v1, void * v2, void * v3, void * c1, void * c2, void * c3) {
-  DrawTriangleGradient(((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, ((rl_Color*)c1)->c, ((rl_Color*)c2)->c, ((rl_Color*)c3)->c);
+  DrawTriangleGradient(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3), ((rl_Color*)c1)->c, ((rl_Color*)c2)->c, ((rl_Color*)c3)->c);
 }
 /** DrawTriangleLines(params: void * v1, void * v2, void * v3, void * color -> void) */
 void rl_DrawTriangleLines(void * v1, void * v2, void * v3, void * color) {
-  DrawTriangleLines(((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, ((rl_Color*)color)->c);
+  DrawTriangleLines(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3), ((rl_Color*)color)->c);
 }
 /** DrawTriangleLinesEx(params: void * v1, void * v2, void * v3, float thick, void * color -> void) */
 void rl_DrawTriangleLinesEx(void * v1, void * v2, void * v3, float thick, void * color) {
-  DrawTriangleLinesEx(((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, thick, ((rl_Color*)color)->c);
+  DrawTriangleLinesEx(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3), thick, ((rl_Color*)color)->c);
 }
 /** DrawTriangleFan(params: void * points, int pointCount, void * color -> void) */
 void rl_DrawTriangleFan(void * points, int pointCount, void * color) {
@@ -1144,7 +1228,7 @@ void rl_DrawTriangleStrip(void * points, int pointCount, void * color) {
 }
 /** DrawRectangleV(params: void * position, void * size, void * color -> void) */
 void rl_DrawRectangleV(void * position, void * size, void * color) {
-  DrawRectangleV(((rl_Vector2 *)position)->v, ((rl_Vector2 *)size)->v, ((rl_Color*)color)->c);
+  DrawRectangleV(*RL_V2(position), *RL_V2(size), ((rl_Color*)color)->c);
 }
 /** DrawRectangleRec(params: void * rec, void * color -> void) */
 void rl_DrawRectangleRec(void * rec, void * color) {
@@ -1152,7 +1236,7 @@ void rl_DrawRectangleRec(void * rec, void * color) {
 }
 /** DrawRectanglePro(params: void * rec, void * origin, float rotation, void * color -> void) */
 void rl_DrawRectanglePro(void * rec, void * origin, float rotation, void * color) {
-  DrawRectanglePro(((rl_Rectangle*)rec)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)color)->c);
+  DrawRectanglePro(((rl_Rectangle*)rec)->v, *RL_V2(origin), rotation, ((rl_Color*)color)->c);
 }
 /** DrawRectangleGradientV(params: int posX, int posY, int width, int height, void * top, void * bottom -> void) */
 void rl_DrawRectangleGradientV(int posX, int posY, int width, int height, void * top, void * bottom) {
@@ -1184,15 +1268,15 @@ void rl_DrawRectangleRoundedLinesEx(void * rec, float roundness, int segments, f
 }
 /** DrawPoly(params: void * center, int sides, float radius, float rotation, void * color -> void) */
 void rl_DrawPoly(void * center, int sides, float radius, float rotation, void * color) {
-  DrawPoly(((rl_Vector2 *)center)->v, sides, radius, rotation, ((rl_Color*)color)->c);
+  DrawPoly(*RL_V2(center), sides, radius, rotation, ((rl_Color*)color)->c);
 }
 /** DrawPolyLines(params: void * center, int sides, float radius, float rotation, void * color -> void) */
 void rl_DrawPolyLines(void * center, int sides, float radius, float rotation, void * color) {
-  DrawPolyLines(((rl_Vector2 *)center)->v, sides, radius, rotation, ((rl_Color*)color)->c);
+  DrawPolyLines(*RL_V2(center), sides, radius, rotation, ((rl_Color*)color)->c);
 }
 /** DrawPolyLinesEx(params: void * center, int sides, float radius, float rotation, float thick, void * color -> void) */
 void rl_DrawPolyLinesEx(void * center, int sides, float radius, float rotation, float thick, void * color) {
-  DrawPolyLinesEx(((rl_Vector2 *)center)->v, sides, radius, rotation, thick, ((rl_Color*)color)->c);
+  DrawPolyLinesEx(*RL_V2(center), sides, radius, rotation, thick, ((rl_Color*)color)->c);
 }
 /** DrawCircle(params: int centerX, int centerY, float radius, void * color -> void) */
 void rl_DrawCircle(int centerX, int centerY, float radius, void * color) {
@@ -1200,19 +1284,19 @@ void rl_DrawCircle(int centerX, int centerY, float radius, void * color) {
 }
 /** DrawCircleGradient(params: void * center, float radius, void * inner, void * outer -> void) */
 void rl_DrawCircleGradient(void * center, float radius, void * inner, void * outer) {
-  DrawCircleGradient(((rl_Vector2 *)center)->v, radius, ((rl_Color*)inner)->c, ((rl_Color*)outer)->c);
+  DrawCircleGradient(*RL_V2(center), radius, ((rl_Color*)inner)->c, ((rl_Color*)outer)->c);
 }
 /** DrawCircleSector(params: void * center, float radius, float startAngle, float endAngle, int segments, void * color -> void) */
 void rl_DrawCircleSector(void * center, float radius, float startAngle, float endAngle, int segments, void * color) {
-  DrawCircleSector(((rl_Vector2 *)center)->v, radius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
+  DrawCircleSector(*RL_V2(center), radius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
 }
 /** DrawCircleSectorLines(params: void * center, float radius, float startAngle, float endAngle, int segments, void * color -> void) */
 void rl_DrawCircleSectorLines(void * center, float radius, float startAngle, float endAngle, int segments, void * color) {
-  DrawCircleSectorLines(((rl_Vector2 *)center)->v, radius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
+  DrawCircleSectorLines(*RL_V2(center), radius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
 }
 /** DrawCircleSectorLinesEx(params: void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void rl_DrawCircleSectorLinesEx(void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawCircleSectorLinesEx(((rl_Vector2 *)center)->v, radius, startAngle, endAngle, segments, thick, ((rl_Color*)color)->c);
+  DrawCircleSectorLinesEx(*RL_V2(center), radius, startAngle, endAngle, segments, thick, ((rl_Color*)color)->c);
 }
 /** DrawCircleLines(params: int centerX, int centerY, float radius, void * color -> void) */
 void rl_DrawCircleLines(int centerX, int centerY, float radius, void * color) {
@@ -1220,11 +1304,11 @@ void rl_DrawCircleLines(int centerX, int centerY, float radius, void * color) {
 }
 /** DrawCircleLinesV(params: void * center, float radius, void * color -> void) */
 void rl_DrawCircleLinesV(void * center, float radius, void * color) {
-  DrawCircleLinesV(((rl_Vector2 *)center)->v, radius, ((rl_Color*)color)->c);
+  DrawCircleLinesV(*RL_V2(center), radius, ((rl_Color*)color)->c);
 }
 /** DrawCircleLinesEx(params: void * center, float radius, float thick, void * color -> void) */
 void rl_DrawCircleLinesEx(void * center, float radius, float thick, void * color) {
-  DrawCircleLinesEx(((rl_Vector2 *)center)->v, radius, thick, ((rl_Color*)color)->c);
+  DrawCircleLinesEx(*RL_V2(center), radius, thick, ((rl_Color*)color)->c);
 }
 /** DrawEllipse(params: int centerX, int centerY, float radiusH, float radiusV, void * color -> void) */
 void rl_DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, void * color) {
@@ -1232,7 +1316,7 @@ void rl_DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, void
 }
 /** DrawEllipseV(params: void * center, float radiusH, float radiusV, void * color -> void) */
 void rl_DrawEllipseV(void * center, float radiusH, float radiusV, void * color) {
-  DrawEllipseV(((rl_Vector2 *)center)->v, radiusH, radiusV, ((rl_Color*)color)->c);
+  DrawEllipseV(*RL_V2(center), radiusH, radiusV, ((rl_Color*)color)->c);
 }
 /** DrawEllipseLines(params: int centerX, int centerY, float radiusH, float radiusV, void * color -> void) */
 void rl_DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, void * color) {
@@ -1240,23 +1324,23 @@ void rl_DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV,
 }
 /** DrawEllipseLinesV(params: void * center, float radiusH, float radiusV, void * color -> void) */
 void rl_DrawEllipseLinesV(void * center, float radiusH, float radiusV, void * color) {
-  DrawEllipseLinesV(((rl_Vector2 *)center)->v, radiusH, radiusV, ((rl_Color*)color)->c);
+  DrawEllipseLinesV(*RL_V2(center), radiusH, radiusV, ((rl_Color*)color)->c);
 }
 /** DrawEllipseLinesEx(params: void * center, float radiusH, float radiusV, float thick, void * color -> void) */
 void rl_DrawEllipseLinesEx(void * center, float radiusH, float radiusV, float thick, void * color) {
-  DrawEllipseLinesEx(((rl_Vector2 *)center)->v, radiusH, radiusV, thick, ((rl_Color*)color)->c);
+  DrawEllipseLinesEx(*RL_V2(center), radiusH, radiusV, thick, ((rl_Color*)color)->c);
 }
 /** DrawRing(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color -> void) */
 void rl_DrawRing(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color) {
-  DrawRing(((rl_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
+  DrawRing(*RL_V2(center), innerRadius, outerRadius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
 }
 /** DrawRingLines(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color -> void) */
 void rl_DrawRingLines(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color) {
-  DrawRingLines(((rl_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
+  DrawRingLines(*RL_V2(center), innerRadius, outerRadius, startAngle, endAngle, segments, ((rl_Color*)color)->c);
 }
 /** DrawRingLinesEx(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void rl_DrawRingLinesEx(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawRingLinesEx(((rl_Vector2 *)center)->v, innerRadius, outerRadius, startAngle, endAngle, segments, thick, ((rl_Color*)color)->c);
+  DrawRingLinesEx(*RL_V2(center), innerRadius, outerRadius, startAngle, endAngle, segments, thick, ((rl_Color*)color)->c);
 }
 /** DrawSplineLinear(params: void * points, int pointCount, float thick, void * color -> void) */
 void rl_DrawSplineLinear(void * points, int pointCount, float thick, void * color) {
@@ -1280,43 +1364,43 @@ void rl_DrawSplineBezierCubic(void * points, int pointCount, float thick, void *
 }
 /** DrawSplineSegmentLinear(params: void * p1, void * p2, float thick, void * color -> void) */
 void rl_DrawSplineSegmentLinear(void * p1, void * p2, float thick, void * color) {
-  DrawSplineSegmentLinear(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, thick, ((rl_Color*)color)->c);
+  DrawSplineSegmentLinear(*RL_V2(p1), *RL_V2(p2), thick, ((rl_Color*)color)->c);
 }
 /** DrawSplineSegmentBasis(params: void * p1, void * p2, void * p3, void * p4, float thick, void * color -> void) */
 void rl_DrawSplineSegmentBasis(void * p1, void * p2, void * p3, void * p4, float thick, void * color) {
-  DrawSplineSegmentBasis(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, ((rl_Vector2 *)p3)->v, ((rl_Vector2 *)p4)->v, thick, ((rl_Color*)color)->c);
+  DrawSplineSegmentBasis(*RL_V2(p1), *RL_V2(p2), *RL_V2(p3), *RL_V2(p4), thick, ((rl_Color*)color)->c);
 }
 /** DrawSplineSegmentCatmullRom(params: void * p1, void * p2, void * p3, void * p4, float thick, void * color -> void) */
 void rl_DrawSplineSegmentCatmullRom(void * p1, void * p2, void * p3, void * p4, float thick, void * color) {
-  DrawSplineSegmentCatmullRom(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, ((rl_Vector2 *)p3)->v, ((rl_Vector2 *)p4)->v, thick, ((rl_Color*)color)->c);
+  DrawSplineSegmentCatmullRom(*RL_V2(p1), *RL_V2(p2), *RL_V2(p3), *RL_V2(p4), thick, ((rl_Color*)color)->c);
 }
 /** DrawSplineSegmentBezierQuadratic(params: void * p1, void * c2, void * p3, float thick, void * color -> void) */
 void rl_DrawSplineSegmentBezierQuadratic(void * p1, void * c2, void * p3, float thick, void * color) {
-  DrawSplineSegmentBezierQuadratic(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)c2)->v, ((rl_Vector2 *)p3)->v, thick, ((rl_Color*)color)->c);
+  DrawSplineSegmentBezierQuadratic(*RL_V2(p1), *RL_V2(c2), *RL_V2(p3), thick, ((rl_Color*)color)->c);
 }
 /** DrawSplineSegmentBezierCubic(params: void * p1, void * c2, void * c3, void * p4, float thick, void * color -> void) */
 void rl_DrawSplineSegmentBezierCubic(void * p1, void * c2, void * c3, void * p4, float thick, void * color) {
-  DrawSplineSegmentBezierCubic(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)c2)->v, ((rl_Vector2 *)c3)->v, ((rl_Vector2 *)p4)->v, thick, ((rl_Color*)color)->c);
+  DrawSplineSegmentBezierCubic(*RL_V2(p1), *RL_V2(c2), *RL_V2(c3), *RL_V2(p4), thick, ((rl_Color*)color)->c);
 }
 /** GetSplinePointLinear(params: void * startPos, void * endPos, float t, void * _out -> void) */
 void rl_GetSplinePointLinear(void * startPos, void * endPos, float t, void * _out) {
-  ((rl_Vector2*)_out)->v = GetSplinePointLinear(((rl_Vector2 *)startPos)->v, ((rl_Vector2 *)endPos)->v, t);
+  *RL_V2(_out) = GetSplinePointLinear(*RL_V2(startPos), *RL_V2(endPos), t);
 }
 /** GetSplinePointBasis(params: void * p1, void * p2, void * p3, void * p4, float t, void * _out -> void) */
 void rl_GetSplinePointBasis(void * p1, void * p2, void * p3, void * p4, float t, void * _out) {
-  ((rl_Vector2*)_out)->v = GetSplinePointBasis(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, ((rl_Vector2 *)p3)->v, ((rl_Vector2 *)p4)->v, t);
+  *RL_V2(_out) = GetSplinePointBasis(*RL_V2(p1), *RL_V2(p2), *RL_V2(p3), *RL_V2(p4), t);
 }
 /** GetSplinePointCatmullRom(params: void * p1, void * p2, void * p3, void * p4, float t, void * _out -> void) */
 void rl_GetSplinePointCatmullRom(void * p1, void * p2, void * p3, void * p4, float t, void * _out) {
-  ((rl_Vector2*)_out)->v = GetSplinePointCatmullRom(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, ((rl_Vector2 *)p3)->v, ((rl_Vector2 *)p4)->v, t);
+  *RL_V2(_out) = GetSplinePointCatmullRom(*RL_V2(p1), *RL_V2(p2), *RL_V2(p3), *RL_V2(p4), t);
 }
 /** GetSplinePointBezierQuadratic(params: void * p1, void * c2, void * p3, float t, void * _out -> void) */
 void rl_GetSplinePointBezierQuadratic(void * p1, void * c2, void * p3, float t, void * _out) {
-  ((rl_Vector2*)_out)->v = GetSplinePointBezierQuadratic(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)c2)->v, ((rl_Vector2 *)p3)->v, t);
+  *RL_V2(_out) = GetSplinePointBezierQuadratic(*RL_V2(p1), *RL_V2(c2), *RL_V2(p3), t);
 }
 /** GetSplinePointBezierCubic(params: void * p1, void * c2, void * c3, void * p4, float t, void * _out -> void) */
 void rl_GetSplinePointBezierCubic(void * p1, void * c2, void * c3, void * p4, float t, void * _out) {
-  ((rl_Vector2*)_out)->v = GetSplinePointBezierCubic(((rl_Vector2 *)p1)->v, ((rl_Vector2 *)c2)->v, ((rl_Vector2 *)c3)->v, ((rl_Vector2 *)p4)->v, t);
+  *RL_V2(_out) = GetSplinePointBezierCubic(*RL_V2(p1), *RL_V2(c2), *RL_V2(c3), *RL_V2(p4), t);
 }
 /** CheckCollisionRecs(params: void * rec1, void * rec2 -> _Bool) */
 _Bool rl_CheckCollisionRecs(void * rec1, void * rec2) {
@@ -1324,39 +1408,39 @@ _Bool rl_CheckCollisionRecs(void * rec1, void * rec2) {
 }
 /** CheckCollisionCircles(params: void * center1, float radius1, void * center2, float radius2 -> _Bool) */
 _Bool rl_CheckCollisionCircles(void * center1, float radius1, void * center2, float radius2) {
-  return CheckCollisionCircles(((rl_Vector2 *)center1)->v, radius1, ((rl_Vector2 *)center2)->v, radius2);
+  return CheckCollisionCircles(*RL_V2(center1), radius1, *RL_V2(center2), radius2);
 }
 /** CheckCollisionCircleRec(params: void * center, float radius, void * rec -> _Bool) */
 _Bool rl_CheckCollisionCircleRec(void * center, float radius, void * rec) {
-  return CheckCollisionCircleRec(((rl_Vector2 *)center)->v, radius, ((rl_Rectangle*)rec)->v);
+  return CheckCollisionCircleRec(*RL_V2(center), radius, ((rl_Rectangle*)rec)->v);
 }
 /** CheckCollisionCircleLine(params: void * center, float radius, void * p1, void * p2 -> _Bool) */
 _Bool rl_CheckCollisionCircleLine(void * center, float radius, void * p1, void * p2) {
-  return CheckCollisionCircleLine(((rl_Vector2 *)center)->v, radius, ((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v);
+  return CheckCollisionCircleLine(*RL_V2(center), radius, *RL_V2(p1), *RL_V2(p2));
 }
 /** CheckCollisionPointRec(params: void * point, void * rec -> _Bool) */
 _Bool rl_CheckCollisionPointRec(void * point, void * rec) {
-  return CheckCollisionPointRec(((rl_Vector2 *)point)->v, ((rl_Rectangle*)rec)->v);
+  return CheckCollisionPointRec(*RL_V2(point), ((rl_Rectangle*)rec)->v);
 }
 /** CheckCollisionPointCircle(params: void * point, void * center, float radius -> _Bool) */
 _Bool rl_CheckCollisionPointCircle(void * point, void * center, float radius) {
-  return CheckCollisionPointCircle(((rl_Vector2 *)point)->v, ((rl_Vector2 *)center)->v, radius);
+  return CheckCollisionPointCircle(*RL_V2(point), *RL_V2(center), radius);
 }
 /** CheckCollisionPointTriangle(params: void * point, void * p1, void * p2, void * p3 -> _Bool) */
 _Bool rl_CheckCollisionPointTriangle(void * point, void * p1, void * p2, void * p3) {
-  return CheckCollisionPointTriangle(((rl_Vector2 *)point)->v, ((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, ((rl_Vector2 *)p3)->v);
+  return CheckCollisionPointTriangle(*RL_V2(point), *RL_V2(p1), *RL_V2(p2), *RL_V2(p3));
 }
 /** CheckCollisionPointLine(params: void * point, void * p1, void * p2, int threshold -> _Bool) */
 _Bool rl_CheckCollisionPointLine(void * point, void * p1, void * p2, int threshold) {
-  return CheckCollisionPointLine(((rl_Vector2 *)point)->v, ((rl_Vector2 *)p1)->v, ((rl_Vector2 *)p2)->v, threshold);
+  return CheckCollisionPointLine(*RL_V2(point), *RL_V2(p1), *RL_V2(p2), threshold);
 }
 /** CheckCollisionPointPoly(params: void * point, void * points, int pointCount -> _Bool) */
 _Bool rl_CheckCollisionPointPoly(void * point, void * points, int pointCount) {
-  return CheckCollisionPointPoly(((rl_Vector2 *)point)->v, points, pointCount);
+  return CheckCollisionPointPoly(*RL_V2(point), points, pointCount);
 }
 /** CheckCollisionLines(params: void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint -> _Bool) */
 _Bool rl_CheckCollisionLines(void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint) {
-  return CheckCollisionLines(((rl_Vector2 *)startPos1)->v, ((rl_Vector2 *)endPos1)->v, ((rl_Vector2 *)startPos2)->v, ((rl_Vector2 *)endPos2)->v, collisionPoint);
+  return CheckCollisionLines(*RL_V2(startPos1), *RL_V2(endPos1), *RL_V2(startPos2), *RL_V2(endPos2), collisionPoint);
 }
 /** GetCollisionRec(params: void * rec1, void * rec2, void * _out -> void) */
 void rl_GetCollisionRec(void * rec1, void * rec2, void * _out) {
@@ -1591,7 +1675,7 @@ void rl_ImageDrawPixel(void * dst, int posX, int posY, void * color) {
 }
 /** ImageDrawPixelV(params: void * dst, void * position, void * color -> void) */
 void rl_ImageDrawPixelV(void * dst, void * position, void * color) {
-  ImageDrawPixelV(dst, ((rl_Vector2 *)position)->v, ((rl_Color*)color)->c);
+  ImageDrawPixelV(dst, *RL_V2(position), ((rl_Color*)color)->c);
 }
 /** ImageDrawLine(params: void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color -> void) */
 void rl_ImageDrawLine(void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color) {
@@ -1599,11 +1683,11 @@ void rl_ImageDrawLine(void * dst, int startPosX, int startPosY, int endPosX, int
 }
 /** ImageDrawLineV(params: void * dst, void * start, void * end, void * color -> void) */
 void rl_ImageDrawLineV(void * dst, void * start, void * end, void * color) {
-  ImageDrawLineV(dst, ((rl_Vector2 *)start)->v, ((rl_Vector2 *)end)->v, ((rl_Color*)color)->c);
+  ImageDrawLineV(dst, *RL_V2(start), *RL_V2(end), ((rl_Color*)color)->c);
 }
 /** ImageDrawLineEx(params: void * dst, void * start, void * end, int thick, void * color -> void) */
 void rl_ImageDrawLineEx(void * dst, void * start, void * end, int thick, void * color) {
-  ImageDrawLineEx(dst, ((rl_Vector2 *)start)->v, ((rl_Vector2 *)end)->v, thick, ((rl_Color*)color)->c);
+  ImageDrawLineEx(dst, *RL_V2(start), *RL_V2(end), thick, ((rl_Color*)color)->c);
 }
 /** ImageDrawLineStrip(params: void * dst, void * points, int pointCount, void * color -> void) */
 void rl_ImageDrawLineStrip(void * dst, void * points, int pointCount, void * color) {
@@ -1611,15 +1695,15 @@ void rl_ImageDrawLineStrip(void * dst, void * points, int pointCount, void * col
 }
 /** ImageDrawTriangle(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void rl_ImageDrawTriangle(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangle(dst, ((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, ((rl_Color*)color)->c);
+  ImageDrawTriangle(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), ((rl_Color*)color)->c);
 }
 /** ImageDrawTriangleGradient(params: void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3 -> void) */
 void rl_ImageDrawTriangleGradient(void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3) {
-  ImageDrawTriangleGradient(dst, ((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, ((rl_Color*)c1)->c, ((rl_Color*)c2)->c, ((rl_Color*)c3)->c);
+  ImageDrawTriangleGradient(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), ((rl_Color*)c1)->c, ((rl_Color*)c2)->c, ((rl_Color*)c3)->c);
 }
 /** ImageDrawTriangleLines(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void rl_ImageDrawTriangleLines(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangleLines(dst, ((rl_Vector2 *)v1)->v, ((rl_Vector2 *)v2)->v, ((rl_Vector2 *)v3)->v, ((rl_Color*)color)->c);
+  ImageDrawTriangleLines(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), ((rl_Color*)color)->c);
 }
 /** ImageDrawTriangleFan(params: void * dst, void * points, int pointCount, void * color -> void) */
 void rl_ImageDrawTriangleFan(void * dst, void * points, int pointCount, void * color) {
@@ -1635,7 +1719,7 @@ void rl_ImageDrawRectangle(void * dst, int posX, int posY, int width, int height
 }
 /** ImageDrawRectangleV(params: void * dst, void * position, void * size, void * color -> void) */
 void rl_ImageDrawRectangleV(void * dst, void * position, void * size, void * color) {
-  ImageDrawRectangleV(dst, ((rl_Vector2 *)position)->v, ((rl_Vector2 *)size)->v, ((rl_Color*)color)->c);
+  ImageDrawRectangleV(dst, *RL_V2(position), *RL_V2(size), ((rl_Color*)color)->c);
 }
 /** ImageDrawRectangleRec(params: void * dst, void * rec, void * color -> void) */
 void rl_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
@@ -1643,7 +1727,7 @@ void rl_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
 }
 /** ImageDrawRectanglePro(params: void * dst, void * rec, void * origin, float rotation, void * color -> void) */
 void rl_ImageDrawRectanglePro(void * dst, void * rec, void * origin, float rotation, void * color) {
-  ImageDrawRectanglePro(dst, ((rl_Rectangle*)rec)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)color)->c);
+  ImageDrawRectanglePro(dst, ((rl_Rectangle*)rec)->v, *RL_V2(origin), rotation, ((rl_Color*)color)->c);
 }
 /** ImageDrawRectangleLines(params: void * dst, int posX, int posY, int width, int height, void * color -> void) */
 void rl_ImageDrawRectangleLines(void * dst, int posX, int posY, int width, int height, void * color) {
@@ -1663,7 +1747,7 @@ void rl_ImageDrawCircle(void * dst, int centerX, int centerY, int radius, void *
 }
 /** ImageDrawCircleV(params: void * dst, void * center, int radius, void * color -> void) */
 void rl_ImageDrawCircleV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleV(dst, ((rl_Vector2 *)center)->v, radius, ((rl_Color*)color)->c);
+  ImageDrawCircleV(dst, *RL_V2(center), radius, ((rl_Color*)color)->c);
 }
 /** ImageDrawCircleLines(params: void * dst, int centerX, int centerY, int radius, void * color -> void) */
 void rl_ImageDrawCircleLines(void * dst, int centerX, int centerY, int radius, void * color) {
@@ -1671,11 +1755,11 @@ void rl_ImageDrawCircleLines(void * dst, int centerX, int centerY, int radius, v
 }
 /** ImageDrawCircleLinesV(params: void * dst, void * center, int radius, void * color -> void) */
 void rl_ImageDrawCircleLinesV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleLinesV(dst, ((rl_Vector2 *)center)->v, radius, ((rl_Color*)color)->c);
+  ImageDrawCircleLinesV(dst, *RL_V2(center), radius, ((rl_Color*)color)->c);
 }
 /** ImageDrawCircleGradient(params: void * dst, void * center, float radius, void * inner, void * outer -> void) */
 void rl_ImageDrawCircleGradient(void * dst, void * center, float radius, void * inner, void * outer) {
-  ImageDrawCircleGradient(dst, ((rl_Vector2 *)center)->v, radius, ((rl_Color*)inner)->c, ((rl_Color*)outer)->c);
+  ImageDrawCircleGradient(dst, *RL_V2(center), radius, ((rl_Color*)inner)->c, ((rl_Color*)outer)->c);
 }
 /** ImageDrawImage(params: void * dst, void * src, int posX, int posY, void * tint -> void) */
 void rl_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) {
@@ -1683,15 +1767,15 @@ void rl_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) 
 }
 /** ImageDrawImageEx(params: void * dst, void * src, void * position, float rotation, float scale, void * tint -> void) */
 void rl_ImageDrawImageEx(void * dst, void * src, void * position, float rotation, float scale, void * tint) {
-  ImageDrawImageEx(dst, *(Image *)src, ((rl_Vector2 *)position)->v, rotation, scale, ((rl_Color*)tint)->c);
+  ImageDrawImageEx(dst, *(Image *)src, *RL_V2(position), rotation, scale, ((rl_Color*)tint)->c);
 }
 /** ImageDrawImageRec(params: void * dst, void * src, void * srcRec, void * position, void * tint -> void) */
 void rl_ImageDrawImageRec(void * dst, void * src, void * srcRec, void * position, void * tint) {
-  ImageDrawImageRec(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, ((rl_Vector2 *)position)->v, ((rl_Color*)tint)->c);
+  ImageDrawImageRec(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** ImageDrawImagePro(params: void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint -> void) */
 void rl_ImageDrawImagePro(void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint) {
-  ImageDrawImagePro(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, ((rl_Rectangle*)dstRec)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)tint)->c);
+  ImageDrawImagePro(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, ((rl_Rectangle*)dstRec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** ImageDrawText(params: void * dst, const char * text, int posX, int posY, int fontSize, void * color -> void) */
 void rl_ImageDrawText(void * dst, const char * text, int posX, int posY, int fontSize, void * color) {
@@ -1699,11 +1783,11 @@ void rl_ImageDrawText(void * dst, const char * text, int posX, int posY, int fon
 }
 /** ImageDrawTextEx(params: void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextEx(void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  ImageDrawTextEx(dst, *(Font *)font, text, ((rl_Vector2 *)position)->v, fontSize, spacing, ((rl_Color*)tint)->c);
+  ImageDrawTextEx(dst, *(Font *)font, text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** ImageDrawTextPro(params: void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextPro(void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  ImageDrawTextPro(dst, *(Font *)font, text, ((rl_Vector2 *)position)->v, ((rl_Vector2 *)origin)->v, rotation, fontSize, spacing, ((rl_Color*)tint)->c);
+  ImageDrawTextPro(dst, *(Font *)font, text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** LoadTextureFromImage(params: void * image -> void *) */
 void * rl_LoadTextureFromImage(void * image) {
@@ -1759,19 +1843,19 @@ void rl_SetTextureWrap(void * texture, int wrap) {
 }
 /** DrawTextureV(params: void * texture, void * position, void * tint -> void) */
 void rl_DrawTextureV(void * texture, void * position, void * tint) {
-  DrawTextureV(*(Texture2D *)texture, ((rl_Vector2 *)position)->v, ((rl_Color*)tint)->c);
+  DrawTextureV(*(Texture2D *)texture, *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** DrawTextureRec(params: void * texture, void * rec, void * position, void * tint -> void) */
 void rl_DrawTextureRec(void * texture, void * rec, void * position, void * tint) {
-  DrawTextureRec(*(Texture2D *)texture, ((rl_Rectangle*)rec)->v, ((rl_Vector2 *)position)->v, ((rl_Color*)tint)->c);
+  DrawTextureRec(*(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** DrawTexturePro(params: void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void rl_DrawTexturePro(void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTexturePro(*(Texture2D *)texture, ((rl_Rectangle*)srcrec)->v, ((rl_Rectangle*)dstrec)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)tint)->c);
+  DrawTexturePro(*(Texture2D *)texture, ((rl_Rectangle*)srcrec)->v, ((rl_Rectangle*)dstrec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** DrawTextureNPatch(params: void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void rl_DrawTextureNPatch(void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTextureNPatch(*(Texture2D *)texture, ((rl_NPatchInfo*)nPatchInfo)->v, ((rl_Rectangle*)dstrec)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)tint)->c);
+  DrawTextureNPatch(*(Texture2D *)texture, ((rl_NPatchInfo*)nPatchInfo)->v, ((rl_Rectangle*)dstrec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** ColorIsEqual(params: void * col1, void * col2 -> _Bool) */
 _Bool rl_ColorIsEqual(void * col1, void * col2) {
@@ -1787,15 +1871,15 @@ int rl_ColorToInt(void * color) {
 }
 /** ColorNormalize(params: void * color, void * _out -> void) */
 void rl_ColorNormalize(void * color, void * _out) {
-  ((rl_Vector4*)_out)->v = ColorNormalize(((rl_Color*)color)->c);
+  *RL_V4(_out) = ColorNormalize(((rl_Color*)color)->c);
 }
 /** ColorFromNormalized(params: void * normalized, void * _out -> void) */
 void rl_ColorFromNormalized(void * normalized, void * _out) {
-  ((rl_Color*)_out)->c = ColorFromNormalized(((rl_Vector4*)normalized)->v);
+  ((rl_Color*)_out)->c = ColorFromNormalized(*RL_V4(normalized));
 }
 /** ColorToHSV(params: void * color, void * _out -> void) */
 void rl_ColorToHSV(void * color, void * _out) {
-  ((rl_Vector3*)_out)->v = ColorToHSV(((rl_Color*)color)->c);
+  *RL_V3(_out) = ColorToHSV(((rl_Color*)color)->c);
 }
 /** ColorFromHSV(params: float hue, float saturation, float value, void * _out -> void) */
 void rl_ColorFromHSV(float hue, float saturation, float value, void * _out) {
@@ -1889,27 +1973,27 @@ _Bool rl_ExportFontAsCode(void * font, const char * fileName) {
 }
 /** DrawTextEx(params: void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextEx(void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextEx(*(Font *)font, text, ((rl_Vector2 *)position)->v, fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextEx(*(Font *)font, text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** DrawTextPro(params: void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextPro(void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  DrawTextPro(*(Font *)font, text, ((rl_Vector2 *)position)->v, ((rl_Vector2 *)origin)->v, rotation, fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextPro(*(Font *)font, text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** DrawTextCodepoint(params: void * font, int codepoint, void * position, float fontSize, void * tint -> void) */
 void rl_DrawTextCodepoint(void * font, int codepoint, void * position, float fontSize, void * tint) {
-  DrawTextCodepoint(*(Font *)font, codepoint, ((rl_Vector2 *)position)->v, fontSize, ((rl_Color*)tint)->c);
+  DrawTextCodepoint(*(Font *)font, codepoint, *RL_V2(position), fontSize, ((rl_Color*)tint)->c);
 }
 /** DrawTextCodepoints(params: void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextCodepoints(void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextCodepoints(*(Font *)font, codepoints, codepointCount, ((rl_Vector2 *)position)->v, fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextCodepoints(*(Font *)font, codepoints, codepointCount, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** MeasureTextEx(params: void * font, const char * text, float fontSize, float spacing, void * _out -> void) */
 void rl_MeasureTextEx(void * font, const char * text, float fontSize, float spacing, void * _out) {
-  ((rl_Vector2*)_out)->v = MeasureTextEx(*(Font *)font, text, fontSize, spacing);
+  *RL_V2(_out) = MeasureTextEx(*(Font *)font, text, fontSize, spacing);
 }
 /** MeasureTextCodepoints(params: void * font, void * codepoints, int length, float fontSize, float spacing, void * _out -> void) */
 void rl_MeasureTextCodepoints(void * font, void * codepoints, int length, float fontSize, float spacing, void * _out) {
-  ((rl_Vector2*)_out)->v = MeasureTextCodepoints(*(Font *)font, codepoints, length, fontSize, spacing);
+  *RL_V2(_out) = MeasureTextCodepoints(*(Font *)font, codepoints, length, fontSize, spacing);
 }
 /** GetGlyphIndex(params: void * font, int codepoint -> int) */
 int rl_GetGlyphIndex(void * font, int codepoint) {
@@ -1927,19 +2011,19 @@ void rl_GetGlyphAtlasRec(void * font, int codepoint, void * _out) {
 }
 /** DrawLine3D(params: void * startPos, void * endPos, void * color -> void) */
 void rl_DrawLine3D(void * startPos, void * endPos, void * color) {
-  DrawLine3D(((rl_Vector3*)startPos)->v, ((rl_Vector3*)endPos)->v, ((rl_Color*)color)->c);
+  DrawLine3D(*RL_V3(startPos), *RL_V3(endPos), ((rl_Color*)color)->c);
 }
 /** DrawPoint3D(params: void * position, void * color -> void) */
 void rl_DrawPoint3D(void * position, void * color) {
-  DrawPoint3D(((rl_Vector3*)position)->v, ((rl_Color*)color)->c);
+  DrawPoint3D(*RL_V3(position), ((rl_Color*)color)->c);
 }
 /** DrawCircle3D(params: void * center, float radius, void * rotationAxis, float rotationAngle, void * color -> void) */
 void rl_DrawCircle3D(void * center, float radius, void * rotationAxis, float rotationAngle, void * color) {
-  DrawCircle3D(((rl_Vector3*)center)->v, radius, ((rl_Vector3*)rotationAxis)->v, rotationAngle, ((rl_Color*)color)->c);
+  DrawCircle3D(*RL_V3(center), radius, *RL_V3(rotationAxis), rotationAngle, ((rl_Color*)color)->c);
 }
 /** DrawTriangle3D(params: void * v1, void * v2, void * v3, void * color -> void) */
 void rl_DrawTriangle3D(void * v1, void * v2, void * v3, void * color) {
-  DrawTriangle3D(((rl_Vector3*)v1)->v, ((rl_Vector3*)v2)->v, ((rl_Vector3*)v3)->v, ((rl_Color*)color)->c);
+  DrawTriangle3D(*RL_V3(v1), *RL_V3(v2), *RL_V3(v3), ((rl_Color*)color)->c);
 }
 /** DrawTriangleStrip3D(params: void * points, int pointCount, void * color -> void) */
 void rl_DrawTriangleStrip3D(void * points, int pointCount, void * color) {
@@ -1947,47 +2031,47 @@ void rl_DrawTriangleStrip3D(void * points, int pointCount, void * color) {
 }
 /** DrawCubeV(params: void * position, void * size, void * color -> void) */
 void rl_DrawCubeV(void * position, void * size, void * color) {
-  DrawCubeV(((rl_Vector3*)position)->v, ((rl_Vector3*)size)->v, ((rl_Color*)color)->c);
+  DrawCubeV(*RL_V3(position), *RL_V3(size), ((rl_Color*)color)->c);
 }
 /** DrawCubeWiresV(params: void * position, void * size, void * color -> void) */
 void rl_DrawCubeWiresV(void * position, void * size, void * color) {
-  DrawCubeWiresV(((rl_Vector3*)position)->v, ((rl_Vector3*)size)->v, ((rl_Color*)color)->c);
+  DrawCubeWiresV(*RL_V3(position), *RL_V3(size), ((rl_Color*)color)->c);
 }
 /** DrawSphere(params: void * centerPos, float radius, void * color -> void) */
 void rl_DrawSphere(void * centerPos, float radius, void * color) {
-  DrawSphere(((rl_Vector3*)centerPos)->v, radius, ((rl_Color*)color)->c);
+  DrawSphere(*RL_V3(centerPos), radius, ((rl_Color*)color)->c);
 }
 /** DrawSphereEx(params: void * centerPos, float radius, int rings, int slices, void * color -> void) */
 void rl_DrawSphereEx(void * centerPos, float radius, int rings, int slices, void * color) {
-  DrawSphereEx(((rl_Vector3*)centerPos)->v, radius, rings, slices, ((rl_Color*)color)->c);
+  DrawSphereEx(*RL_V3(centerPos), radius, rings, slices, ((rl_Color*)color)->c);
 }
 /** DrawSphereWires(params: void * centerPos, float radius, int rings, int slices, void * color -> void) */
 void rl_DrawSphereWires(void * centerPos, float radius, int rings, int slices, void * color) {
-  DrawSphereWires(((rl_Vector3*)centerPos)->v, radius, rings, slices, ((rl_Color*)color)->c);
+  DrawSphereWires(*RL_V3(centerPos), radius, rings, slices, ((rl_Color*)color)->c);
 }
 /** DrawCylinder(params: void * position, float radiusTop, float radiusBottom, float height, int sides, void * color -> void) */
 void rl_DrawCylinder(void * position, float radiusTop, float radiusBottom, float height, int sides, void * color) {
-  DrawCylinder(((rl_Vector3*)position)->v, radiusTop, radiusBottom, height, sides, ((rl_Color*)color)->c);
+  DrawCylinder(*RL_V3(position), radiusTop, radiusBottom, height, sides, ((rl_Color*)color)->c);
 }
 /** DrawCylinderEx(params: void * startPos, void * endPos, float startRadius, float endRadius, int sides, void * color -> void) */
 void rl_DrawCylinderEx(void * startPos, void * endPos, float startRadius, float endRadius, int sides, void * color) {
-  DrawCylinderEx(((rl_Vector3*)startPos)->v, ((rl_Vector3*)endPos)->v, startRadius, endRadius, sides, ((rl_Color*)color)->c);
+  DrawCylinderEx(*RL_V3(startPos), *RL_V3(endPos), startRadius, endRadius, sides, ((rl_Color*)color)->c);
 }
 /** DrawCylinderWires(params: void * position, float radiusTop, float radiusBottom, float height, int sides, void * color -> void) */
 void rl_DrawCylinderWires(void * position, float radiusTop, float radiusBottom, float height, int sides, void * color) {
-  DrawCylinderWires(((rl_Vector3*)position)->v, radiusTop, radiusBottom, height, sides, ((rl_Color*)color)->c);
+  DrawCylinderWires(*RL_V3(position), radiusTop, radiusBottom, height, sides, ((rl_Color*)color)->c);
 }
 /** DrawCylinderWiresEx(params: void * startPos, void * endPos, float startRadius, float endRadius, int sides, void * color -> void) */
 void rl_DrawCylinderWiresEx(void * startPos, void * endPos, float startRadius, float endRadius, int sides, void * color) {
-  DrawCylinderWiresEx(((rl_Vector3*)startPos)->v, ((rl_Vector3*)endPos)->v, startRadius, endRadius, sides, ((rl_Color*)color)->c);
+  DrawCylinderWiresEx(*RL_V3(startPos), *RL_V3(endPos), startRadius, endRadius, sides, ((rl_Color*)color)->c);
 }
 /** DrawCapsule(params: void * startPos, void * endPos, float radius, int rings, int slices, void * color -> void) */
 void rl_DrawCapsule(void * startPos, void * endPos, float radius, int rings, int slices, void * color) {
-  DrawCapsule(((rl_Vector3*)startPos)->v, ((rl_Vector3*)endPos)->v, radius, rings, slices, ((rl_Color*)color)->c);
+  DrawCapsule(*RL_V3(startPos), *RL_V3(endPos), radius, rings, slices, ((rl_Color*)color)->c);
 }
 /** DrawCapsuleWires(params: void * startPos, void * endPos, float radius, int rings, int slices, void * color -> void) */
 void rl_DrawCapsuleWires(void * startPos, void * endPos, float radius, int rings, int slices, void * color) {
-  DrawCapsuleWires(((rl_Vector3*)startPos)->v, ((rl_Vector3*)endPos)->v, radius, rings, slices, ((rl_Color*)color)->c);
+  DrawCapsuleWires(*RL_V3(startPos), *RL_V3(endPos), radius, rings, slices, ((rl_Color*)color)->c);
 }
 /** DrawRay(params: void * ray, void * color -> void) */
 void rl_DrawRay(void * ray, void * color) {
@@ -2021,19 +2105,19 @@ void rl_GetModelBoundingBox(void * model, void * _out) {
 }
 /** DrawModel(params: void * model, void * position, float scale, void * tint -> void) */
 void rl_DrawModel(void * model, void * position, float scale, void * tint) {
-  DrawModel(*(Model *)model, ((rl_Vector3*)position)->v, scale, ((rl_Color*)tint)->c);
+  DrawModel(*(Model *)model, *RL_V3(position), scale, ((rl_Color*)tint)->c);
 }
 /** DrawModelEx(params: void * model, void * position, void * rotationAxis, float rotationAngle, void * scale, void * tint -> void) */
 void rl_DrawModelEx(void * model, void * position, void * rotationAxis, float rotationAngle, void * scale, void * tint) {
-  DrawModelEx(*(Model *)model, ((rl_Vector3*)position)->v, ((rl_Vector3*)rotationAxis)->v, rotationAngle, ((rl_Vector3*)scale)->v, ((rl_Color*)tint)->c);
+  DrawModelEx(*(Model *)model, *RL_V3(position), *RL_V3(rotationAxis), rotationAngle, *RL_V3(scale), ((rl_Color*)tint)->c);
 }
 /** DrawModelWires(params: void * model, void * position, float scale, void * tint -> void) */
 void rl_DrawModelWires(void * model, void * position, float scale, void * tint) {
-  DrawModelWires(*(Model *)model, ((rl_Vector3*)position)->v, scale, ((rl_Color*)tint)->c);
+  DrawModelWires(*(Model *)model, *RL_V3(position), scale, ((rl_Color*)tint)->c);
 }
 /** DrawModelWiresEx(params: void * model, void * position, void * rotationAxis, float rotationAngle, void * scale, void * tint -> void) */
 void rl_DrawModelWiresEx(void * model, void * position, void * rotationAxis, float rotationAngle, void * scale, void * tint) {
-  DrawModelWiresEx(*(Model *)model, ((rl_Vector3*)position)->v, ((rl_Vector3*)rotationAxis)->v, rotationAngle, ((rl_Vector3*)scale)->v, ((rl_Color*)tint)->c);
+  DrawModelWiresEx(*(Model *)model, *RL_V3(position), *RL_V3(rotationAxis), rotationAngle, *RL_V3(scale), ((rl_Color*)tint)->c);
 }
 /** DrawBoundingBox(params: void * box, void * color -> void) */
 void rl_DrawBoundingBox(void * box, void * color) {
@@ -2041,15 +2125,15 @@ void rl_DrawBoundingBox(void * box, void * color) {
 }
 /** DrawBillboard(params: void * camera, void * texture, void * position, float scale, void * tint -> void) */
 void rl_DrawBillboard(void * camera, void * texture, void * position, float scale, void * tint) {
-  DrawBillboard(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Vector3*)position)->v, scale, ((rl_Color*)tint)->c);
+  DrawBillboard(((rl_Camera*)camera)->c, *(Texture2D *)texture, *RL_V3(position), scale, ((rl_Color*)tint)->c);
 }
 /** DrawBillboardRec(params: void * camera, void * texture, void * rec, void * position, void * size, void * tint -> void) */
 void rl_DrawBillboardRec(void * camera, void * texture, void * rec, void * position, void * size, void * tint) {
-  DrawBillboardRec(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, ((rl_Vector3*)position)->v, ((rl_Vector2 *)size)->v, ((rl_Color*)tint)->c);
+  DrawBillboardRec(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V3(position), *RL_V2(size), ((rl_Color*)tint)->c);
 }
 /** DrawBillboardPro(params: void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint -> void) */
 void rl_DrawBillboardPro(void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint) {
-  DrawBillboardPro(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, ((rl_Vector3*)position)->v, ((rl_Vector3*)up)->v, ((rl_Vector2 *)size)->v, ((rl_Vector2 *)origin)->v, rotation, ((rl_Color*)tint)->c);
+  DrawBillboardPro(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V3(position), *RL_V3(up), *RL_V2(size), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** UpdateMeshBuffer(params: void * mesh, int index, void * data, int dataSize, int offset -> void) */
 void rl_UpdateMeshBuffer(void * mesh, int index, void * data, int dataSize, int offset) {
@@ -2138,13 +2222,13 @@ void * rl_GenMeshKnot(float radius, float size, int radSeg, int sides) {
 /** GenMeshHeightmap(params: void * heightmap, void * size -> void *) */
 void * rl_GenMeshHeightmap(void * heightmap, void * size) {
   Mesh *r = (Mesh *)malloc(sizeof(Mesh));
-  *r = GenMeshHeightmap(*(Image *)heightmap, ((rl_Vector3*)size)->v);
+  *r = GenMeshHeightmap(*(Image *)heightmap, *RL_V3(size));
   return r;
 }
 /** GenMeshCubicmap(params: void * cubicmap, void * cubeSize -> void *) */
 void * rl_GenMeshCubicmap(void * cubicmap, void * cubeSize) {
   Mesh *r = (Mesh *)malloc(sizeof(Mesh));
-  *r = GenMeshCubicmap(*(Image *)cubicmap, ((rl_Vector3*)cubeSize)->v);
+  *r = GenMeshCubicmap(*(Image *)cubicmap, *RL_V3(cubeSize));
   return r;
 }
 /** LoadMaterialDefault(params: void -> void *) */
@@ -2181,7 +2265,7 @@ _Bool rl_IsModelAnimationValid(void * model, void * anim) {
 }
 /** CheckCollisionSpheres(params: void * center1, float radius1, void * center2, float radius2 -> _Bool) */
 _Bool rl_CheckCollisionSpheres(void * center1, float radius1, void * center2, float radius2) {
-  return CheckCollisionSpheres(((rl_Vector3*)center1)->v, radius1, ((rl_Vector3*)center2)->v, radius2);
+  return CheckCollisionSpheres(*RL_V3(center1), radius1, *RL_V3(center2), radius2);
 }
 /** CheckCollisionBoxes(params: void * box1, void * box2 -> _Bool) */
 _Bool rl_CheckCollisionBoxes(void * box1, void * box2) {
@@ -2189,11 +2273,11 @@ _Bool rl_CheckCollisionBoxes(void * box1, void * box2) {
 }
 /** CheckCollisionBoxSphere(params: void * box, void * center, float radius -> _Bool) */
 _Bool rl_CheckCollisionBoxSphere(void * box, void * center, float radius) {
-  return CheckCollisionBoxSphere(((rl_BoundingBox*)box)->v, ((rl_Vector3*)center)->v, radius);
+  return CheckCollisionBoxSphere(((rl_BoundingBox*)box)->v, *RL_V3(center), radius);
 }
 /** GetRayCollisionSphere(params: void * ray, void * center, float radius, void * _out -> void) */
 void rl_GetRayCollisionSphere(void * ray, void * center, float radius, void * _out) {
-  ((rl_RayCollision*)_out)->v = GetRayCollisionSphere(((rl_Ray*)ray)->v, ((rl_Vector3*)center)->v, radius);
+  ((rl_RayCollision*)_out)->v = GetRayCollisionSphere(((rl_Ray*)ray)->v, *RL_V3(center), radius);
 }
 /** GetRayCollisionBox(params: void * ray, void * box, void * _out -> void) */
 void rl_GetRayCollisionBox(void * ray, void * box, void * _out) {
@@ -2205,11 +2289,11 @@ void rl_GetRayCollisionMesh(void * ray, void * mesh, void * transform, void * _o
 }
 /** GetRayCollisionTriangle(params: void * ray, void * p1, void * p2, void * p3, void * _out -> void) */
 void rl_GetRayCollisionTriangle(void * ray, void * p1, void * p2, void * p3, void * _out) {
-  ((rl_RayCollision*)_out)->v = GetRayCollisionTriangle(((rl_Ray*)ray)->v, ((rl_Vector3*)p1)->v, ((rl_Vector3*)p2)->v, ((rl_Vector3*)p3)->v);
+  ((rl_RayCollision*)_out)->v = GetRayCollisionTriangle(((rl_Ray*)ray)->v, *RL_V3(p1), *RL_V3(p2), *RL_V3(p3));
 }
 /** GetRayCollisionQuad(params: void * ray, void * p1, void * p2, void * p3, void * p4, void * _out -> void) */
 void rl_GetRayCollisionQuad(void * ray, void * p1, void * p2, void * p3, void * p4, void * _out) {
-  ((rl_RayCollision*)_out)->v = GetRayCollisionQuad(((rl_Ray*)ray)->v, ((rl_Vector3*)p1)->v, ((rl_Vector3*)p2)->v, ((rl_Vector3*)p3)->v, ((rl_Vector3*)p4)->v);
+  ((rl_RayCollision*)_out)->v = GetRayCollisionQuad(((rl_Ray*)ray)->v, *RL_V3(p1), *RL_V3(p2), *RL_V3(p3), *RL_V3(p4));
 }
 /** LoadWave(params: const char * fileName -> void *) */
 void * rl_LoadWave(const char * fileName) {
@@ -2480,28 +2564,28 @@ void rl_DetachAudioMixedProcessor(void * processor) {
  * Follows the generator conventions: by-value structs via pointers.
  * ================================================================ */
 void rl_Vector2Add(rl_Vector2 *a, rl_Vector2 *b, rl_Vector2 *out) {
-  out->v = Vector2Add(a->v, b->v);
+  out->v = Vector2Add((*RL_V2(a)), b->v);
 }
 void rl_Vector2Scale(rl_Vector2 *v, double scale, rl_Vector2 *out) {
-  out->v = Vector2Scale(v->v, (float)scale);
+  out->v = Vector2Scale((*RL_V2(v)), (float)scale);
 }
 void rl_Vector2Rotate(rl_Vector2 *v, double angle, rl_Vector2 *out) {
-  out->v = Vector2Rotate(v->v, (float)angle);
+  out->v = Vector2Rotate((*RL_V2(v)), (float)angle);
 }
 void rl_Vector2Normalize(rl_Vector2 *v, rl_Vector2 *out) {
-  out->v = Vector2Normalize(v->v);
+  out->v = Vector2Normalize((*RL_V2(v)));
 }
 /* Return type must match the raymath_ffi.rb ffi_func decls (:float): these
  * hand-written shims win the link over the generator's static duplicates in
  * raymath_adapter.c, so a double return here misreads xmm0 as float garbage. */
 float rl_Vector2Length(rl_Vector2 *v) {
-  return Vector2Length(v->v);
+  return Vector2Length((*RL_V2(v)));
 }
 void rl_Vector2Lerp(rl_Vector2 *a, rl_Vector2 *b, double amount, rl_Vector2 *out) {
-  out->v = Vector2Lerp(a->v, b->v, (float)amount);
+  out->v = Vector2Lerp((*RL_V2(a)), b->v, (float)amount);
 }
 float rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
-  return Vector2Angle(a->v, b->v);
+  return Vector2Angle((*RL_V2(a)), b->v);
 }
 
 /* ---- positional construction fills (Raylib.Vector2/Vector4/Matrix) ----
@@ -2513,10 +2597,10 @@ float rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
  * externs pass C float — the definitions must be float too (a double callee
  * reading a float arg sees zeroed upper bits and loses the value). */
 void rl_Vector2Fill(rl_Vector2 *o, float x, float y) {
-  o->v = (Vector2){ x, y };
+  (*RL_V2(o)) = (Vector2){ x, y };
 }
 void rl_Vector4Fill(rl_Vector4 *o, float x, float y, float z, float w) {
-  o->v = (Vector4){ x, y, z, w };
+  (*RL_V4(o)) = (Vector4){ x, y, z, w };
 }
 void rl_MatrixFill(rl_Matrix *o, float m0, float m4, float m8, float m12,
                    float m1, float m5, float m9, float m13,
@@ -2594,10 +2678,10 @@ int rl_ModelAnimation_frameCount(void *anim) {
 
 /* RayCollision point/normal -> native Vector3 out-param. */
 void rl_RayCollision_point(void *self, void *out) {
-  ((rl_Vector3 *)out)->v = ((rl_RayCollision *)self)->v.point;
+  *RL_V3(out) = ((rl_RayCollision *)self)->v.point;
 }
 void rl_RayCollision_normal(void *self, void *out) {
-  ((rl_Vector3 *)out)->v = ((rl_RayCollision *)self)->v.normal;
+  *RL_V3(out) = ((rl_RayCollision *)self)->v.normal;
 }
 
 /* Camera3D position component reads (native Camera has no field accessors). */
@@ -2618,7 +2702,7 @@ int rl_ImageColorR(void *colors, int index) {
 /* raymath MatrixRotateXYZ on the raylib adapter object (raymath adapter is not
  * linked into scenes). */
 void rl_MatrixRotateXYZ(void *angle, void *out) {
-  ((rl_Matrix *)out)->v = MatrixRotateXYZ(((rl_Vector3 *)angle)->v);
+  ((rl_Matrix *)out)->v = MatrixRotateXYZ(*RL_V3(angle));
 }
 
 /* Circle/rect collision from raw floats (avoids native Rectangle field writes
@@ -2626,7 +2710,7 @@ void rl_MatrixRotateXYZ(void *angle, void *out) {
 _Bool rl_CheckCollisionCircleRecF(void *center, float radius,
                                   float x, float y, float w, float h) {
   Rectangle rec = { x, y, w, h };
-  return CheckCollisionCircleRec(((rl_Vector2 *)center)->v, radius, rec);
+  return CheckCollisionCircleRec(*RL_V2(center), radius, rec);
 }
 
 /* ---- Shader value helpers (SetShaderValue takes a void* value) ---- */
@@ -2659,12 +2743,12 @@ int rl_Model_boneParent(void *model, int index) {
   return ((Model *)model)->skeleton.bones[index].parent;
 }
 void rl_Model_bindPoseTranslation(void *model, int index, void *out) {
-  ((rl_Vector3 *)out)->v =
+  *RL_V3(out) =
     ((Model *)model)->skeleton.bindPose[index].translation;
 }
 void rl_ModelAnimation_framePoseTranslation(void *anim, int frame, int bone,
                                             void *out) {
-  ((rl_Vector3 *)out)->v =
+  *RL_V3(out) =
     ((ModelAnimation *)anim)->keyframePoses[frame][bone].translation;
 }
 
@@ -2708,7 +2792,7 @@ void rl_DrawRectangleLinesExF(float x, float y, float w, float h, float thick,
 }
 _Bool rl_CheckCollisionPointRecF(void *point, float x, float y, float w,
                                  float h) {
-  return CheckCollisionPointRec(((rl_Vector2 *)point)->v,
+  return CheckCollisionPointRec(*RL_V2(point),
                                 (Rectangle){ x, y, w, h });
 }
 
@@ -2747,6 +2831,7 @@ int rl_Color_a(rl_Color *self) { return self->c.a; }
 rl_Vector3 *rl_Vector3_new0(sp_int cls_id) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Vector3){ 0 };
   return self;
 }

@@ -3,9 +3,19 @@
 #include <stdlib.h>
 #include "spinel/runtime.h"
 
+/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
+ * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
+ * by rl_VectorN_view, where the payload lives in the owner's C struct. */
+#define RL_V2(o) (((rl_Vector2 *)(o))->p ? ((rl_Vector2 *)(o))->p : &((rl_Vector2 *)(o))->v)
+#define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
+#define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
+
+
 /* Mirror the raylib adapter's embedded-Vector2 wrapper. */
 typedef struct rl_Vector2_s {
   sp_int cls_id;
+  Vector2 *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Vector2 v;
 } rl_Vector2;
 
@@ -46,7 +56,7 @@ int rl_GetPhysicsShapeVerticesCount(int index) {
   return GetPhysicsShapeVerticesCount(index);
 }
 void rl_GetPhysicsShapeVertex(void *body, int vertex, void *out) {
-  ((rl_Vector2 *)out)->v = GetPhysicsShapeVertex((PhysicsBody)body, vertex);
+  *RL_V2(out) = GetPhysicsShapeVertex((PhysicsBody)body, vertex);
 }
 void rl_PhysicsBodySetEnabled(void *body, int enabled) {
   ((PhysicsBody)body)->enabled = enabled != 0;
@@ -66,7 +76,7 @@ float rl_PhysicsBodyGetPosX(void *body) { return ((PhysicsBody)body)->position.x
 /* ---- generated shims ---- */
 /** PhysicsShatter(params: void * body, void * position, float force -> void) */
 void rl_PhysicsShatter(void * body, void * position, float force) {
-  PhysicsShatter(*(PhysicsBody *)body, ((rl_Vector2*)position)->v, force);
+  PhysicsShatter(*(PhysicsBody *)body, *RL_V2(position), force);
 }
 /** SetPhysicsBodyRotation(params: void * body, float radians -> void) */
 void rl_SetPhysicsBodyRotation(void * body, float radians) {
