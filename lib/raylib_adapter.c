@@ -3458,6 +3458,37 @@ Rectangle *rl_Rectangle_view_addr(sp_int cls_id, sp_RbVal addr) {
   s->owner = sp_box_nil();
   return s;
 }
+
+/* Exact struct sizes for the Ruby `Class.size` (gem pointer arithmetic). */
+sp_int rl_Image_sizeof(void) { return (sp_int)sizeof(Image); }
+sp_int rl_Texture2D_sizeof(void) { return (sp_int)sizeof(Texture2D); }
+sp_int rl_Font_sizeof(void) { return (sp_int)sizeof(Font); }
+sp_int rl_GlyphInfo_sizeof(void) { return (sp_int)sizeof(GlyphInfo); }
+sp_int rl_RenderTexture_sizeof(void) { return (sp_int)sizeof(RenderTexture); }
+sp_int rl_Model_sizeof(void) { return (sp_int)sizeof(Model); }
+sp_int rl_Material_sizeof(void) { return (sp_int)sizeof(Material); }
+sp_int rl_Mesh_sizeof(void) { return (sp_int)sizeof(Mesh); }
+sp_int rl_Shader_sizeof(void) { return (sp_int)sizeof(Shader); }
+sp_int rl_ModelAnimation_sizeof(void) { return (sp_int)sizeof(ModelAnimation); }
+sp_int rl_BoneInfo_sizeof(void) { return (sp_int)sizeof(BoneInfo); }
+sp_int rl_Transform_sizeof(void) { return (sp_int)sizeof(Transform); }
+sp_int rl_AutomationEvent_sizeof(void) { return (sp_int)sizeof(AutomationEvent); }
+sp_int rl_AutomationEventList_sizeof(void) { return (sp_int)sizeof(AutomationEventList); }
+sp_int rl_Vector2_sizeof(void) { return (sp_int)sizeof(Vector2); }
+sp_int rl_Vector3_sizeof(void) { return (sp_int)sizeof(Vector3); }
+sp_int rl_Vector4_sizeof(void) { return (sp_int)sizeof(Vector4); }
+sp_int rl_Rectangle_sizeof(void) { return (sp_int)sizeof(Rectangle); }
+sp_int rl_Color_sizeof(void) { return (sp_int)sizeof(Color); }
+sp_int rl_Camera_sizeof(void) { return (sp_int)sizeof(Camera3D); }
+sp_int rl_Camera2D_sizeof(void) { return (sp_int)sizeof(Camera2D); }
+sp_int rl_BoundingBox_sizeof(void) { return (sp_int)sizeof(BoundingBox); }
+sp_int rl_Ray_sizeof(void) { return (sp_int)sizeof(Ray); }
+sp_int rl_RayCollision_sizeof(void) { return (sp_int)sizeof(RayCollision); }
+sp_int rl_Matrix_sizeof(void) { return (sp_int)sizeof(Matrix); }
+sp_int rl_NPatchInfo_sizeof(void) { return (sp_int)sizeof(NPatchInfo); }
+sp_int rl_VrDeviceInfo_sizeof(void) { return (sp_int)sizeof(VrDeviceInfo); }
+sp_int rl_VrStereoConfig_sizeof(void) { return (sp_int)sizeof(VrStereoConfig); }
+sp_int rl_FilePathList_sizeof(void) { return (sp_int)sizeof(FilePathList); }
 /* ==== end handle-class views implementation ==== */
 
 /* ==== handle helpers (gen_handle_class_c.py companions) ==== */

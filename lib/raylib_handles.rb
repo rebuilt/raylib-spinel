@@ -28,13 +28,11 @@ module Raylib
   end
 
   class GlyphInfo
-    def self.size = 40
 
     def image = Image.new(Raylib.rl_GlyphInfo_image_ptr(self), self)
   end
 
   class AutomationEvent
-    def self.size = 24
   end
 
   # The gem's PhysicsBodyData (FFI::Struct view over the opaque PhysicsBody

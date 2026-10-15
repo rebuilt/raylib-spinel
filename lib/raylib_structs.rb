@@ -34,7 +34,6 @@ module Raylib
       Vector2.create(vec.x, vec.y)
     end
 
-    def self.size = 8
 
     def set(x, y)
       self.x = x.to_f
@@ -69,7 +68,6 @@ module Raylib
       Vector3.create(vec.x, vec.y, vec.z)
     end
 
-    def self.size = 12
 
     def set(x, y, z)
       self.x = x.to_f
@@ -97,7 +95,6 @@ module Raylib
       Vector4.create(vec.x, vec.y, vec.z, vec.w)
     end
 
-    def self.size = 16
 
     def set(x, y, z, w)
       self.x = x.to_f
@@ -126,7 +123,6 @@ module Raylib
       Rectangle.create(rec.x, rec.y, rec.width, rec.height)
     end
 
-    def self.size = 16
 
     def set(x, y, width, height)
       self.x = x.to_f
@@ -150,7 +146,6 @@ module Raylib
       Color.new(r, g, b, a)
     end
 
-    def self.size = 4
 
     def set(r, g, b, a)
       self.r = r.to_i
@@ -170,7 +165,6 @@ module Raylib
   end
 
   class Camera2D
-    def self.size = 24
 
     # Sub-struct views (the gem's camera.offset / camera.target Vector2s).
     def offset = Vector2.new(offset_ptr, self)
@@ -198,7 +192,6 @@ module Raylib
   end
 
   class Camera
-    def self.size = 44
 
     # Sub-struct views (the gem's camera.position / .target / .up Vector3s).
     def position = Vector3.new(position_ptr, self)
@@ -232,7 +225,6 @@ module Raylib
   end
 
   class BoundingBox
-    def self.size = 24
 
     # Sub-struct views (bounding_box.min / .max Vector3s).
     def min = Vector3.new(min_ptr, self)
@@ -256,7 +248,6 @@ module Raylib
   end
 
   class Transform
-    def self.size = 40
 
     # raylib's Transform { Vector3 translation; Quaternion rotation; Vector3
     # scale; } (rotation is 16 bytes, hence size 40). The gem exposes both the
@@ -271,15 +262,12 @@ module Raylib
   end
 
   class Ray
-    def self.size = 24
   end
 
   class RayCollision
-    def self.size = 32
   end
 
   class Matrix
-    def self.size = 64
   end
 
   # raylib's Vector3ToFloatV/MatrixToFloatV return the raw float arrays (the

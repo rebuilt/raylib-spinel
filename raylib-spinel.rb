@@ -24,6 +24,7 @@ else
   require_relative "lib/raylib_ffi"
   require_relative "lib/raylib_handles_ffi"
   require_relative "lib/raylib_handles"
+  require_relative "lib/raylib_sizes"
 end
 
 # Load additional library FFI if available (for multi-library support)
