@@ -21,7 +21,6 @@
 if $PROGRAM_NAME.end_with?(".rb")
   require_relative File.join("lib","raylib_ruby")
 else
-  require "ffi"                       # FFI::MemoryPointer/FFI::Pointer, as the gem
   require_relative "lib/raylib_ffi"
   require_relative "lib/raylib_handles_ffi"
   require_relative "lib/raylib_handles"

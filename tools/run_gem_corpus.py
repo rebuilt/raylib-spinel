@@ -7,8 +7,9 @@ Two sections:
      output) run under CRuby + raylib-bindings (the oracle) and under Spinel with
      raylib-spinel, then diffed.
   B. examples: the raylib-bindings examples (real MRI code) with only the loader
-     line replaced by `require "raylib-spinel"`; each is analyzed with
-     `spinel -c` to record whether unmodified gem-API code compiles.
+     line replaced by `require "raylib"` (the compat entry, so the full gem
+     surface is loaded); each is analyzed with `spinel -c` to record whether
+     unmodified gem-API code compiles.
 
 Reports: reference/reports/gem_corpus.md (+ .json worklist).
 Usage: python3 tools/run_gem_corpus.py [--only synthetic|examples]

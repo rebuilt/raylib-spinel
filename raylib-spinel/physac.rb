@@ -9,4 +9,5 @@ if $PROGRAM_NAME.end_with?(".rb")
   # no-op under CRuby
 else
   require_relative "../lib/physac_ffi"
+  require_relative "../lib/physac_compat"
 end
