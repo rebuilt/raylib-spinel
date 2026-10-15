@@ -8,7 +8,10 @@ unmodified gem code (`include Raylib` + bare calls) compiles under Spinel.
 
 Wrappers keep their written argument lists; ffi_func-only names get positional
 arguments sized by the declared FFI arity (a splat would widen every argument
-to untyped and defeat the typed FFI slots).
+to untyped and defeat the typed FFI slots). No parameter defaults are added:
+spinel 2026.09.12+10027 marks the parameters of the method a bare call binds
+(matz/spinel#9193), so possibly-nil arguments (an empty-array element is typed
+nil-able) flow through and convert at the FFI boundary.
 
 rlgl lives in `module Rlgl` on our side but on `Raylib` in the gem, so rlgl
 names get both a Raylib singleton alias and an instance delegator.
@@ -16,42 +19,11 @@ names get both a Raylib singleton alias and an instance delegator.
 Usage: python3 tools/gen_raylib_include.py
 """
 
-import json
 import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIB = os.path.join(ROOT, "lib")
-API_DIR = os.path.join(os.path.dirname(ROOT), "raylib-bindings", "generator")
-
-SCALAR_TYPES = {
-    "int", "unsigned int", "float", "double", "bool", "char", "unsigned char",
-    "const char *", "char *", "void", "long", "unsigned long", "size_t",
-    "unsigned short", "short", "int *", "const int *", "void *",
-    "const float *", "float *", "unsigned char *", "const unsigned char *",
-    "int64_t", "uint64_t", "unsigned long long", "long long", "void (*)()",
-}
-
-
-def load_param_types():
-    """{function name: [type, ...]} from the gem's API JSONs (may be absent)."""
-    out = {}
-    for fname in ("raylib_api.json", "raymath_api.json", "physac_api.json",
-                  "rcamera_api.json", "rlgl_api.json", "raygui_api.json"):
-        path = os.path.join(API_DIR, fname)
-        if not os.path.exists(path):
-            continue
-        try:
-            data = json.load(open(path))
-        except Exception:
-            continue
-        fns = data["functions"] if isinstance(data, dict) else data
-        for fn in fns:
-            out[fn["name"]] = [p.get("type", "") for p in fn.get("params", [])]
-    return out
-
-
-PARAM_TYPES = load_param_types()
 FILES = ["raylib_ffi.rb", "raymath_ffi.rb", "rlgl_ffi.rb", "physac_ffi.rb",
          "rcamera_ffi.rb", "raygui_ffi.rb"]
 OUT = os.path.join(LIB, "raylib_include.rb")
@@ -111,63 +83,15 @@ def methods(path, skip_shims=True):
     return out
 
 
-def with_nil_defaults(param, fn_name=None, index=None):
-    """`p0` -> `p0 = nil` for a plain parameter (splats/blocks/defaults as is).
-
-    Spinel's `include`-exposed singleton methods reject possibly-nil arguments
-    (an empty-array element is typed nil-able); a default makes the parameter
-    optional, and the coercion in the delegate body turns the possibly-nil
-    value into a properly typed one for the wrapper call.
-    """
-    p = param.strip()
-    if not p or "=" in p or p.startswith("*") or p.startswith("&"):
-        return p
-    return p + " = nil"
-
-
-def coerce_for_call(name, names):
-    """Delegate call arguments: possibly-nil scalars are coerced to their C type.
-
-    The delegate parameters stay nil-able (that is what accepts possibly-nil
-    array elements); coercing here keeps the values typed for the wrapper call
-    instead of forwarding a possibly-nil value (or a boxed one).
-    """
-    types = PARAM_TYPES.get(name)
-    out = []
-    for i, p in enumerate(names):
-        ty = types[i] if types and i < len(types) else None
-        if ty in ("int", "unsigned int", "char", "unsigned char", "short",
-                  "unsigned short", "long", "unsigned long", "size_t",
-                  "int64_t", "uint64_t", "unsigned long long", "long long"):
-            out.append("(%s || 0).to_i" % p)
-        elif ty in ("float", "double"):
-            out.append("(%s || 0.0).to_f" % p)
-        else:
-            out.append(p)
-    return ", ".join(out)
-
-
 def call(name, args):
+    """(parameter list, argument list) for a delegator, verbatim."""
     if isinstance(args, int):
         names = ["p%d" % i for i in range(args)]
     elif args is None:
         names = []
     else:
         names = [p.strip() for p in args.split(",") if p.strip()]
-    defaults = [with_nil_defaults(p, name, i) != p.strip()
-                for i, p in enumerate(names)]
-    # Ruby requires optional parameters after the required ones: a required
-    # parameter keeps every earlier parameter required as well.
-    last_required = max((i for i, d in enumerate(defaults) if not d),
-                        default=-1)
-    parts = []
-    for i, p in enumerate(names):
-        if defaults[i] and i > last_required and not p.startswith(("*", "&")) \
-                and "=" not in p:
-            parts.append(p + " = nil")
-        else:
-            parts.append(p)
-    return ", ".join(parts), coerce_for_call(name, names)
+    return ", ".join(names), ", ".join(names)
 
 
 def main():
@@ -178,11 +102,10 @@ def main():
         "# also as an instance method. The instance surface lives in its own module",
         "# (included into Raylib) because Spinel resolves a `Raylib.name` singleton",
         "# call to a same-name instance method defined in Raylib itself, which would",
-        "# hide the module methods (alias_method targets included). Parameters get",
-        "# `= nil` defaults: bare calls of Spinel's include-exposed singleton methods",
-        "# reject possibly-nil arguments, and the nil-safe FFI conversion path is the",
-        "# same one the rest of the surface uses. Rlgl is exposed on Raylib because",
-        "# the gem binds rlgl there. Loaded by raylib.rb (Spinel path).",
+        "# hide the module methods (alias_method targets included). No parameter",
+        "# defaults: a bare call binds the callee's parameters, so possibly-nil",
+        "# arguments (matz/spinel#9193) convert at the FFI boundary. Rlgl is exposed",
+        "# on Raylib because the gem binds rlgl there. Loaded by raylib.rb (Spinel).",
         "",
         "module RaylibInstanceMethods",
     ]
