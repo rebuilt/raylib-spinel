@@ -68,3 +68,32 @@ Raylib.CloseWindow()
 ```
 
 Add a gemfile with raylib-bindings
+
+## Development: generators, audits, corpus
+
+The Spinel surface is generated from the gem's API JSON; the generators keep
+the shim layer honest:
+
+```bash
+python3 tools/gen_raylib_ffi.py          # ffi_func/wrapper surface + rl_* shims
+python3 tools/gen_handle_class_c.py      # handle-class views + Class.size (sizeof)
+python3 tools/gen_raylib_include.py      # include-able instance delegators
+python3 tools/wrap_handle_producers.py   # wrap Load*/Gen* into view objects
+```
+
+Handle classes are GC views (`rl_<X>`: cls_id / payload pointer / owner). Every
+shim parameter naming a handle class, by value or by pointer, must unwrap it
+(`*RL_TEX(t)`, `RL_IMG(i)`); only flat buffers stay raw. Two audits enforce
+that and are safe to run any time:
+
+```bash
+python3 tools/check_shim_unwraps.py                # shims + direct decls + undefined symbols
+python3 tools/fix_pointer_handle_shims.py --check  # single-struct pointer params unwrapped
+```
+
+Verification: `spin test` (headless, MRI-differential expectations) and
+`python3 tools/run_gem_corpus.py` (synthetic programs run under CRuby +
+raylib-bindings and under Spinel, then diffed; the raylib-bindings examples
+with the loader line replaced are compiled to record coverage). The runner
+links the gem's libraylib under its SONAME: the system build creates incomplete
+FBOs, which shows up as all-zero render-texture readbacks.
