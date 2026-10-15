@@ -22,6 +22,8 @@ if $PROGRAM_NAME.end_with?(".rb")
   require_relative File.join("lib","raylib_ruby")
 else
   require_relative "lib/raylib_ffi"
+  require_relative "lib/raylib_handles_ffi"
+  require_relative "lib/raylib_handles"
 end
 
 # Load additional library FFI if available (for multi-library support)

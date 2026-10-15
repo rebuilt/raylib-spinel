@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "spinel/runtime.h"
+#include "rl_handle_views.h"
 
 /* Mirror the raylib adapter's embedded-Color wrapper (used by GuiColorPicker). */
 typedef struct rl_Color_s {
@@ -27,7 +28,7 @@ void rl_GuiSetAlpha(float alpha) { GuiSetAlpha(alpha); }
 void rl_GuiSetState(int state) { GuiSetState(state); }
 void rl_GuiSetStyle(int control, int property, int value) { GuiSetStyle(control, property, value); }
 int rl_GuiGetStyle(int control, int property) { return GuiGetStyle(control, property); }
-void rl_GuiSetFont(void *font) { GuiSetFont(*(Font *)font); }
+void rl_GuiSetFont(void *font) { GuiSetFont(*RL_FONT(font)); }
 void rl_GuiLoadStyle(const char *fileName) { GuiLoadStyle(fileName); }
 void rl_GuiLoadStyleDefault(void) { GuiLoadStyleDefault(); }
 

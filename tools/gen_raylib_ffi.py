@@ -532,14 +532,24 @@ def emit_shim(fn):
     report["shim"] += 1
 
 
+HANDLE_RETURNS = {"Image", "Texture2D", "Font", "GlyphInfo", "RenderTexture",
+                  "Model", "Material", "Mesh", "ModelAnimation", "Shader"}
+
+
 def wrapper_simple(fn, wrapper_args):
     name = fn.name
     if name in ewrap:
         return ""
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
-    return ("    def self.%s(%s)\n      Raylib.rl_%s(%s)\n    end\n"
-            % (name, a, name, a))
+    ret = fn.return
+    call = "Raylib.rl_%s(%s)" % (name, a)
+    if ret in HANDLE_RETURNS:
+        # handle classes are native views: wrap the raw pointer
+        body = "%s.new(%s, nil)" % (ret, call)
+    else:
+        body = call
+    return "    def self.%s(%s)\n      %s\n    end\n" % (name, a, body)
 
 
 def wrapper_out(fn, wrapper_args, out_class):

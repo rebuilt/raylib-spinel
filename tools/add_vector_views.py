@@ -26,7 +26,7 @@ LIB = os.path.join(ROOT, "lib")
 FILES = ["raylib_adapter.c", "raymath_adapter.c", "rlgl_adapter.c",
          "rcamera_adapter.c", "physac_adapter.c"]
 CLASSES = (("Vector2", "RL_V2"), ("Vector3", "RL_V3"),
-           ("Vector4", "RL_V4"))
+           ("Vector4", "RL_V4"), ("Rectangle", "RL_RECT"))
 
 MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -34,6 +34,7 @@ MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view p
 #define RL_V2(o) (((rl_Vector2 *)(o))->p ? ((rl_Vector2 *)(o))->p : &((rl_Vector2 *)(o))->v)
 #define RL_V3(o) (((rl_Vector3 *)(o))->p ? ((rl_Vector3 *)(o))->p : &((rl_Vector3 *)(o))->v)
 #define RL_V4(o) (((rl_Vector4 *)(o))->p ? ((rl_Vector4 *)(o))->p : &((rl_Vector4 *)(o))->v)
+#define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
 
 """
 
@@ -98,9 +99,14 @@ def main():
     for fname in FILES:
         path = os.path.join(LIB, fname)
         text = open(path).read()
-        if "#define RL_V2(o)" not in text:
+        missing = [line for line in MACROS.splitlines()
+                   if line.startswith("#define")
+                   and line.split("(")[0] not in text]
+        if missing:
             m = re.search(r"^(#include .*\n)+", text, re.M)
-            text = text[:m.end()] + "\n" + MACROS + text[m.end():]
+            text = (text[:m.end()] + "\n"
+                    + "/* --- P2 view payload access (owned vs view objects). */\n"
+                    + "\n".join(missing) + "\n\n" + text[m.end():])
         for name, _macro in CLASSES:
             text = add_struct_fields(text, name)
             text = add_scan(text, name)

@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "spinel/runtime.h"
+#include "rl_handle_views.h"
+
+/* --- P2 view payload access (owned vs view objects). */
+#define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
+
 
 /* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -262,12 +267,18 @@ static rl_Color *rl_Color_new(sp_int cls_id) {
 
 /* rl_Rectangle — GC-embedded Rectangle (see rcamera_ffi.rb) */typedef struct rl_Rectangle_s {
   sp_int cls_id;
+  Rectangle *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Rectangle v;
 } rl_Rectangle;
-static void rl_Rectangle_scan(void *p) { (void)p; }
+static void rl_Rectangle_scan(void *p) {
+  rl_Rectangle *s = (rl_Rectangle *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 static rl_Rectangle *rl_Rectangle_new(sp_int cls_id) {
   rl_Rectangle *self = (rl_Rectangle *)sp_gc_alloc(sizeof(rl_Rectangle), NULL, rl_Rectangle_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Rectangle){ 0 };
   return self;
 }

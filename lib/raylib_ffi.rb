@@ -422,10 +422,10 @@ module Raylib
   ffi_func :rl_DirListName, %i[ptr int], :str
   ffi_func :rl_AudioStreamSineReset, [], :void
   ffi_func :rl_UpdateAudioStreamSine, %i[ptr int float float int], :void
-  ffi_func :rl_FontTexture, [:ptr], :ptr
+  ffi_func :rl_FontTexture_ptr, [:ptr], :ptr
   ffi_func :rl_FontGlyphAdvanceX, [:ptr, :int], :int
   ffi_func :rl_FontGlyphRecWidth, [:ptr, :int], :float
-  ffi_func :rl_LoadFontAtlas, %i[str int int int int int int], :ptr
+  ffi_func :rl_LoadFontAtlas_ptr, %i[str int int int int int int], :ptr
   ffi_func :rl_DrawRectangleLinesExF, %i[float float float float float ptr], :void
   ffi_func :rl_CheckCollisionPointRecF, %i[ptr float float float float], :bool
   ffi_func :rl_Model_material, [:ptr, :int], :ptr
@@ -477,10 +477,10 @@ module Raylib
   ffi_func :rl_ImageHeight, [:ptr], :int
   ffi_func :rl_ImageFrameData, [:ptr, :int], :ptr
   ffi_func :rl_Camera_position_from_bounds, %i[ptr ptr float], :void
-  ffi_func :rl_RenderTexture_texture, [:ptr], :ptr
+  ffi_func :rl_RenderTexture_texture_ptr, [:ptr], :ptr
   ffi_func :rl_TextureWidth, [:ptr], :int
   ffi_func :rl_TextureHeight, [:ptr], :int
-  ffi_func :rl_ImageFromImageF, %i[ptr float float float float], :ptr
+  ffi_func :rl_ImageFromImageF_ptr, %i[ptr float float float float], :ptr
   ffi_func :rl_DrawRectangleProF, %i[float float float float float float float ptr], :void
   ffi_func :rl_DrawRectangleRoundedF, %i[float float float float float int ptr], :void
   ffi_func :rl_DrawRectangleRoundedLinesExF, %i[float float float float float int float ptr], :void
@@ -706,6 +706,8 @@ module Raylib
   native_method :w=, [:float], :float, "rl_Vector4_set_w"
   native_struct "Rectangle", "rl_Rectangle"
   native_new [], "rl_Rectangle_new"
+  # Address view (gem: Rectangle.new(font.recs + i * Rectangle.size)).
+  native_new [:any], "rl_Rectangle_view_addr"
   native_method :x, [], :float, "rl_Rectangle_x"
   native_method :x=, [:float], :float, "rl_Rectangle_set_x"
   native_method :y, [], :float, "rl_Rectangle_y"
@@ -1152,7 +1154,7 @@ module Raylib
     end
 
     def self.LoadTexture(path)
-      Raylib.rl_LoadTexture(path)
+      Texture2D.new(Raylib.rl_LoadTexture(path), nil)
     end
 
     def self.UnloadTexture(texture)
@@ -1332,7 +1334,7 @@ module Raylib
       _out
     end
     def self.GetClipboardImage()
-      Raylib.rl_GetClipboardImage()
+      Image.new(Raylib.rl_GetClipboardImage(), nil)
     end
     def self.BeginMode2D(camera)
       Raylib.rl_BeginMode2D(camera)
@@ -1515,7 +1517,7 @@ module Raylib
       Raylib.rl_SetShapesTexture(texture, rec)
     end
     def self.GetShapesTexture()
-      Raylib.rl_GetShapesTexture()
+      Texture2D.new(Raylib.rl_GetShapesTexture(), nil)
     end
     def self.GetShapesTextureRectangle()
       _out = Rectangle.new
@@ -1736,25 +1738,25 @@ module Raylib
       _out
     end
     def self.LoadImage(fileName)
-      Raylib.rl_LoadImage(fileName)
+      Image.new(Raylib.rl_LoadImage(fileName), nil)
     end
     def self.LoadImageRaw(fileName, width, height, format, headerSize)
-      Raylib.rl_LoadImageRaw(fileName, width, height, format, headerSize)
+      Image.new(Raylib.rl_LoadImageRaw(fileName, width, height, format, headerSize), nil)
     end
     def self.LoadImageAnim(fileName, frames)
-      Raylib.rl_LoadImageAnim(fileName, frames)
+      Image.new(Raylib.rl_LoadImageAnim(fileName, frames), nil)
     end
     def self.LoadImageAnimFromMemory(fileType, fileData, dataSize, frames)
-      Raylib.rl_LoadImageAnimFromMemory(fileType, fileData, dataSize, frames)
+      Image.new(Raylib.rl_LoadImageAnimFromMemory(fileType, fileData, dataSize, frames), nil)
     end
     def self.LoadImageFromMemory(fileType, fileData, dataSize)
-      Raylib.rl_LoadImageFromMemory(fileType, fileData, dataSize)
+      Image.new(Raylib.rl_LoadImageFromMemory(fileType, fileData, dataSize), nil)
     end
     def self.LoadImageFromTexture(texture)
-      Raylib.rl_LoadImageFromTexture(texture)
+      Image.new(Raylib.rl_LoadImageFromTexture(texture), nil)
     end
     def self.LoadImageFromScreen()
-      Raylib.rl_LoadImageFromScreen()
+      Image.new(Raylib.rl_LoadImageFromScreen(), nil)
     end
     def self.IsImageValid(image)
       Raylib.rl_IsImageValid(image)
@@ -1772,46 +1774,46 @@ module Raylib
       Raylib.rl_ExportImageAsCode(image, fileName)
     end
     def self.GenImageColor(width, height, color)
-      Raylib.rl_GenImageColor(width, height, color)
+      Image.new(Raylib.rl_GenImageColor(width, height, color), nil)
     end
     def self.GenImageGradientLinear(width, height, direction, start, kw_end)
-      Raylib.rl_GenImageGradientLinear(width, height, direction, start, kw_end)
+      Image.new(Raylib.rl_GenImageGradientLinear(width, height, direction, start, kw_end), nil)
     end
     def self.GenImageGradientRadial(width, height, density, inner, outer)
-      Raylib.rl_GenImageGradientRadial(width, height, density, inner, outer)
+      Image.new(Raylib.rl_GenImageGradientRadial(width, height, density, inner, outer), nil)
     end
     def self.GenImageGradientSquare(width, height, density, inner, outer)
-      Raylib.rl_GenImageGradientSquare(width, height, density, inner, outer)
+      Image.new(Raylib.rl_GenImageGradientSquare(width, height, density, inner, outer), nil)
     end
     def self.GenImageChecked(width, height, checksX, checksY, col1, col2)
-      Raylib.rl_GenImageChecked(width, height, checksX, checksY, col1, col2)
+      Image.new(Raylib.rl_GenImageChecked(width, height, checksX, checksY, col1, col2), nil)
     end
     def self.GenImageWhiteNoise(width, height, factor)
-      Raylib.rl_GenImageWhiteNoise(width, height, factor)
+      Image.new(Raylib.rl_GenImageWhiteNoise(width, height, factor), nil)
     end
     def self.GenImagePerlinNoise(width, height, offsetX, offsetY, scale)
-      Raylib.rl_GenImagePerlinNoise(width, height, offsetX, offsetY, scale)
+      Image.new(Raylib.rl_GenImagePerlinNoise(width, height, offsetX, offsetY, scale), nil)
     end
     def self.GenImageCellular(width, height, tileSize)
-      Raylib.rl_GenImageCellular(width, height, tileSize)
+      Image.new(Raylib.rl_GenImageCellular(width, height, tileSize), nil)
     end
     def self.GenImageText(width, height, text)
-      Raylib.rl_GenImageText(width, height, text)
+      Image.new(Raylib.rl_GenImageText(width, height, text), nil)
     end
     def self.ImageCopy(image)
-      Raylib.rl_ImageCopy(image)
+      Image.new(Raylib.rl_ImageCopy(image), nil)
     end
     def self.ImageFromImage(image, rec)
-      Raylib.rl_ImageFromImage(image, rec)
+      Image.new(Raylib.rl_ImageFromImage(image, rec), nil)
     end
     def self.ImageFromChannel(image, selectedChannel)
-      Raylib.rl_ImageFromChannel(image, selectedChannel)
+      Image.new(Raylib.rl_ImageFromChannel(image, selectedChannel), nil)
     end
     def self.ImageText(text, fontSize, color)
-      Raylib.rl_ImageText(text, fontSize, color)
+      Image.new(Raylib.rl_ImageText(text, fontSize, color), nil)
     end
     def self.ImageTextEx(font, text, fontSize, spacing, tint)
-      Raylib.rl_ImageTextEx(font, text, fontSize, spacing, tint)
+      Image.new(Raylib.rl_ImageTextEx(font, text, fontSize, spacing, tint), nil)
     end
     def self.ImageToPOT(image, fill)
       Raylib.rl_ImageToPOT(image, fill)
@@ -1950,7 +1952,7 @@ module Raylib
       Raylib.rl_ImageDrawTextPro(dst, font, text, position, origin, rotation, fontSize, spacing, tint)
     end
     def self.LoadTextureFromImage(image)
-      Raylib.rl_LoadTextureFromImage(image)
+      Texture2D.new(Raylib.rl_LoadTextureFromImage(image), nil)
     end
     def self.LoadTextureCubemap(image, layout)
       Raylib.rl_LoadTextureCubemap(image, layout)
@@ -2069,25 +2071,25 @@ module Raylib
       Raylib.rl_SetPixelColor(dstPtr, color, format)
     end
     def self.GetFontDefault()
-      Raylib.rl_GetFontDefault()
+      Font.new(Raylib.rl_GetFontDefault(), nil)
     end
     def self.LoadFont(fileName)
-      Raylib.rl_LoadFont(fileName)
+      Font.new(Raylib.rl_LoadFont(fileName), nil)
     end
     def self.LoadFontEx(fileName, fontSize, codepoints, codepointCount)
-      Raylib.rl_LoadFontEx(fileName, fontSize, codepoints, codepointCount)
+      Font.new(Raylib.rl_LoadFontEx(fileName, fontSize, codepoints, codepointCount), nil)
     end
     def self.LoadFontFromImage(image, key, firstChar)
-      Raylib.rl_LoadFontFromImage(image, key, firstChar)
+      Font.new(Raylib.rl_LoadFontFromImage(image, key, firstChar), nil)
     end
     def self.LoadFontFromMemory(fileType, fileData, dataSize, fontSize, codepoints, codepointCount)
-      Raylib.rl_LoadFontFromMemory(fileType, fileData, dataSize, fontSize, codepoints, codepointCount)
+      Font.new(Raylib.rl_LoadFontFromMemory(fileType, fileData, dataSize, fontSize, codepoints, codepointCount), nil)
     end
     def self.IsFontValid(font)
       Raylib.rl_IsFontValid(font)
     end
     def self.GenImageFontAtlas(glyphs, glyphRecs, glyphCount, fontSize, padding, packMethod)
-      Raylib.rl_GenImageFontAtlas(glyphs, glyphRecs, glyphCount, fontSize, padding, packMethod)
+      Image.new(Raylib.rl_GenImageFontAtlas(glyphs, glyphRecs, glyphCount, fontSize, padding, packMethod), nil)
     end
     def self.UnloadFont(font)
       Raylib.rl_UnloadFont(font)
@@ -2121,7 +2123,7 @@ module Raylib
       Raylib.rl_GetGlyphIndex(font, codepoint)
     end
     def self.GetGlyphInfo(font, codepoint)
-      Raylib.rl_GetGlyphInfo(font, codepoint)
+      GlyphInfo.new(Raylib.rl_GetGlyphInfo(font, codepoint), nil)
     end
     def self.GetGlyphAtlasRec(font, codepoint)
       _out = Rectangle.new

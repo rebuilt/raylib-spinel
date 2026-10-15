@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "spinel/runtime.h"
+#include "rl_handle_views.h"
+
+/* --- P2 view payload access (owned vs view objects). */
+#define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
+
+
 
 /* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -113,13 +119,13 @@ void rl_DrawTextInt(const char *prefix, int value, int x, int y, int size,
   snprintf(buf, sizeof(buf), "%s%d", prefix, value);
   DrawText(buf, x, y, size, ((rl_Color *)color)->c);
 }
-float rl_FontBaseSize(void *font) { return (float)((Font *)font)->baseSize; }
-int rl_TextureWidth(void *texture) { return (int)((Texture *)texture)->width; }
-int rl_TextureHeight(void *texture) { return (int)((Texture *)texture)->height; }
+float rl_FontBaseSize(void *font) { return (float)(RL_FONT(font))->baseSize; }
+int rl_TextureWidth(void *texture) { return (int)(RL_TEX(texture))->width; }
+int rl_TextureHeight(void *texture) { return (int)(RL_TEX(texture))->height; }
 void rl_DrawTextureRec4(void *texture, float x, float y, float w, float h,
                         void *position, void *tint) {
   Rectangle src = { x, y, w, h };
-  DrawTextureRec(*(Texture2D *)texture, src, *RL_V2(position),
+  DrawTextureRec(*RL_TEX(texture), src, *RL_V2(position),
                  ((rl_Color *)tint)->c);
 }
 void rl_BeginMode2DF(float target_x, float target_y, float offset_x,
@@ -153,17 +159,17 @@ void *rl_Camera3DCreate(float px, float py, float pz, float tx, float ty,
 void rl_EndMode3D(void) { EndMode3D(); }
 void rl_DrawGrid(int slices, float spacing) { DrawGrid(slices, spacing); }
 void rl_DrawRenderTexture(void *target, void *tint) {
-  RenderTexture2D *rt = (RenderTexture2D *)target;
+  RenderTexture2D *rt = RL_RT(target);
   Rectangle src = { 0, 0, (float)rt->texture.width, (float)-rt->texture.height };
   DrawTextureRec(rt->texture, src, (Vector2){ 0, 0 }, ((rl_Color *)tint)->c);
 }
 void rl_DrawRenderTextureAt(void *target, int x, int y, void *tint) {
-  RenderTexture2D *rt = (RenderTexture2D *)target;
+  RenderTexture2D *rt = RL_RT(target);
   Rectangle src = { 0, 0, (float)rt->texture.width, (float)-rt->texture.height };
   DrawTextureRec(rt->texture, src, (Vector2){ (float)x, (float)y }, ((rl_Color *)tint)->c);
 }
 void rl_DrawRenderTexturePro(void *target, float rotation, void *tint) {
-  RenderTexture2D *rt = (RenderTexture2D *)target;
+  RenderTexture2D *rt = RL_RT(target);
   DrawTexturePro(rt->texture,
                  (Rectangle){ 0, 0, (float)rt->texture.width, (float)-rt->texture.height },
                  (Rectangle){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f,
@@ -171,29 +177,29 @@ void rl_DrawRenderTexturePro(void *target, float rotation, void *tint) {
                  (Vector2){ rt->texture.width/2.0f, rt->texture.height/2.0f },
                  rotation, ((rl_Color *)tint)->c);
 }
-void *rl_RenderTexture_texture(void *target) {
-  return &((RenderTexture2D *)target)->texture;
+void *rl_RenderTexture_texture_ptr(void *target) {
+  return &(RL_RT(target))->texture;
 }
 void *rl_LoadImageFromRenderTexture(void *target) {
-  RenderTexture2D *rt = (RenderTexture2D *)target;
+  RenderTexture2D *rt = RL_RT(target);
   Image *r = (Image *)malloc(sizeof(Image));
   *r = LoadImageFromTexture(rt->texture);
   return r;
 }
 void rl_DrawTexture(void *tex, int x, int y, void *color) {
-  DrawTexture(*(Texture2D *)tex, x, y, ((rl_Color *)color)->c);
+  DrawTexture(*RL_TEX(tex), x, y, ((rl_Color *)color)->c);
 }
 /* Data-oriented draw: the tint is a packed 0xRRGGBBAA integer, so callers
  * that keep colors in a flat int array need no rl_Color object per sprite. */
 void rl_DrawTexturePacked(void *tex, int x, int y, int rgba) {
   unsigned int u = (unsigned int)rgba;
-  DrawTexture(*(Texture2D *)tex, x, y,
+  DrawTexture(*RL_TEX(tex), x, y,
               (Color){ (unsigned char)(u >> 24), (unsigned char)(u >> 16),
                        (unsigned char)(u >> 8), (unsigned char)u });
 }
 void rl_DrawTextureEx(void *tex, float x, float y, float rotation,
                       float scale, void *color) {
-  DrawTextureEx(*(Texture2D *)tex, (Vector2){x, y}, rotation, scale,
+  DrawTextureEx(*RL_TEX(tex), (Vector2){x, y}, rotation, scale,
                 ((rl_Color *)color)->c);
 }
 
@@ -207,8 +213,9 @@ void *rl_LoadTexture(const char *path) {
 
 void rl_UnloadTexture(void *tex) {
   if (tex) {
-    UnloadTexture(*(Texture2D *)tex);
-    free(tex);
+    Texture2D *self = RL_TEX(tex);   /* the view points at the heap copy */
+    UnloadTexture(*self);
+    free(self);
   }
 }
 
@@ -297,6 +304,7 @@ rl_Vector3 *rl_Vector3_new(sp_int cls_id, double x, double y, double z) {
 Vector3 *rl_Vector3_view(sp_int cls_id, void *p, sp_RbVal owner) {
   rl_Vector3 *self = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->p = (Vector3 *)p;
   self->owner = owner;
   return self;
@@ -418,6 +426,7 @@ rl_Vector4 *rl_Vector4_new(sp_int cls_id) {
 Vector4 *rl_Vector4_view(sp_int cls_id, void *p, sp_RbVal owner) {
   rl_Vector4 *self = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->p = (Vector4 *)p;
   self->owner = owner;
   return self;
@@ -453,41 +462,55 @@ double rl_Vector4_set_w(rl_Vector4 *self, double w) {
 
 /* rl_Rectangle — GC-embedded Rectangle (see raylib_ffi.rb) */typedef struct rl_Rectangle_s {
   sp_int cls_id;
+  Rectangle *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   Rectangle v;
 } rl_Rectangle;
-static void rl_Rectangle_scan(void *p) { (void)p; }
+static void rl_Rectangle_scan(void *p) {
+  rl_Rectangle *s = (rl_Rectangle *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 rl_Rectangle *rl_Rectangle_new(sp_int cls_id) {
   rl_Rectangle *self = (rl_Rectangle *)sp_gc_alloc(sizeof(rl_Rectangle), NULL, rl_Rectangle_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (Rectangle){ 0 };
   return self;
 }
+
+Rectangle *rl_Rectangle_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_Rectangle *self = (rl_Rectangle *)sp_gc_alloc(sizeof(rl_Rectangle), NULL, rl_Rectangle_scan);
+  self->cls_id = cls_id;
+  self->p = (Rectangle *)p;
+  self->owner = owner;
+  return self;
+}
 double rl_Rectangle_x(rl_Rectangle *self) {
-  return (double)self->v.x;
+  return (double)RL_RECT(self)->x;
 }
 double rl_Rectangle_set_x(rl_Rectangle *self, double x) {
-  self->v.x = (float)x;
+  RL_RECT(self)->x = (float)x;
   return x;
 }
 double rl_Rectangle_y(rl_Rectangle *self) {
-  return (double)self->v.y;
+  return (double)RL_RECT(self)->y;
 }
 double rl_Rectangle_set_y(rl_Rectangle *self, double y) {
-  self->v.y = (float)y;
+  RL_RECT(self)->y = (float)y;
   return y;
 }
 double rl_Rectangle_width(rl_Rectangle *self) {
-  return (double)self->v.width;
+  return (double)RL_RECT(self)->width;
 }
 double rl_Rectangle_set_width(rl_Rectangle *self, double width) {
-  self->v.width = (float)width;
+  RL_RECT(self)->width = (float)width;
   return width;
 }
 double rl_Rectangle_height(rl_Rectangle *self) {
-  return (double)self->v.height;
+  return (double)RL_RECT(self)->height;
 }
 double rl_Rectangle_set_height(rl_Rectangle *self, double height) {
-  self->v.height = (float)height;
+  RL_RECT(self)->height = (float)height;
   return height;
 }
 
@@ -932,6 +955,7 @@ rl_Vector2 *rl_Vector2_new(sp_int cls_id) {
 Vector2 *rl_Vector2_view(sp_int cls_id, void *p, sp_RbVal owner) {
   rl_Vector2 *self = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->p = (Vector2 *)p;
   self->owner = owner;
   return self;
@@ -954,7 +978,7 @@ double rl_Vector2_set_y(rl_Vector2 *self, double y) {
 /* ---- generated shims ---- */
 /** SetWindowIcon(params: void * image -> void) */
 void rl_SetWindowIcon(void * image) {
-  SetWindowIcon(*(Image *)image);
+  SetWindowIcon(*RL_IMG(image));
 }
 /** GetMonitorPosition(params: int monitor, void * _out -> void) */
 void rl_GetMonitorPosition(int monitor, void * _out) {
@@ -980,7 +1004,7 @@ void rl_BeginMode2D(void * camera) {
 }
 /** BeginTextureMode(params: void * target -> void) */
 void rl_BeginTextureMode(void * target) {
-  BeginTextureMode(*(RenderTexture2D *)target);
+  BeginTextureMode(*RL_RT(target));
 }
 /** BeginShaderMode(params: void * shader -> void) */
 void rl_BeginShaderMode(void * shader) {
@@ -1036,7 +1060,7 @@ void rl_SetShaderValueMatrix(void * shader, int locIndex, void * mat) {
 }
 /** SetShaderValueTexture(params: void * shader, int locIndex, void * texture -> void) */
 void rl_SetShaderValueTexture(void * shader, int locIndex, void * texture) {
-  SetShaderValueTexture(*(Shader *)shader, locIndex, *(Texture2D *)texture);
+  SetShaderValueTexture(*(Shader *)shader, locIndex, *RL_TEX(texture));
 }
 /** UnloadShader(params: void * shader -> void) */
 void rl_UnloadShader(void * shader) {
@@ -1166,7 +1190,7 @@ void rl_UpdateCameraPro(void * camera, void * movement, void * rotation, float z
 }
 /** SetShapesTexture(params: void * texture, void * rec -> void) */
 void rl_SetShapesTexture(void * texture, void * rec) {
-  SetShapesTexture(*(Texture2D *)texture, ((rl_Rectangle*)rec)->v);
+  SetShapesTexture(*RL_TEX(texture), *RL_RECT(rec));
 }
 /** GetShapesTexture(params: void -> void *) */
 void * rl_GetShapesTexture(void) {
@@ -1176,7 +1200,7 @@ void * rl_GetShapesTexture(void) {
 }
 /** GetShapesTextureRectangle(params: void * _out -> void) */
 void rl_GetShapesTextureRectangle(void * _out) {
-  ((rl_Rectangle*)_out)->v = GetShapesTextureRectangle();
+  *RL_RECT(_out) = GetShapesTextureRectangle();
 }
 /** DrawPixelV(params: void * position, void * color -> void) */
 void rl_DrawPixelV(void * position, void * color) {
@@ -1232,11 +1256,11 @@ void rl_DrawRectangleV(void * position, void * size, void * color) {
 }
 /** DrawRectangleRec(params: void * rec, void * color -> void) */
 void rl_DrawRectangleRec(void * rec, void * color) {
-  DrawRectangleRec(((rl_Rectangle*)rec)->v, ((rl_Color*)color)->c);
+  DrawRectangleRec(*RL_RECT(rec), ((rl_Color*)color)->c);
 }
 /** DrawRectanglePro(params: void * rec, void * origin, float rotation, void * color -> void) */
 void rl_DrawRectanglePro(void * rec, void * origin, float rotation, void * color) {
-  DrawRectanglePro(((rl_Rectangle*)rec)->v, *RL_V2(origin), rotation, ((rl_Color*)color)->c);
+  DrawRectanglePro(*RL_RECT(rec), *RL_V2(origin), rotation, ((rl_Color*)color)->c);
 }
 /** DrawRectangleGradientV(params: int posX, int posY, int width, int height, void * top, void * bottom -> void) */
 void rl_DrawRectangleGradientV(int posX, int posY, int width, int height, void * top, void * bottom) {
@@ -1248,23 +1272,23 @@ void rl_DrawRectangleGradientH(int posX, int posY, int width, int height, void *
 }
 /** DrawRectangleGradientEx(params: void * rec, void * col1, void * col2, void * col3, void * col4 -> void) */
 void rl_DrawRectangleGradientEx(void * rec, void * col1, void * col2, void * col3, void * col4) {
-  DrawRectangleGradientEx(((rl_Rectangle*)rec)->v, ((rl_Color*)col1)->c, ((rl_Color*)col2)->c, ((rl_Color*)col3)->c, ((rl_Color*)col4)->c);
+  DrawRectangleGradientEx(*RL_RECT(rec), ((rl_Color*)col1)->c, ((rl_Color*)col2)->c, ((rl_Color*)col3)->c, ((rl_Color*)col4)->c);
 }
 /** DrawRectangleLinesEx(params: void * rec, float thick, void * color -> void) */
 void rl_DrawRectangleLinesEx(void * rec, float thick, void * color) {
-  DrawRectangleLinesEx(((rl_Rectangle*)rec)->v, thick, ((rl_Color*)color)->c);
+  DrawRectangleLinesEx(*RL_RECT(rec), thick, ((rl_Color*)color)->c);
 }
 /** DrawRectangleRounded(params: void * rec, float roundness, int segments, void * color -> void) */
 void rl_DrawRectangleRounded(void * rec, float roundness, int segments, void * color) {
-  DrawRectangleRounded(((rl_Rectangle*)rec)->v, roundness, segments, ((rl_Color*)color)->c);
+  DrawRectangleRounded(*RL_RECT(rec), roundness, segments, ((rl_Color*)color)->c);
 }
 /** DrawRectangleRoundedLines(params: void * rec, float roundness, int segments, void * color -> void) */
 void rl_DrawRectangleRoundedLines(void * rec, float roundness, int segments, void * color) {
-  DrawRectangleRoundedLines(((rl_Rectangle*)rec)->v, roundness, segments, ((rl_Color*)color)->c);
+  DrawRectangleRoundedLines(*RL_RECT(rec), roundness, segments, ((rl_Color*)color)->c);
 }
 /** DrawRectangleRoundedLinesEx(params: void * rec, float roundness, int segments, float thick, void * color -> void) */
 void rl_DrawRectangleRoundedLinesEx(void * rec, float roundness, int segments, float thick, void * color) {
-  DrawRectangleRoundedLinesEx(((rl_Rectangle*)rec)->v, roundness, segments, thick, ((rl_Color*)color)->c);
+  DrawRectangleRoundedLinesEx(*RL_RECT(rec), roundness, segments, thick, ((rl_Color*)color)->c);
 }
 /** DrawPoly(params: void * center, int sides, float radius, float rotation, void * color -> void) */
 void rl_DrawPoly(void * center, int sides, float radius, float rotation, void * color) {
@@ -1404,7 +1428,7 @@ void rl_GetSplinePointBezierCubic(void * p1, void * c2, void * c3, void * p4, fl
 }
 /** CheckCollisionRecs(params: void * rec1, void * rec2 -> _Bool) */
 _Bool rl_CheckCollisionRecs(void * rec1, void * rec2) {
-  return CheckCollisionRecs(((rl_Rectangle*)rec1)->v, ((rl_Rectangle*)rec2)->v);
+  return CheckCollisionRecs(*RL_RECT(rec1), *RL_RECT(rec2));
 }
 /** CheckCollisionCircles(params: void * center1, float radius1, void * center2, float radius2 -> _Bool) */
 _Bool rl_CheckCollisionCircles(void * center1, float radius1, void * center2, float radius2) {
@@ -1412,7 +1436,7 @@ _Bool rl_CheckCollisionCircles(void * center1, float radius1, void * center2, fl
 }
 /** CheckCollisionCircleRec(params: void * center, float radius, void * rec -> _Bool) */
 _Bool rl_CheckCollisionCircleRec(void * center, float radius, void * rec) {
-  return CheckCollisionCircleRec(*RL_V2(center), radius, ((rl_Rectangle*)rec)->v);
+  return CheckCollisionCircleRec(*RL_V2(center), radius, *RL_RECT(rec));
 }
 /** CheckCollisionCircleLine(params: void * center, float radius, void * p1, void * p2 -> _Bool) */
 _Bool rl_CheckCollisionCircleLine(void * center, float radius, void * p1, void * p2) {
@@ -1420,7 +1444,7 @@ _Bool rl_CheckCollisionCircleLine(void * center, float radius, void * p1, void *
 }
 /** CheckCollisionPointRec(params: void * point, void * rec -> _Bool) */
 _Bool rl_CheckCollisionPointRec(void * point, void * rec) {
-  return CheckCollisionPointRec(*RL_V2(point), ((rl_Rectangle*)rec)->v);
+  return CheckCollisionPointRec(*RL_V2(point), *RL_RECT(rec));
 }
 /** CheckCollisionPointCircle(params: void * point, void * center, float radius -> _Bool) */
 _Bool rl_CheckCollisionPointCircle(void * point, void * center, float radius) {
@@ -1444,7 +1468,7 @@ _Bool rl_CheckCollisionLines(void * startPos1, void * endPos1, void * startPos2,
 }
 /** GetCollisionRec(params: void * rec1, void * rec2, void * _out -> void) */
 void rl_GetCollisionRec(void * rec1, void * rec2, void * _out) {
-  ((rl_Rectangle*)_out)->v = GetCollisionRec(((rl_Rectangle*)rec1)->v, ((rl_Rectangle*)rec2)->v);
+  *RL_RECT(_out) = GetCollisionRec(*RL_RECT(rec1), *RL_RECT(rec2));
 }
 /** LoadImage(params: const char * fileName -> void *) */
 void * rl_LoadImage(const char * fileName) {
@@ -1479,7 +1503,7 @@ void * rl_LoadImageFromMemory(const char * fileType, void * fileData, int dataSi
 /** LoadImageFromTexture(params: void * texture -> void *) */
 void * rl_LoadImageFromTexture(void * texture) {
   Image *r = (Image *)malloc(sizeof(Image));
-  *r = LoadImageFromTexture(*(Texture2D *)texture);
+  *r = LoadImageFromTexture(*RL_TEX(texture));
   return r;
 }
 /** LoadImageFromScreen(params: void -> void *) */
@@ -1490,25 +1514,25 @@ void * rl_LoadImageFromScreen(void) {
 }
 /** IsImageValid(params: void * image -> _Bool) */
 _Bool rl_IsImageValid(void * image) {
-  return IsImageValid(*(Image *)image);
+  return IsImageValid(*RL_IMG(image));
 }
 /** UnloadImage(params: void * image -> void) */
 void rl_UnloadImage(void * image) {
-  Image *self = (Image *)image;
+  Image *self = RL_IMG(image);
   UnloadImage(*self);
   free(self);
 }
 /** ExportImage(params: void * image, const char * fileName -> _Bool) */
 _Bool rl_ExportImage(void * image, const char * fileName) {
-  return ExportImage(*(Image *)image, fileName);
+  return ExportImage(*RL_IMG(image), fileName);
 }
 /** ExportImageToMemory(params: void * image, const char * fileType, void * fileSize -> void *) */
 void * rl_ExportImageToMemory(void * image, const char * fileType, void * fileSize) {
-  return ExportImageToMemory(*(Image *)image, fileType, fileSize);
+  return ExportImageToMemory(*RL_IMG(image), fileType, fileSize);
 }
 /** ExportImageAsCode(params: void * image, const char * fileName -> _Bool) */
 _Bool rl_ExportImageAsCode(void * image, const char * fileName) {
-  return ExportImageAsCode(*(Image *)image, fileName);
+  return ExportImageAsCode(*RL_IMG(image), fileName);
 }
 /** GenImageColor(params: int width, int height, void * color -> void *) */
 void * rl_GenImageColor(int width, int height, void * color) {
@@ -1567,19 +1591,19 @@ void * rl_GenImageText(int width, int height, const char * text) {
 /** ImageCopy(params: void * image -> void *) */
 void * rl_ImageCopy(void * image) {
   Image *r = (Image *)malloc(sizeof(Image));
-  *r = ImageCopy(*(Image *)image);
+  *r = ImageCopy(*RL_IMG(image));
   return r;
 }
 /** ImageFromImage(params: void * image, void * rec -> void *) */
 void * rl_ImageFromImage(void * image, void * rec) {
   Image *r = (Image *)malloc(sizeof(Image));
-  *r = ImageFromImage(*(Image *)image, ((rl_Rectangle*)rec)->v);
+  *r = ImageFromImage(*RL_IMG(image), *RL_RECT(rec));
   return r;
 }
 /** ImageFromChannel(params: void * image, int selectedChannel -> void *) */
 void * rl_ImageFromChannel(void * image, int selectedChannel) {
   Image *r = (Image *)malloc(sizeof(Image));
-  *r = ImageFromChannel(*(Image *)image, selectedChannel);
+  *r = ImageFromChannel(*RL_IMG(image), selectedChannel);
   return r;
 }
 /** ImageText(params: const char * text, int fontSize, void * color -> void *) */
@@ -1591,7 +1615,7 @@ void * rl_ImageText(const char * text, int fontSize, void * color) {
 /** ImageTextEx(params: void * font, const char * text, float fontSize, float spacing, void * tint -> void *) */
 void * rl_ImageTextEx(void * font, const char * text, float fontSize, float spacing, void * tint) {
   Image *r = (Image *)malloc(sizeof(Image));
-  *r = ImageTextEx(*(Font *)font, text, fontSize, spacing, ((rl_Color*)tint)->c);
+  *r = ImageTextEx(*RL_FONT(font), text, fontSize, spacing, ((rl_Color*)tint)->c);
   return r;
 }
 /** ImageToPOT(params: void * image, void * fill -> void) */
@@ -1600,7 +1624,7 @@ void rl_ImageToPOT(void * image, void * fill) {
 }
 /** ImageCrop(params: void * image, void * crop -> void) */
 void rl_ImageCrop(void * image, void * crop) {
-  ImageCrop(image, ((rl_Rectangle*)crop)->v);
+  ImageCrop(image, *RL_RECT(crop));
 }
 /** ImageAlphaClear(params: void * image, void * color, float threshold -> void) */
 void rl_ImageAlphaClear(void * image, void * color, float threshold) {
@@ -1608,7 +1632,7 @@ void rl_ImageAlphaClear(void * image, void * color, float threshold) {
 }
 /** ImageAlphaMask(params: void * image, void * alphaMask -> void) */
 void rl_ImageAlphaMask(void * image, void * alphaMask) {
-  ImageAlphaMask(image, *(Image *)alphaMask);
+  ImageAlphaMask(image, *RL_IMG(alphaMask));
 }
 /** ImageResizeCanvas(params: void * image, int newWidth, int newHeight, int offsetX, int offsetY, void * fill -> void) */
 void rl_ImageResizeCanvas(void * image, int newWidth, int newHeight, int offsetX, int offsetY, void * fill) {
@@ -1624,7 +1648,7 @@ void rl_ImageColorReplace(void * image, void * color, void * replace) {
 }
 /** LoadImageColors(params: void * image -> void *) */
 void * rl_LoadImageColors(void * image) {
-  return LoadImageColors(*(Image *)image);
+  return LoadImageColors(*RL_IMG(image));
 }
 /** LoadFileText as a raw char* handle so the pointer returned can be freed
  *  with rl_UnloadFileTextPtr. The flat `:str` binding copies the text into a
@@ -1644,7 +1668,7 @@ const char * rl_PtrToString(void * ptr) {
 }
 /** LoadImagePalette(params: void * image, int maxPaletteSize, void * colorCount -> void *) */
 void * rl_LoadImagePalette(void * image, int maxPaletteSize, void * colorCount) {
-  return LoadImagePalette(*(Image *)image, maxPaletteSize, colorCount);
+  return LoadImagePalette(*RL_IMG(image), maxPaletteSize, colorCount);
 }
 /** UnloadImageColors(params: void * colors -> void) */
 void rl_UnloadImageColors(void * colors) {
@@ -1659,11 +1683,11 @@ void rl_UnloadImagePalette(void * colors) {
 }
 /** GetImageAlphaBorder(params: void * image, float threshold, void * _out -> void) */
 void rl_GetImageAlphaBorder(void * image, float threshold, void * _out) {
-  ((rl_Rectangle*)_out)->v = GetImageAlphaBorder(*(Image *)image, threshold);
+  *RL_RECT(_out) = GetImageAlphaBorder(*RL_IMG(image), threshold);
 }
 /** GetImageColor(params: void * image, int x, int y, void * _out -> void) */
 void rl_GetImageColor(void * image, int x, int y, void * _out) {
-  ((rl_Color*)_out)->c = GetImageColor(*(Image *)image, x, y);
+  ((rl_Color*)_out)->c = GetImageColor(*RL_IMG(image), x, y);
 }
 /** ImageClearBackground(params: void * dst, void * color -> void) */
 void rl_ImageClearBackground(void * dst, void * color) {
@@ -1723,11 +1747,11 @@ void rl_ImageDrawRectangleV(void * dst, void * position, void * size, void * col
 }
 /** ImageDrawRectangleRec(params: void * dst, void * rec, void * color -> void) */
 void rl_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
-  ImageDrawRectangleRec(dst, ((rl_Rectangle*)rec)->v, ((rl_Color*)color)->c);
+  ImageDrawRectangleRec(dst, *RL_RECT(rec), ((rl_Color*)color)->c);
 }
 /** ImageDrawRectanglePro(params: void * dst, void * rec, void * origin, float rotation, void * color -> void) */
 void rl_ImageDrawRectanglePro(void * dst, void * rec, void * origin, float rotation, void * color) {
-  ImageDrawRectanglePro(dst, ((rl_Rectangle*)rec)->v, *RL_V2(origin), rotation, ((rl_Color*)color)->c);
+  ImageDrawRectanglePro(dst, *RL_RECT(rec), *RL_V2(origin), rotation, ((rl_Color*)color)->c);
 }
 /** ImageDrawRectangleLines(params: void * dst, int posX, int posY, int width, int height, void * color -> void) */
 void rl_ImageDrawRectangleLines(void * dst, int posX, int posY, int width, int height, void * color) {
@@ -1735,11 +1759,11 @@ void rl_ImageDrawRectangleLines(void * dst, int posX, int posY, int width, int h
 }
 /** ImageDrawRectangleLinesEx(params: void * dst, void * rec, int thick, void * color -> void) */
 void rl_ImageDrawRectangleLinesEx(void * dst, void * rec, int thick, void * color) {
-  ImageDrawRectangleLinesEx(dst, ((rl_Rectangle*)rec)->v, thick, ((rl_Color*)color)->c);
+  ImageDrawRectangleLinesEx(dst, *RL_RECT(rec), thick, ((rl_Color*)color)->c);
 }
 /** ImageDrawRectangleGradientEx(params: void * dst, void * rec, void * col1, void * col2, void * col3, void * col4 -> void) */
 void rl_ImageDrawRectangleGradientEx(void * dst, void * rec, void * col1, void * col2, void * col3, void * col4) {
-  ImageDrawRectangleGradientEx(dst, ((rl_Rectangle*)rec)->v, ((rl_Color*)col1)->c, ((rl_Color*)col2)->c, ((rl_Color*)col3)->c, ((rl_Color*)col4)->c);
+  ImageDrawRectangleGradientEx(dst, *RL_RECT(rec), ((rl_Color*)col1)->c, ((rl_Color*)col2)->c, ((rl_Color*)col3)->c, ((rl_Color*)col4)->c);
 }
 /** ImageDrawCircle(params: void * dst, int centerX, int centerY, int radius, void * color -> void) */
 void rl_ImageDrawCircle(void * dst, int centerX, int centerY, int radius, void * color) {
@@ -1763,19 +1787,19 @@ void rl_ImageDrawCircleGradient(void * dst, void * center, float radius, void * 
 }
 /** ImageDrawImage(params: void * dst, void * src, int posX, int posY, void * tint -> void) */
 void rl_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) {
-  ImageDrawImage(dst, *(Image *)src, posX, posY, ((rl_Color*)tint)->c);
+  ImageDrawImage(dst, *RL_IMG(src), posX, posY, ((rl_Color*)tint)->c);
 }
 /** ImageDrawImageEx(params: void * dst, void * src, void * position, float rotation, float scale, void * tint -> void) */
 void rl_ImageDrawImageEx(void * dst, void * src, void * position, float rotation, float scale, void * tint) {
-  ImageDrawImageEx(dst, *(Image *)src, *RL_V2(position), rotation, scale, ((rl_Color*)tint)->c);
+  ImageDrawImageEx(dst, *RL_IMG(src), *RL_V2(position), rotation, scale, ((rl_Color*)tint)->c);
 }
 /** ImageDrawImageRec(params: void * dst, void * src, void * srcRec, void * position, void * tint -> void) */
 void rl_ImageDrawImageRec(void * dst, void * src, void * srcRec, void * position, void * tint) {
-  ImageDrawImageRec(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, *RL_V2(position), ((rl_Color*)tint)->c);
+  ImageDrawImageRec(dst, *RL_IMG(src), *RL_RECT(srcRec), *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** ImageDrawImagePro(params: void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint -> void) */
 void rl_ImageDrawImagePro(void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint) {
-  ImageDrawImagePro(dst, *(Image *)src, ((rl_Rectangle*)srcRec)->v, ((rl_Rectangle*)dstRec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
+  ImageDrawImagePro(dst, *RL_IMG(src), *RL_RECT(srcRec), *RL_RECT(dstRec), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** ImageDrawText(params: void * dst, const char * text, int posX, int posY, int fontSize, void * color -> void) */
 void rl_ImageDrawText(void * dst, const char * text, int posX, int posY, int fontSize, void * color) {
@@ -1783,22 +1807,22 @@ void rl_ImageDrawText(void * dst, const char * text, int posX, int posY, int fon
 }
 /** ImageDrawTextEx(params: void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextEx(void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  ImageDrawTextEx(dst, *(Font *)font, text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
+  ImageDrawTextEx(dst, *RL_FONT(font), text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** ImageDrawTextPro(params: void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextPro(void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  ImageDrawTextPro(dst, *(Font *)font, text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
+  ImageDrawTextPro(dst, *RL_FONT(font), text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** LoadTextureFromImage(params: void * image -> void *) */
 void * rl_LoadTextureFromImage(void * image) {
   Texture2D *r = (Texture2D *)malloc(sizeof(Texture2D));
-  *r = LoadTextureFromImage(*(Image *)image);
+  *r = LoadTextureFromImage(*RL_IMG(image));
   return r;
 }
 /** LoadTextureCubemap(params: void * image, int layout -> void *) */
 void * rl_LoadTextureCubemap(void * image, int layout) {
   TextureCubemap *r = (TextureCubemap *)malloc(sizeof(TextureCubemap));
-  *r = LoadTextureCubemap(*(Image *)image, layout);
+  *r = LoadTextureCubemap(*RL_IMG(image), layout);
   return r;
 }
 /** LoadRenderTexture(params: int width, int height -> void *) */
@@ -1815,47 +1839,47 @@ void * rl_LoadRenderTextureEx(int width, int height, int format) {
 }
 /** IsTextureValid(params: void * texture -> _Bool) */
 _Bool rl_IsTextureValid(void * texture) {
-  return IsTextureValid(*(Texture2D *)texture);
+  return IsTextureValid(*RL_TEX(texture));
 }
 /** IsRenderTextureValid(params: void * target -> _Bool) */
 _Bool rl_IsRenderTextureValid(void * target) {
-  return IsRenderTextureValid(*(RenderTexture2D *)target);
+  return IsRenderTextureValid(*RL_RT(target));
 }
 /** UnloadRenderTexture(params: void * target -> void) */
 void rl_UnloadRenderTexture(void * target) {
-  UnloadRenderTexture(*(RenderTexture2D *)target);
+  UnloadRenderTexture(*RL_RT(target));
 }
 /** UpdateTexture(params: void * texture, void * pixels -> void) */
 void rl_UpdateTexture(void * texture, void * pixels) {
-  UpdateTexture(*(Texture2D *)texture, pixels);
+  UpdateTexture(*RL_TEX(texture), pixels);
 }
 /** UpdateTextureRec(params: void * texture, void * rec, void * pixels -> void) */
 void rl_UpdateTextureRec(void * texture, void * rec, void * pixels) {
-  UpdateTextureRec(*(Texture2D *)texture, ((rl_Rectangle*)rec)->v, pixels);
+  UpdateTextureRec(*RL_TEX(texture), *RL_RECT(rec), pixels);
 }
 /** SetTextureFilter(params: void * texture, int filter -> void) */
 void rl_SetTextureFilter(void * texture, int filter) {
-  SetTextureFilter(*(Texture2D *)texture, filter);
+  SetTextureFilter(*RL_TEX(texture), filter);
 }
 /** SetTextureWrap(params: void * texture, int wrap -> void) */
 void rl_SetTextureWrap(void * texture, int wrap) {
-  SetTextureWrap(*(Texture2D *)texture, wrap);
+  SetTextureWrap(*RL_TEX(texture), wrap);
 }
 /** DrawTextureV(params: void * texture, void * position, void * tint -> void) */
 void rl_DrawTextureV(void * texture, void * position, void * tint) {
-  DrawTextureV(*(Texture2D *)texture, *RL_V2(position), ((rl_Color*)tint)->c);
+  DrawTextureV(*RL_TEX(texture), *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** DrawTextureRec(params: void * texture, void * rec, void * position, void * tint -> void) */
 void rl_DrawTextureRec(void * texture, void * rec, void * position, void * tint) {
-  DrawTextureRec(*(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V2(position), ((rl_Color*)tint)->c);
+  DrawTextureRec(*RL_TEX(texture), *RL_RECT(rec), *RL_V2(position), ((rl_Color*)tint)->c);
 }
 /** DrawTexturePro(params: void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void rl_DrawTexturePro(void * texture, void * srcrec, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTexturePro(*(Texture2D *)texture, ((rl_Rectangle*)srcrec)->v, ((rl_Rectangle*)dstrec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
+  DrawTexturePro(*RL_TEX(texture), *RL_RECT(srcrec), *RL_RECT(dstrec), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** DrawTextureNPatch(params: void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint -> void) */
 void rl_DrawTextureNPatch(void * texture, void * nPatchInfo, void * dstrec, void * origin, float rotation, void * tint) {
-  DrawTextureNPatch(*(Texture2D *)texture, ((rl_NPatchInfo*)nPatchInfo)->v, ((rl_Rectangle*)dstrec)->v, *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
+  DrawTextureNPatch(*RL_TEX(texture), ((rl_NPatchInfo*)nPatchInfo)->v, *RL_RECT(dstrec), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** ColorIsEqual(params: void * col1, void * col2 -> _Bool) */
 _Bool rl_ColorIsEqual(void * col1, void * col2) {
@@ -1942,7 +1966,7 @@ void * rl_LoadFontEx(const char * fileName, int fontSize, void * codepoints, int
 /** LoadFontFromImage(params: void * image, void * key, int firstChar -> void *) */
 void * rl_LoadFontFromImage(void * image, void * key, int firstChar) {
   Font *r = (Font *)malloc(sizeof(Font));
-  *r = LoadFontFromImage(*(Image *)image, ((rl_Color*)key)->c, firstChar);
+  *r = LoadFontFromImage(*RL_IMG(image), ((rl_Color*)key)->c, firstChar);
   return r;
 }
 /** LoadFontFromMemory(params: const char * fileType, void * fileData, int dataSize, int fontSize, void * codepoints, int codepointCount -> void *) */
@@ -1953,7 +1977,7 @@ void * rl_LoadFontFromMemory(const char * fileType, void * fileData, int dataSiz
 }
 /** IsFontValid(params: void * font -> _Bool) */
 _Bool rl_IsFontValid(void * font) {
-  return IsFontValid(*(Font *)font);
+  return IsFontValid(*RL_FONT(font));
 }
 /** GenImageFontAtlas(params: void * glyphs, void * glyphRecs, int glyphCount, int fontSize, int padding, int packMethod -> void *) */
 void * rl_GenImageFontAtlas(void * glyphs, void * glyphRecs, int glyphCount, int fontSize, int padding, int packMethod) {
@@ -1963,51 +1987,51 @@ void * rl_GenImageFontAtlas(void * glyphs, void * glyphRecs, int glyphCount, int
 }
 /** UnloadFont(params: void * font -> void) */
 void rl_UnloadFont(void * font) {
-  Font *self = (Font *)font;
+  Font *self = RL_FONT(font);
   UnloadFont(*self);
   free(self);
 }
 /** ExportFontAsCode(params: void * font, const char * fileName -> _Bool) */
 _Bool rl_ExportFontAsCode(void * font, const char * fileName) {
-  return ExportFontAsCode(*(Font *)font, fileName);
+  return ExportFontAsCode(*RL_FONT(font), fileName);
 }
 /** DrawTextEx(params: void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextEx(void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextEx(*(Font *)font, text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextEx(*RL_FONT(font), text, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** DrawTextPro(params: void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextPro(void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  DrawTextPro(*(Font *)font, text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextPro(*RL_FONT(font), text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** DrawTextCodepoint(params: void * font, int codepoint, void * position, float fontSize, void * tint -> void) */
 void rl_DrawTextCodepoint(void * font, int codepoint, void * position, float fontSize, void * tint) {
-  DrawTextCodepoint(*(Font *)font, codepoint, *RL_V2(position), fontSize, ((rl_Color*)tint)->c);
+  DrawTextCodepoint(*RL_FONT(font), codepoint, *RL_V2(position), fontSize, ((rl_Color*)tint)->c);
 }
 /** DrawTextCodepoints(params: void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_DrawTextCodepoints(void * font, void * codepoints, int codepointCount, void * position, float fontSize, float spacing, void * tint) {
-  DrawTextCodepoints(*(Font *)font, codepoints, codepointCount, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
+  DrawTextCodepoints(*RL_FONT(font), codepoints, codepointCount, *RL_V2(position), fontSize, spacing, ((rl_Color*)tint)->c);
 }
 /** MeasureTextEx(params: void * font, const char * text, float fontSize, float spacing, void * _out -> void) */
 void rl_MeasureTextEx(void * font, const char * text, float fontSize, float spacing, void * _out) {
-  *RL_V2(_out) = MeasureTextEx(*(Font *)font, text, fontSize, spacing);
+  *RL_V2(_out) = MeasureTextEx(*RL_FONT(font), text, fontSize, spacing);
 }
 /** MeasureTextCodepoints(params: void * font, void * codepoints, int length, float fontSize, float spacing, void * _out -> void) */
 void rl_MeasureTextCodepoints(void * font, void * codepoints, int length, float fontSize, float spacing, void * _out) {
-  *RL_V2(_out) = MeasureTextCodepoints(*(Font *)font, codepoints, length, fontSize, spacing);
+  *RL_V2(_out) = MeasureTextCodepoints(*RL_FONT(font), codepoints, length, fontSize, spacing);
 }
 /** GetGlyphIndex(params: void * font, int codepoint -> int) */
 int rl_GetGlyphIndex(void * font, int codepoint) {
-  return GetGlyphIndex(*(Font *)font, codepoint);
+  return GetGlyphIndex(*RL_FONT(font), codepoint);
 }
 /** GetGlyphInfo(params: void * font, int codepoint -> void *) */
 void * rl_GetGlyphInfo(void * font, int codepoint) {
   GlyphInfo *r = (GlyphInfo *)malloc(sizeof(GlyphInfo));
-  *r = GetGlyphInfo(*(Font *)font, codepoint);
+  *r = GetGlyphInfo(*RL_FONT(font), codepoint);
   return r;
 }
 /** GetGlyphAtlasRec(params: void * font, int codepoint, void * _out -> void) */
 void rl_GetGlyphAtlasRec(void * font, int codepoint, void * _out) {
-  ((rl_Rectangle*)_out)->v = GetGlyphAtlasRec(*(Font *)font, codepoint);
+  *RL_RECT(_out) = GetGlyphAtlasRec(*RL_FONT(font), codepoint);
 }
 /** DrawLine3D(params: void * startPos, void * endPos, void * color -> void) */
 void rl_DrawLine3D(void * startPos, void * endPos, void * color) {
@@ -2125,15 +2149,15 @@ void rl_DrawBoundingBox(void * box, void * color) {
 }
 /** DrawBillboard(params: void * camera, void * texture, void * position, float scale, void * tint -> void) */
 void rl_DrawBillboard(void * camera, void * texture, void * position, float scale, void * tint) {
-  DrawBillboard(((rl_Camera*)camera)->c, *(Texture2D *)texture, *RL_V3(position), scale, ((rl_Color*)tint)->c);
+  DrawBillboard(((rl_Camera*)camera)->c, *RL_TEX(texture), *RL_V3(position), scale, ((rl_Color*)tint)->c);
 }
 /** DrawBillboardRec(params: void * camera, void * texture, void * rec, void * position, void * size, void * tint -> void) */
 void rl_DrawBillboardRec(void * camera, void * texture, void * rec, void * position, void * size, void * tint) {
-  DrawBillboardRec(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V3(position), *RL_V2(size), ((rl_Color*)tint)->c);
+  DrawBillboardRec(((rl_Camera*)camera)->c, *RL_TEX(texture), *RL_RECT(rec), *RL_V3(position), *RL_V2(size), ((rl_Color*)tint)->c);
 }
 /** DrawBillboardPro(params: void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint -> void) */
 void rl_DrawBillboardPro(void * camera, void * texture, void * rec, void * position, void * up, void * size, void * origin, float rotation, void * tint) {
-  DrawBillboardPro(((rl_Camera*)camera)->c, *(Texture2D *)texture, ((rl_Rectangle*)rec)->v, *RL_V3(position), *RL_V3(up), *RL_V2(size), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
+  DrawBillboardPro(((rl_Camera*)camera)->c, *RL_TEX(texture), *RL_RECT(rec), *RL_V3(position), *RL_V3(up), *RL_V2(size), *RL_V2(origin), rotation, ((rl_Color*)tint)->c);
 }
 /** UpdateMeshBuffer(params: void * mesh, int index, void * data, int dataSize, int offset -> void) */
 void rl_UpdateMeshBuffer(void * mesh, int index, void * data, int dataSize, int offset) {
@@ -2222,13 +2246,13 @@ void * rl_GenMeshKnot(float radius, float size, int radSeg, int sides) {
 /** GenMeshHeightmap(params: void * heightmap, void * size -> void *) */
 void * rl_GenMeshHeightmap(void * heightmap, void * size) {
   Mesh *r = (Mesh *)malloc(sizeof(Mesh));
-  *r = GenMeshHeightmap(*(Image *)heightmap, *RL_V3(size));
+  *r = GenMeshHeightmap(*RL_IMG(heightmap), *RL_V3(size));
   return r;
 }
 /** GenMeshCubicmap(params: void * cubicmap, void * cubeSize -> void *) */
 void * rl_GenMeshCubicmap(void * cubicmap, void * cubeSize) {
   Mesh *r = (Mesh *)malloc(sizeof(Mesh));
-  *r = GenMeshCubicmap(*(Image *)cubicmap, *RL_V3(cubeSize));
+  *r = GenMeshCubicmap(*RL_IMG(cubicmap), *RL_V3(cubeSize));
   return r;
 }
 /** LoadMaterialDefault(params: void -> void *) */
@@ -2249,7 +2273,7 @@ void rl_UnloadMaterial(void * material) {
 }
 /** SetMaterialTexture(params: void * material, int mapType, void * texture -> void) */
 void rl_SetMaterialTexture(void * material, int mapType, void * texture) {
-  SetMaterialTexture(material, mapType, *(Texture2D *)texture);
+  SetMaterialTexture(material, mapType, *RL_TEX(texture));
 }
 /** UpdateModelAnimation(params: void * model, void * anim, float frame -> void) */
 void rl_UpdateModelAnimation(void * model, void * anim, float frame) {
@@ -2620,8 +2644,8 @@ void rl_MatrixFill(rl_Matrix *o, float m0, float m4, float m8, float m12,
  * ================================================================ */
 
 /* Font.texture -> Texture2D* (embedded in the Font struct). */
-void *rl_FontTexture(void *font) {
-  return &((Font *)font)->texture;
+void *rl_FontTexture_ptr(void *font) {
+  return &(RL_FONT(font))->texture;
 }
 
 /* Model.materials[index] -> Material* (embedded in the Model struct). */
@@ -2641,11 +2665,11 @@ int rl_IntGet(int *p) { return *p; }
 void rl_IntFree(int *p) { free(p); }
 
 /* Image field accessors (Image is an opaque heap pointer). */
-int rl_ImageWidth(void *image) { return ((Image *)image)->width; }
-int rl_ImageHeight(void *image) { return ((Image *)image)->height; }
+int rl_ImageWidth(void *image) { return (RL_IMG(image))->width; }
+int rl_ImageHeight(void *image) { return (RL_IMG(image))->height; }
 /* Pointer to the start of a single animation frame's pixel data. */
 void *rl_ImageFrameData(void *image, int frameIndex) {
-  Image *img = (Image *)image;
+  Image *img = RL_IMG(image);
   int frameBytes = img->width * img->height * 4;
   return (unsigned char *)img->data + frameBytes * frameIndex;
 }
@@ -2781,10 +2805,10 @@ void rl_SetShaderValueColor(void *shader, int locIndex, void *color, int type) {
 
 /* ---- Font glyph internals + float-arg rectangle helpers ---- */
 int rl_FontGlyphAdvanceX(void *font, int index) {
-  return ((Font *)font)->glyphs[index].advanceX;
+  return (RL_FONT(font))->glyphs[index].advanceX;
 }
 float rl_FontGlyphRecWidth(void *font, int index) {
-  return ((Font *)font)->recs[index].width;
+  return (RL_FONT(font))->recs[index].width;
 }
 void rl_DrawRectangleLinesExF(float x, float y, float w, float h, float thick,
                               void *color) {
@@ -2798,7 +2822,7 @@ _Bool rl_CheckCollisionPointRecF(void *point, float x, float y, float w,
 
 /* Build a Font from a TTF file's data via LoadFontData + GenImageFontAtlas
  * (used by the SDF font example). loadGlyphCount 0 lets raylib use defaults. */
-void *rl_LoadFontAtlas(const char *path, int fontSize, int loadGlyphCount,
+void *rl_LoadFontAtlas_ptr(const char *path, int fontSize, int loadGlyphCount,
                        int atlasGlyphCount, int padding, int packMethod,
                        int fontType) {
   int dataSize = 0;
@@ -2838,8 +2862,8 @@ rl_Vector3 *rl_Vector3_new0(sp_int cls_id) {
 
 
 /* Pure float/int shims added to bypass Spinel single-TU Rectangle struct-id collision */
-void *rl_ImageFromImageF(void *image, float x, float y, float w, float h) {
-  Image *img = (Image *)image;
+void *rl_ImageFromImageF_ptr(void *image, float x, float y, float w, float h) {
+  Image *img = RL_IMG(image);
   Image *result = (Image *)malloc(sizeof(Image));
   *result = ImageFromImage(*img, (Rectangle){ x, y, w, h });
   return result;
@@ -2869,7 +2893,7 @@ void rl_DrawRectangleRoundedLinesExF(float x, float y, float w, float h,
 
 void rl_DrawTextureRecF(void *texture, float sx, float sy, float sw, float sh,
                         float px, float py, void *tint) {
-  DrawTextureRec(*(Texture2D *)texture,
+  DrawTextureRec(*RL_TEX(texture),
                  (Rectangle){ sx, sy, sw, sh },
                  (Vector2){ px, py },
                  ((rl_Color *)tint)->c);
@@ -2880,7 +2904,7 @@ void rl_DrawTextureRecF(void *texture, float sx, float sy, float sw, float sh,
 void rl_DrawTextureProF(void *texture, float sx, float sy, float sw, float sh,
                         float dx, float dy, float dw, float dh,
                         float ox, float oy, float rotation, void *tint) {
-  DrawTexturePro(*(Texture2D *)texture,
+  DrawTexturePro(*RL_TEX(texture),
                  (Rectangle){ sx, sy, sw, sh },
                  (Rectangle){ dx, dy, dw, dh },
                  (Vector2){ ox, oy }, rotation, ((rl_Color *)tint)->c);
@@ -2966,7 +2990,7 @@ int rl_Material_set_diffuse(void *material, void *texture) {
    * SetMaterialTexture also keeps the material's maps[] consistent instead of
    * writing the slot behind raylib's back. */
   SetMaterialTexture((Material *)material, MATERIAL_MAP_DIFFUSE,
-                     *(Texture2D *)texture);
+                     *RL_TEX(texture));
   return 1;
 }
 
@@ -2979,3 +3003,174 @@ int rl_ModelSetDiffuseTexture(void *model, int materialIndex,
   if (!m || materialIndex < 0 || materialIndex >= m->materialCount) return 0;
   return rl_Material_set_diffuse(&m->materials[materialIndex], texture);
 }
+
+/* ==== handle-class views: implementation (gen_handle_class_c.py) ==== */
+/* Handles are normally views: the producers return a raw pointer to
+ * a heap copy (or an interior pointer), and the Ruby layer wraps it
+ * with <Class>.new(ptr, owner). The owned ctor exists for symmetry. */
+static void *rl_h_unbox(sp_RbVal v) {
+  if (v.tag == SP_TAG_INT) return (void *)(intptr_t)v.v.i;
+  if (v.tag == SP_TAG_OBJ) return v.v.p;
+  return NULL;
+}
+
+static void rl_Image_scan(void *p) {
+  rl_Image *s = (rl_Image *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_Image *rl_Image_new(sp_int cls_id) {
+  rl_Image *s = (rl_Image *)sp_gc_alloc(sizeof(rl_Image), NULL, rl_Image_scan);
+  memset(s, 0, sizeof *s);
+  s->cls_id = cls_id;
+  return s;
+}
+rl_Image *rl_Image_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_Image *s = (rl_Image *)sp_gc_alloc(sizeof(rl_Image), NULL, rl_Image_scan);
+  s->cls_id = cls_id;
+  s->p = (Image *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+sp_int rl_m_Image_width(rl_Image *self) { return (sp_int)RL_IMG(self)->width; }
+sp_int rl_m_Image_height(rl_Image *self) { return (sp_int)RL_IMG(self)->height; }
+sp_int rl_m_Image_mipmaps(rl_Image *self) { return (sp_int)RL_IMG(self)->mipmaps; }
+sp_int rl_m_Image_format(rl_Image *self) { return (sp_int)RL_IMG(self)->format; }
+rl_Image *rl_Image_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Image *s = (rl_Image *)sp_gc_alloc(sizeof(rl_Image), NULL, rl_Image_scan);
+  s->cls_id = cls_id;
+  s->p = (Image *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+static void rl_Texture2D_scan(void *p) {
+  rl_Texture2D *s = (rl_Texture2D *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_Texture2D *rl_Texture2D_new(sp_int cls_id) {
+  rl_Texture2D *s = (rl_Texture2D *)sp_gc_alloc(sizeof(rl_Texture2D), NULL, rl_Texture2D_scan);
+  memset(s, 0, sizeof *s);
+  s->cls_id = cls_id;
+  return s;
+}
+rl_Texture2D *rl_Texture2D_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_Texture2D *s = (rl_Texture2D *)sp_gc_alloc(sizeof(rl_Texture2D), NULL, rl_Texture2D_scan);
+  s->cls_id = cls_id;
+  s->p = (Texture2D *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+sp_int rl_m_Texture2D_id(rl_Texture2D *self) { return (sp_int)RL_TEX(self)->id; }
+sp_int rl_m_Texture2D_width(rl_Texture2D *self) { return (sp_int)RL_TEX(self)->width; }
+sp_int rl_m_Texture2D_height(rl_Texture2D *self) { return (sp_int)RL_TEX(self)->height; }
+sp_int rl_m_Texture2D_mipmaps(rl_Texture2D *self) { return (sp_int)RL_TEX(self)->mipmaps; }
+sp_int rl_m_Texture2D_format(rl_Texture2D *self) { return (sp_int)RL_TEX(self)->format; }
+rl_Texture2D *rl_Texture2D_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Texture2D *s = (rl_Texture2D *)sp_gc_alloc(sizeof(rl_Texture2D), NULL, rl_Texture2D_scan);
+  s->cls_id = cls_id;
+  s->p = (Texture2D *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+static void rl_Font_scan(void *p) {
+  rl_Font *s = (rl_Font *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_Font *rl_Font_new(sp_int cls_id) {
+  rl_Font *s = (rl_Font *)sp_gc_alloc(sizeof(rl_Font), NULL, rl_Font_scan);
+  memset(s, 0, sizeof *s);
+  s->cls_id = cls_id;
+  return s;
+}
+rl_Font *rl_Font_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_Font *s = (rl_Font *)sp_gc_alloc(sizeof(rl_Font), NULL, rl_Font_scan);
+  s->cls_id = cls_id;
+  s->p = (Font *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+sp_int rl_m_Font_baseSize(rl_Font *self) { return (sp_int)RL_FONT(self)->baseSize; }
+sp_int rl_m_Font_glyphCount(rl_Font *self) { return (sp_int)RL_FONT(self)->glyphCount; }
+sp_int rl_m_Font_glyphPadding(rl_Font *self) { return (sp_int)RL_FONT(self)->glyphPadding; }
+rl_Font *rl_Font_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Font *s = (rl_Font *)sp_gc_alloc(sizeof(rl_Font), NULL, rl_Font_scan);
+  s->cls_id = cls_id;
+  s->p = (Font *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+static void rl_GlyphInfo_scan(void *p) {
+  rl_GlyphInfo *s = (rl_GlyphInfo *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_GlyphInfo *rl_GlyphInfo_new(sp_int cls_id) {
+  rl_GlyphInfo *s = (rl_GlyphInfo *)sp_gc_alloc(sizeof(rl_GlyphInfo), NULL, rl_GlyphInfo_scan);
+  memset(s, 0, sizeof *s);
+  s->cls_id = cls_id;
+  return s;
+}
+rl_GlyphInfo *rl_GlyphInfo_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_GlyphInfo *s = (rl_GlyphInfo *)sp_gc_alloc(sizeof(rl_GlyphInfo), NULL, rl_GlyphInfo_scan);
+  s->cls_id = cls_id;
+  s->p = (GlyphInfo *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+sp_int rl_m_GlyphInfo_value(rl_GlyphInfo *self) { return (sp_int)RL_GLYPH(self)->value; }
+sp_int rl_m_GlyphInfo_offsetX(rl_GlyphInfo *self) { return (sp_int)RL_GLYPH(self)->offsetX; }
+sp_int rl_m_GlyphInfo_offsetY(rl_GlyphInfo *self) { return (sp_int)RL_GLYPH(self)->offsetY; }
+sp_int rl_m_GlyphInfo_advanceX(rl_GlyphInfo *self) { return (sp_int)RL_GLYPH(self)->advanceX; }
+rl_GlyphInfo *rl_GlyphInfo_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_GlyphInfo *s = (rl_GlyphInfo *)sp_gc_alloc(sizeof(rl_GlyphInfo), NULL, rl_GlyphInfo_scan);
+  s->cls_id = cls_id;
+  s->p = (GlyphInfo *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+static void rl_RenderTexture_scan(void *p) {
+  rl_RenderTexture *s = (rl_RenderTexture *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_RenderTexture *rl_RenderTexture_new(sp_int cls_id) {
+  rl_RenderTexture *s = (rl_RenderTexture *)sp_gc_alloc(sizeof(rl_RenderTexture), NULL, rl_RenderTexture_scan);
+  memset(s, 0, sizeof *s);
+  s->cls_id = cls_id;
+  return s;
+}
+rl_RenderTexture *rl_RenderTexture_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_RenderTexture *s = (rl_RenderTexture *)sp_gc_alloc(sizeof(rl_RenderTexture), NULL, rl_RenderTexture_scan);
+  s->cls_id = cls_id;
+  s->p = (RenderTexture *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+rl_RenderTexture *rl_RenderTexture_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_RenderTexture *s = (rl_RenderTexture *)sp_gc_alloc(sizeof(rl_RenderTexture), NULL, rl_RenderTexture_scan);
+  s->cls_id = cls_id;
+  s->p = (RenderTexture *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+/* Rectangle view from an address Integer (the gem idiom
+ * `Rectangle.new(font.recs + i * Rectangle.size)`; the argument is a
+ * boxed Integer because Spinel boxes poly arithmetic). */
+Rectangle *rl_Rectangle_view_addr(sp_int cls_id, sp_RbVal addr) {
+  Rectangle *payload = (Rectangle *)(intptr_t)(addr.tag == SP_TAG_INT ? addr.v.i : 0);
+  rl_Rectangle *s = (rl_Rectangle *)sp_gc_alloc(sizeof(rl_Rectangle), NULL, rl_Rectangle_scan);
+  s->cls_id = cls_id;
+  s->p = payload;
+  s->owner = sp_box_nil();
+  return s;
+}
+/* ==== end handle-class views implementation ==== */
+
+/* ==== handle helpers (gen_handle_class_c.py companions) ==== */
+void *rl_Font_texture_ptr(void *font) { return (void *)&RL_FONT(font)->texture; }
+long rl_Font_recs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->recs; }
+long rl_Font_glyphs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->glyphs; }
+void *rl_GlyphInfo_image_ptr(void *g) { return (void *)&RL_GLYPH(g)->image; }
+long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }

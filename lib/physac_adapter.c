@@ -2,6 +2,11 @@
 #include "physac.h"
 #include <stdlib.h>
 #include "spinel/runtime.h"
+#include "rl_handle_views.h"
+
+/* --- P2 view payload access (owned vs view objects). */
+#define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
+
 
 /* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built

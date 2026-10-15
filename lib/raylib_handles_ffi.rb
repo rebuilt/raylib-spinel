@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+# raylib_handles_ffi.rb — the handle classes (Image/Texture2D/Font/...) as
+# native view objects, plus the field shims.
+#
+# The C side lives in lib/rl_handle_views.h (layout + RL_<X> macros) and the
+# implementation section of raylib_adapter.c (ctors, scans, rl_m_* accessors);
+# lib/raylib_handles.rb adds the gem-shaped Ruby methods.
+#
+# View ctors take the pointer boxed ([:any]): Spinel boxes ffi_func :ptr
+# returns, and rl_h_unbox accepts a boxed foreign pointer, an object or an
+# Integer address.
+module Raylib
+  ffi_lib "raylib"
+
+  # pointer <-> address (the gem's `ptr + index * Struct.size` idiom; Spinel
+  # boxes poly arithmetic, so the address travels as an Integer)
+  ffi_func :rl_ptr_addr, [:ptr], :long
+
+  # Interior pointers into the payload of a handle (for sub-struct views).
+  # ffi_funcs (not native_methods): only ffi :ptr returns feed an [:any] ctor.
+  ffi_func :rl_Font_texture_ptr, [:ptr], :ptr
+  ffi_func :rl_Font_recs_addr, [:ptr], :long
+  ffi_func :rl_Font_glyphs_addr, [:ptr], :long
+  ffi_func :rl_GlyphInfo_image_ptr, [:ptr], :ptr
+  ffi_func :rl_RenderTexture_texture_ptr, [:ptr], :ptr
+  ffi_func :rl_RenderTexture_depth_ptr, [:ptr], :ptr
+  ffi_func :rl_FontTexture_ptr, [:ptr], :ptr
+
+  # ------------------------------------------------------------------ Image
+  native_struct "Image", "rl_Image"
+  native_new [], "rl_Image_new"
+  native_new [:any, :any], "rl_Image_view"
+  native_method :width, [], :int, "rl_m_Image_width"
+  native_method :height, [], :int, "rl_m_Image_height"
+  native_method :mipmaps, [], :int, "rl_m_Image_mipmaps"
+  native_method :format, [], :int, "rl_m_Image_format"
+
+  # -------------------------------------------------------------- Texture2D
+  native_struct "Texture2D", "rl_Texture2D"
+  native_new [], "rl_Texture2D_new"
+  native_new [:any, :any], "rl_Texture2D_view"
+  native_method :id, [], :int, "rl_m_Texture2D_id"
+  native_method :width, [], :int, "rl_m_Texture2D_width"
+  native_method :height, [], :int, "rl_m_Texture2D_height"
+  native_method :mipmaps, [], :int, "rl_m_Texture2D_mipmaps"
+  native_method :format, [], :int, "rl_m_Texture2D_format"
+
+  # ------------------------------------------------------------------- Font
+  native_struct "Font", "rl_Font"
+  native_new [], "rl_Font_new"
+  native_new [:any, :any], "rl_Font_view"
+  native_method :baseSize, [], :int, "rl_m_Font_baseSize"
+  native_method :glyphCount, [], :int, "rl_m_Font_glyphCount"
+  native_method :glyphPadding, [], :int, "rl_m_Font_glyphPadding"
+  native_method :texture_ptr, [], :ptr, "rl_Font_texture_ptr"
+
+  # -------------------------------------------------------------- GlyphInfo
+  native_struct "GlyphInfo", "rl_GlyphInfo"
+  native_new [], "rl_GlyphInfo_new"
+  native_new [:any, :any], "rl_GlyphInfo_view"
+  native_new [:any], "rl_GlyphInfo_view_addr"
+  native_method :value, [], :int, "rl_m_GlyphInfo_value"
+  native_method :offsetX, [], :int, "rl_m_GlyphInfo_offsetX"
+  native_method :offsetY, [], :int, "rl_m_GlyphInfo_offsetY"
+  native_method :advanceX, [], :int, "rl_m_GlyphInfo_advanceX"
+
+  # --------------------------------------------------------- RenderTexture
+  native_struct "RenderTexture", "rl_RenderTexture"
+  native_new [], "rl_RenderTexture_new"
+  native_new [:any, :any], "rl_RenderTexture_view"
+  native_method :texture_ptr, [], :ptr, "rl_RenderTexture_texture_ptr"
+  native_method :depth_ptr, [], :ptr, "rl_RenderTexture_depth_ptr"
+end
