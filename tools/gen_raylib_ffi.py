@@ -544,6 +544,8 @@ def wrapper_simple(fn, wrapper_args):
     ewrap.add(name)
     a = ", ".join(wa for wa in wrapper_args if wa is not None)
     ret = fn.return
+    ret = {"RenderTexture2D": "RenderTexture", "TextureCubemap": "Texture2D",
+           "Texture": "Texture2D"}.get(ret, ret)
     call = "Raylib.rl_%s(%s)" % (name, a)
     if ret in HANDLE_RETURNS:
         # handle classes are native views: wrap the raw pointer

@@ -29,6 +29,10 @@ API = os.path.join(os.path.dirname(ROOT), "raylib-bindings", "generator",
 HANDLES = {"Image", "Texture2D", "Font", "GlyphInfo", "RenderTexture",
            "Model", "Material", "Mesh", "Shader", "ModelAnimation"}
 
+# the API spells some of these with their C alias (and the views are one class)
+ALIASES = {"RenderTexture2D": "RenderTexture", "TextureCubemap": "Texture2D",
+           "Texture": "Texture2D"}
+
 # custom shims whose wrappers return a handle (not in the API JSON)
 CUSTOM = {
     "rl_ImageFromImageF_ptr": "Image",
@@ -48,8 +52,11 @@ def handle_returns():
     fns = data["functions"] if isinstance(data, dict) else data
     out = {}
     for fn in fns:
-        if fn.get("returnType") in HANDLES:
-            out[fn["name"]] = fn["returnType"]
+        ret = fn.get("returnType")
+        if ret in HANDLES:
+            out[fn["name"]] = ret
+        elif ret in ALIASES:
+            out[fn["name"]] = ALIASES[ret]
     return out
 
 

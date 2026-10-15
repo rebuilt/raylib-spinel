@@ -1536,7 +1536,7 @@ _Bool rl_CheckCollisionPointPoly(void * point, void * points, int pointCount) {
 }
 /** CheckCollisionLines(params: void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint -> _Bool) */
 _Bool rl_CheckCollisionLines(void * startPos1, void * endPos1, void * startPos2, void * endPos2, void * collisionPoint) {
-  return CheckCollisionLines(*RL_V2(startPos1), *RL_V2(endPos1), *RL_V2(startPos2), *RL_V2(endPos2), collisionPoint);
+  return CheckCollisionLines(*RL_V2(startPos1), *RL_V2(endPos1), *RL_V2(startPos2), *RL_V2(endPos2), RL_V2(collisionPoint));
 }
 /** GetCollisionRec(params: void * rec1, void * rec2, void * _out -> void) */
 void rl_GetCollisionRec(void * rec1, void * rec2, void * _out) {
@@ -1692,31 +1692,31 @@ void * rl_ImageTextEx(void * font, const char * text, float fontSize, float spac
 }
 /** ImageToPOT(params: void * image, void * fill -> void) */
 void rl_ImageToPOT(void * image, void * fill) {
-  ImageToPOT(image, *RL_COLOR(fill));
+  ImageToPOT(RL_IMG(image), *RL_COLOR(fill));
 }
 /** ImageCrop(params: void * image, void * crop -> void) */
 void rl_ImageCrop(void * image, void * crop) {
-  ImageCrop(image, *RL_RECT(crop));
+  ImageCrop(RL_IMG(image), *RL_RECT(crop));
 }
 /** ImageAlphaClear(params: void * image, void * color, float threshold -> void) */
 void rl_ImageAlphaClear(void * image, void * color, float threshold) {
-  ImageAlphaClear(image, *RL_COLOR(color), threshold);
+  ImageAlphaClear(RL_IMG(image), *RL_COLOR(color), threshold);
 }
 /** ImageAlphaMask(params: void * image, void * alphaMask -> void) */
 void rl_ImageAlphaMask(void * image, void * alphaMask) {
-  ImageAlphaMask(image, *RL_IMG(alphaMask));
+  ImageAlphaMask(RL_IMG(image), *RL_IMG(alphaMask));
 }
 /** ImageResizeCanvas(params: void * image, int newWidth, int newHeight, int offsetX, int offsetY, void * fill -> void) */
 void rl_ImageResizeCanvas(void * image, int newWidth, int newHeight, int offsetX, int offsetY, void * fill) {
-  ImageResizeCanvas(image, newWidth, newHeight, offsetX, offsetY, *RL_COLOR(fill));
+  ImageResizeCanvas(RL_IMG(image), newWidth, newHeight, offsetX, offsetY, *RL_COLOR(fill));
 }
 /** ImageColorTint(params: void * image, void * color -> void) */
 void rl_ImageColorTint(void * image, void * color) {
-  ImageColorTint(image, *RL_COLOR(color));
+  ImageColorTint(RL_IMG(image), *RL_COLOR(color));
 }
 /** ImageColorReplace(params: void * image, void * color, void * replace -> void) */
 void rl_ImageColorReplace(void * image, void * color, void * replace) {
-  ImageColorReplace(image, *RL_COLOR(color), *RL_COLOR(replace));
+  ImageColorReplace(RL_IMG(image), *RL_COLOR(color), *RL_COLOR(replace));
 }
 /** LoadImageColors(params: void * image -> void *) */
 void * rl_LoadImageColors(void * image) {
@@ -1763,127 +1763,127 @@ void rl_GetImageColor(void * image, int x, int y, void * _out) {
 }
 /** ImageClearBackground(params: void * dst, void * color -> void) */
 void rl_ImageClearBackground(void * dst, void * color) {
-  ImageClearBackground(dst, *RL_COLOR(color));
+  ImageClearBackground(RL_IMG(dst), *RL_COLOR(color));
 }
 /** ImageDrawPixel(params: void * dst, int posX, int posY, void * color -> void) */
 void rl_ImageDrawPixel(void * dst, int posX, int posY, void * color) {
-  ImageDrawPixel(dst, posX, posY, *RL_COLOR(color));
+  ImageDrawPixel(RL_IMG(dst), posX, posY, *RL_COLOR(color));
 }
 /** ImageDrawPixelV(params: void * dst, void * position, void * color -> void) */
 void rl_ImageDrawPixelV(void * dst, void * position, void * color) {
-  ImageDrawPixelV(dst, *RL_V2(position), *RL_COLOR(color));
+  ImageDrawPixelV(RL_IMG(dst), *RL_V2(position), *RL_COLOR(color));
 }
 /** ImageDrawLine(params: void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color -> void) */
 void rl_ImageDrawLine(void * dst, int startPosX, int startPosY, int endPosX, int endPosY, void * color) {
-  ImageDrawLine(dst, startPosX, startPosY, endPosX, endPosY, *RL_COLOR(color));
+  ImageDrawLine(RL_IMG(dst), startPosX, startPosY, endPosX, endPosY, *RL_COLOR(color));
 }
 /** ImageDrawLineV(params: void * dst, void * start, void * end, void * color -> void) */
 void rl_ImageDrawLineV(void * dst, void * start, void * end, void * color) {
-  ImageDrawLineV(dst, *RL_V2(start), *RL_V2(end), *RL_COLOR(color));
+  ImageDrawLineV(RL_IMG(dst), *RL_V2(start), *RL_V2(end), *RL_COLOR(color));
 }
 /** ImageDrawLineEx(params: void * dst, void * start, void * end, int thick, void * color -> void) */
 void rl_ImageDrawLineEx(void * dst, void * start, void * end, int thick, void * color) {
-  ImageDrawLineEx(dst, *RL_V2(start), *RL_V2(end), thick, *RL_COLOR(color));
+  ImageDrawLineEx(RL_IMG(dst), *RL_V2(start), *RL_V2(end), thick, *RL_COLOR(color));
 }
 /** ImageDrawLineStrip(params: void * dst, void * points, int pointCount, void * color -> void) */
 void rl_ImageDrawLineStrip(void * dst, void * points, int pointCount, void * color) {
-  ImageDrawLineStrip(dst, points, pointCount, *RL_COLOR(color));
+  ImageDrawLineStrip(RL_IMG(dst), points, pointCount, *RL_COLOR(color));
 }
 /** ImageDrawTriangle(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void rl_ImageDrawTriangle(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangle(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(color));
+  ImageDrawTriangle(RL_IMG(dst), *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(color));
 }
 /** ImageDrawTriangleGradient(params: void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3 -> void) */
 void rl_ImageDrawTriangleGradient(void * dst, void * v1, void * v2, void * v3, void * c1, void * c2, void * c3) {
-  ImageDrawTriangleGradient(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(c1), *RL_COLOR(c2), *RL_COLOR(c3));
+  ImageDrawTriangleGradient(RL_IMG(dst), *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(c1), *RL_COLOR(c2), *RL_COLOR(c3));
 }
 /** ImageDrawTriangleLines(params: void * dst, void * v1, void * v2, void * v3, void * color -> void) */
 void rl_ImageDrawTriangleLines(void * dst, void * v1, void * v2, void * v3, void * color) {
-  ImageDrawTriangleLines(dst, *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(color));
+  ImageDrawTriangleLines(RL_IMG(dst), *RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(color));
 }
 /** ImageDrawTriangleFan(params: void * dst, void * points, int pointCount, void * color -> void) */
 void rl_ImageDrawTriangleFan(void * dst, void * points, int pointCount, void * color) {
-  ImageDrawTriangleFan(dst, points, pointCount, *RL_COLOR(color));
+  ImageDrawTriangleFan(RL_IMG(dst), points, pointCount, *RL_COLOR(color));
 }
 /** ImageDrawTriangleStrip(params: void * dst, void * points, int pointCount, void * color -> void) */
 void rl_ImageDrawTriangleStrip(void * dst, void * points, int pointCount, void * color) {
-  ImageDrawTriangleStrip(dst, points, pointCount, *RL_COLOR(color));
+  ImageDrawTriangleStrip(RL_IMG(dst), points, pointCount, *RL_COLOR(color));
 }
 /** ImageDrawRectangle(params: void * dst, int posX, int posY, int width, int height, void * color -> void) */
 void rl_ImageDrawRectangle(void * dst, int posX, int posY, int width, int height, void * color) {
-  ImageDrawRectangle(dst, posX, posY, width, height, *RL_COLOR(color));
+  ImageDrawRectangle(RL_IMG(dst), posX, posY, width, height, *RL_COLOR(color));
 }
 /** ImageDrawRectangleV(params: void * dst, void * position, void * size, void * color -> void) */
 void rl_ImageDrawRectangleV(void * dst, void * position, void * size, void * color) {
-  ImageDrawRectangleV(dst, *RL_V2(position), *RL_V2(size), *RL_COLOR(color));
+  ImageDrawRectangleV(RL_IMG(dst), *RL_V2(position), *RL_V2(size), *RL_COLOR(color));
 }
 /** ImageDrawRectangleRec(params: void * dst, void * rec, void * color -> void) */
 void rl_ImageDrawRectangleRec(void * dst, void * rec, void * color) {
-  ImageDrawRectangleRec(dst, *RL_RECT(rec), *RL_COLOR(color));
+  ImageDrawRectangleRec(RL_IMG(dst), *RL_RECT(rec), *RL_COLOR(color));
 }
 /** ImageDrawRectanglePro(params: void * dst, void * rec, void * origin, float rotation, void * color -> void) */
 void rl_ImageDrawRectanglePro(void * dst, void * rec, void * origin, float rotation, void * color) {
-  ImageDrawRectanglePro(dst, *RL_RECT(rec), *RL_V2(origin), rotation, *RL_COLOR(color));
+  ImageDrawRectanglePro(RL_IMG(dst), *RL_RECT(rec), *RL_V2(origin), rotation, *RL_COLOR(color));
 }
 /** ImageDrawRectangleLines(params: void * dst, int posX, int posY, int width, int height, void * color -> void) */
 void rl_ImageDrawRectangleLines(void * dst, int posX, int posY, int width, int height, void * color) {
-  ImageDrawRectangleLines(dst, posX, posY, width, height, *RL_COLOR(color));
+  ImageDrawRectangleLines(RL_IMG(dst), posX, posY, width, height, *RL_COLOR(color));
 }
 /** ImageDrawRectangleLinesEx(params: void * dst, void * rec, int thick, void * color -> void) */
 void rl_ImageDrawRectangleLinesEx(void * dst, void * rec, int thick, void * color) {
-  ImageDrawRectangleLinesEx(dst, *RL_RECT(rec), thick, *RL_COLOR(color));
+  ImageDrawRectangleLinesEx(RL_IMG(dst), *RL_RECT(rec), thick, *RL_COLOR(color));
 }
 /** ImageDrawRectangleGradientEx(params: void * dst, void * rec, void * col1, void * col2, void * col3, void * col4 -> void) */
 void rl_ImageDrawRectangleGradientEx(void * dst, void * rec, void * col1, void * col2, void * col3, void * col4) {
-  ImageDrawRectangleGradientEx(dst, *RL_RECT(rec), *RL_COLOR(col1), *RL_COLOR(col2), *RL_COLOR(col3), *RL_COLOR(col4));
+  ImageDrawRectangleGradientEx(RL_IMG(dst), *RL_RECT(rec), *RL_COLOR(col1), *RL_COLOR(col2), *RL_COLOR(col3), *RL_COLOR(col4));
 }
 /** ImageDrawCircle(params: void * dst, int centerX, int centerY, int radius, void * color -> void) */
 void rl_ImageDrawCircle(void * dst, int centerX, int centerY, int radius, void * color) {
-  ImageDrawCircle(dst, centerX, centerY, radius, *RL_COLOR(color));
+  ImageDrawCircle(RL_IMG(dst), centerX, centerY, radius, *RL_COLOR(color));
 }
 /** ImageDrawCircleV(params: void * dst, void * center, int radius, void * color -> void) */
 void rl_ImageDrawCircleV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleV(dst, *RL_V2(center), radius, *RL_COLOR(color));
+  ImageDrawCircleV(RL_IMG(dst), *RL_V2(center), radius, *RL_COLOR(color));
 }
 /** ImageDrawCircleLines(params: void * dst, int centerX, int centerY, int radius, void * color -> void) */
 void rl_ImageDrawCircleLines(void * dst, int centerX, int centerY, int radius, void * color) {
-  ImageDrawCircleLines(dst, centerX, centerY, radius, *RL_COLOR(color));
+  ImageDrawCircleLines(RL_IMG(dst), centerX, centerY, radius, *RL_COLOR(color));
 }
 /** ImageDrawCircleLinesV(params: void * dst, void * center, int radius, void * color -> void) */
 void rl_ImageDrawCircleLinesV(void * dst, void * center, int radius, void * color) {
-  ImageDrawCircleLinesV(dst, *RL_V2(center), radius, *RL_COLOR(color));
+  ImageDrawCircleLinesV(RL_IMG(dst), *RL_V2(center), radius, *RL_COLOR(color));
 }
 /** ImageDrawCircleGradient(params: void * dst, void * center, float radius, void * inner, void * outer -> void) */
 void rl_ImageDrawCircleGradient(void * dst, void * center, float radius, void * inner, void * outer) {
-  ImageDrawCircleGradient(dst, *RL_V2(center), radius, *RL_COLOR(inner), *RL_COLOR(outer));
+  ImageDrawCircleGradient(RL_IMG(dst), *RL_V2(center), radius, *RL_COLOR(inner), *RL_COLOR(outer));
 }
 /** ImageDrawImage(params: void * dst, void * src, int posX, int posY, void * tint -> void) */
 void rl_ImageDrawImage(void * dst, void * src, int posX, int posY, void * tint) {
-  ImageDrawImage(dst, *RL_IMG(src), posX, posY, *RL_COLOR(tint));
+  ImageDrawImage(RL_IMG(dst), *RL_IMG(src), posX, posY, *RL_COLOR(tint));
 }
 /** ImageDrawImageEx(params: void * dst, void * src, void * position, float rotation, float scale, void * tint -> void) */
 void rl_ImageDrawImageEx(void * dst, void * src, void * position, float rotation, float scale, void * tint) {
-  ImageDrawImageEx(dst, *RL_IMG(src), *RL_V2(position), rotation, scale, *RL_COLOR(tint));
+  ImageDrawImageEx(RL_IMG(dst), *RL_IMG(src), *RL_V2(position), rotation, scale, *RL_COLOR(tint));
 }
 /** ImageDrawImageRec(params: void * dst, void * src, void * srcRec, void * position, void * tint -> void) */
 void rl_ImageDrawImageRec(void * dst, void * src, void * srcRec, void * position, void * tint) {
-  ImageDrawImageRec(dst, *RL_IMG(src), *RL_RECT(srcRec), *RL_V2(position), *RL_COLOR(tint));
+  ImageDrawImageRec(RL_IMG(dst), *RL_IMG(src), *RL_RECT(srcRec), *RL_V2(position), *RL_COLOR(tint));
 }
 /** ImageDrawImagePro(params: void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint -> void) */
 void rl_ImageDrawImagePro(void * dst, void * src, void * srcRec, void * dstRec, void * origin, float rotation, void * tint) {
-  ImageDrawImagePro(dst, *RL_IMG(src), *RL_RECT(srcRec), *RL_RECT(dstRec), *RL_V2(origin), rotation, *RL_COLOR(tint));
+  ImageDrawImagePro(RL_IMG(dst), *RL_IMG(src), *RL_RECT(srcRec), *RL_RECT(dstRec), *RL_V2(origin), rotation, *RL_COLOR(tint));
 }
 /** ImageDrawText(params: void * dst, const char * text, int posX, int posY, int fontSize, void * color -> void) */
 void rl_ImageDrawText(void * dst, const char * text, int posX, int posY, int fontSize, void * color) {
-  ImageDrawText(dst, text, posX, posY, fontSize, *RL_COLOR(color));
+  ImageDrawText(RL_IMG(dst), text, posX, posY, fontSize, *RL_COLOR(color));
 }
 /** ImageDrawTextEx(params: void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextEx(void * dst, void * font, const char * text, void * position, float fontSize, float spacing, void * tint) {
-  ImageDrawTextEx(dst, *RL_FONT(font), text, *RL_V2(position), fontSize, spacing, *RL_COLOR(tint));
+  ImageDrawTextEx(RL_IMG(dst), *RL_FONT(font), text, *RL_V2(position), fontSize, spacing, *RL_COLOR(tint));
 }
 /** ImageDrawTextPro(params: void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint -> void) */
 void rl_ImageDrawTextPro(void * dst, void * font, const char * text, void * position, void * origin, float rotation, float fontSize, float spacing, void * tint) {
-  ImageDrawTextPro(dst, *RL_FONT(font), text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, *RL_COLOR(tint));
+  ImageDrawTextPro(RL_IMG(dst), *RL_FONT(font), text, *RL_V2(position), *RL_V2(origin), rotation, fontSize, spacing, *RL_COLOR(tint));
 }
 /** LoadTextureFromImage(params: void * image -> void *) */
 void * rl_LoadTextureFromImage(void * image) {
@@ -2345,7 +2345,7 @@ void rl_UnloadMaterial(void * material) {
 }
 /** SetMaterialTexture(params: void * material, int mapType, void * texture -> void) */
 void rl_SetMaterialTexture(void * material, int mapType, void * texture) {
-  SetMaterialTexture(material, mapType, *RL_TEX(texture));
+  SetMaterialTexture(RL_MAT(material), mapType, *RL_TEX(texture));
 }
 /** UpdateModelAnimation(params: void * model, void * anim, float frame -> void) */
 void rl_UpdateModelAnimation(void * model, void * anim, float frame) {

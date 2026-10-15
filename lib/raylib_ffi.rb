@@ -1966,13 +1966,13 @@ module Raylib
       Texture2D.new(Raylib.rl_LoadTextureFromImage(image), nil)
     end
     def self.LoadTextureCubemap(image, layout)
-      Raylib.rl_LoadTextureCubemap(image, layout)
+      Texture2D.new(Raylib.rl_LoadTextureCubemap(image, layout), nil)
     end
     def self.LoadRenderTexture(width, height)
-      Raylib.rl_LoadRenderTexture(width, height)
+      RenderTexture.new(Raylib.rl_LoadRenderTexture(width, height), nil)
     end
     def self.LoadRenderTextureEx(width, height, format)
-      Raylib.rl_LoadRenderTextureEx(width, height, format)
+      RenderTexture.new(Raylib.rl_LoadRenderTextureEx(width, height, format), nil)
     end
     def self.IsTextureValid(texture)
       Raylib.rl_IsTextureValid(texture)

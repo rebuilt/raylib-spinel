@@ -23,8 +23,7 @@ Tool: `tools/run_gem_corpus.py`. Oracle: CRuby + raylib-bindings; Spinel: `spine
 
 | verdict | count |
 | --- | --- |
-| analyzed | 56 |
-| bare-call | 1 |
+| analyzed | 57 |
 | invalid | 3 |
 | refusal | 10 |
 
@@ -36,8 +35,3 @@ Invalid upstream (excluded from the target):
 - models_animation_blending.gpu.rb — calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)
 - textures_background_scrolling.rb — calls unloadtexture (typo; NoMethodError under CRuby)
 - textures_bunnymark_optimized.rb — calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)
-First bare-call blocker (same shape for all 1):
-
-```
-/tmp/tmpajzl32gf/shaders_basic_pbr.rb:356: unsupported call: node 97912 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0
-```
