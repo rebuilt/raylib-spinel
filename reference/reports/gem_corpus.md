@@ -39,5 +39,5 @@ Invalid upstream (excluded from the target):
 First bare-call blocker (same shape for all 1):
 
 ```
-/tmp/tmpbraiwnwz/core_automation_events.rb:177: unsupported call: node 89205 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0
+/tmp/tmpi1v5phqe/core_automation_events.rb:177: unsupported call: node 94630 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0
 ```
