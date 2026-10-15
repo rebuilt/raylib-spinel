@@ -89,6 +89,7 @@ that and are safe to run any time:
 ```bash
 python3 tools/check_shim_unwraps.py                # shims + direct decls + undefined symbols
 python3 tools/fix_pointer_handle_shims.py --check  # single-struct pointer params unwrapped
+ruby tools/check_duplicate_methods.rb              # one definition per module function
 ```
 
 Verification: `spin test` (headless, MRI-differential expectations) and

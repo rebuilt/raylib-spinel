@@ -134,18 +134,6 @@ module Raylib
   end
 
   class Color
-    def self.from_u8(r = 0, g = 0, b = 0, a = 255)
-      Color.new(r.to_i, g.to_i, b.to_i, a.to_i)
-    end
-
-    def self.from_u32(rgba = 255)
-      r = (rgba >> 24) & 0xFF
-      g = (rgba >> 16) & 0xFF
-      b = (rgba >> 8) & 0xFF
-      a = rgba & 0xFF
-      Color.new(r, g, b, a)
-    end
-
 
     def set(r, g, b, a)
       self.r = r.to_i

@@ -1281,7 +1281,7 @@ module Raylib
     # the native class; MRI gets the identical helpers in raylib_ruby.rb.
     class Color
       def self.from_u8(r = 0, g = 0, b = 0, a = 255)
-        Color.new(r, g, b, a)
+        Color.new(r.to_i, g.to_i, b.to_i, a.to_i)
       end
 
       def self.from_u32(rgba = 255)
