@@ -79,11 +79,6 @@ module Raylib
   # shims -- rl_Model_material_ptr, rl_Model_mesh_ptr, rl_ModelAnimationAt_ptr,
   # rl_LoadShaderFS_ptr -- stay declared next to their peers in raylib_ffi.rb)
   ffi_func :rl_Material_shader_ptr, [:ptr], :ptr
-  ffi_func :rl_Model_meshes_ptr, [:ptr], :ptr
-  ffi_func :rl_Model_materials_ptr, [:ptr], :ptr
-  ffi_func :rl_Model_material_at, [:ptr, :int], :ptr
-  ffi_func :rl_Model_mesh_at, [:ptr, :int], :ptr
-  ffi_func :rl_Model_transform_ptr, [:ptr], :ptr
 
   native_struct "Model", "rl_Model"
   native_new [], "rl_Model_new"

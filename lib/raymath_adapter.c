@@ -7,6 +7,11 @@
 #include "rl_handle_views.h"
 
 /* --- P2 view payload access (owned vs view objects). */
+#define RL_AEVENT(o) (((rl_AutomationEvent *)(o))->p ? ((rl_AutomationEvent *)(o))->p : &((rl_AutomationEvent *)(o))->v)
+#define RL_AEVLIST(o) (((rl_AutomationEventList *)(o))->p ? ((rl_AutomationEventList *)(o))->p : &((rl_AutomationEventList *)(o))->v)
+
+
+/* --- P2 view payload access (owned vs view objects). */
 #define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
 
 

@@ -5,6 +5,11 @@
 #include "rl_handle_views.h"
 
 /* --- P2 view payload access (owned vs view objects). */
+#define RL_AEVENT(o) (((rl_AutomationEvent *)(o))->p ? ((rl_AutomationEvent *)(o))->p : &((rl_AutomationEvent *)(o))->v)
+#define RL_AEVLIST(o) (((rl_AutomationEventList *)(o))->p ? ((rl_AutomationEventList *)(o))->p : &((rl_AutomationEventList *)(o))->v)
+
+
+/* --- P2 view payload access (owned vs view objects). */
 #define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
 
 
@@ -95,3 +100,13 @@ void rl_PhysicsShatter(void * body, void * position, float force) {
 void rl_SetPhysicsBodyRotation(void * body, float radians) {
   SetPhysicsBodyRotation(*(PhysicsBody *)body, radians);
 }
+
+/* ==== PhysicsBodyData accessors (the gem's struct view over PhysicsBody) ==== */
+long rl_PhysicsBodyData_position_addr(void *b) { return (long)(intptr_t)&((struct PhysicsBodyData *)b)->position; }
+long rl_PhysicsBodyData_velocity_addr(void *b) { return (long)(intptr_t)&((struct PhysicsBodyData *)b)->velocity; }
+long rl_PhysicsBodyData_force_addr(void *b) { return (long)(intptr_t)&((struct PhysicsBodyData *)b)->force; }
+int rl_PhysicsBodyData_id(void *b) { return (int)((struct PhysicsBodyData *)b)->id; }
+int rl_PhysicsBodyData_enabled(void *b) { return ((struct PhysicsBodyData *)b)->enabled ? 1 : 0; }
+int rl_PhysicsBodyData_isGrounded(void *b) { return ((struct PhysicsBodyData *)b)->isGrounded ? 1 : 0; }
+double rl_PhysicsBodyData_orient(void *b) { return (double)((struct PhysicsBodyData *)b)->orient; }
+double rl_PhysicsBodyData_mass(void *b) { return (double)((struct PhysicsBodyData *)b)->mass; }

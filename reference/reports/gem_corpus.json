@@ -47,9 +47,304 @@
   },
   {
    "name": "10_models.rb",
-   "verdict": "run-error",
-   "detail": "run-error: undefined method 'meshCount' for an instance of  (NoMethodError)"
+   "verdict": "same",
+   "detail": ""
   }
  ],
- "examples": []
+ "examples": [
+  {
+   "name": "audio_music_stream.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "audio_raw_stream.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "audio_sound_loading.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "basic_loop.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "bitmap_font.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_2d_camera.rb",
+   "verdict": "refusal",
+   "detail": "/tmp/tmpxmvf5tra/core_2d_camera.rb:63: unsupported multiple assignment call target no writer: node 96835 (MultiWriteNode)"
+  },
+  {
+   "name": "core_3d_camera_first_person.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_3d_split_screen.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_automation_events.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_drop_files.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_loading_thread.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "core_world_screen.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "flocking_optimized.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "flocking_plain.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "game_of_life_simple.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "game_of_life_ui.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "generate_heightmap_obj.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "gui_controls.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "lissajous_curve.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_animation.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_animation_blending.cpu.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_animation_blending.gpu.rb",
+   "verdict": "invalid",
+   "detail": "calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)"
+  },
+  {
+   "name": "models_animation_lowlevelapi.rb",
+   "verdict": "refusal",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:568: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 103085 (LocalVariableReadNode)"
+  },
+  {
+   "name": "models_billboard.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_box_collisions.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_cubicmap.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_first_person_maze.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_geometric_shapes.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_heightmap.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_loading_gltf.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_loading_m3d.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_mesh_generation.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_mesh_picking.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_rlgl_solar_system.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_waving_cubes.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "models_yaw_pitch_roll.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "particles_fireworks.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "physics_demo.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "procedural_texture.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "raylib_opengl_interop.rb",
+   "verdict": "refusal",
+   "detail": "cannot load such file -- opengl (require \"opengl\")"
+  },
+  {
+   "name": "raylib_with_imgui.rb",
+   "verdict": "refusal",
+   "detail": "/tmp/tmpobwoqy1_/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
+  },
+  {
+   "name": "raylib_with_tileson.rb",
+   "verdict": "refusal",
+   "detail": "cannot load such file -- tileson (require \"tileson\")"
+  },
+  {
+   "name": "render_to_texture_with_imgui.rb",
+   "verdict": "refusal",
+   "detail": "cannot load such file -- imgui (require \"imgui\")"
+  },
+  {
+   "name": "reversi_board.rb",
+   "verdict": "refusal",
+   "detail": "/tmp/tmp275v__ji/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
+  },
+  {
+   "name": "rlgl_compute_shader.rb",
+   "verdict": "refusal",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:161: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 100463 (LocalVariableReadNode)"
+  },
+  {
+   "name": "shaders_basic_lighting.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "shaders_basic_pbr.rb",
+   "verdict": "bare-call",
+   "detail": "/tmp/tmpajzl32gf/shaders_basic_pbr.rb:356: unsupported call: node 97912 (CallNode `size`) recv=ConstantReadNode/ty49 argc=0"
+  },
+  {
+   "name": "shaders_raymarching.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "shapes_basic_shapes.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "shapes_draw_circle_sector.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "shapes_lines_bezier.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "shapes_splines_drawing.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "snake_case_api.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "snake_case_rlgl.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "template.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "text_draw_3d.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "text_font_filters.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "text_font_sdf.rb",
+   "verdict": "refusal",
+   "detail": "/home/nelson/workspace/ruby/spinel/raylib-spinel/lib/raylib_include.rb:423: unsupported ffi pointer argument (a Ruby object has no C address; pass an IO::Buffer, a String or a :ptr value): node 101935 (LocalVariableReadNode)"
+  },
+  {
+   "name": "text_rectangle_bounds.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "text_unicode.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_background_scrolling.rb",
+   "verdict": "invalid",
+   "detail": "calls unloadtexture (typo; NoMethodError under CRuby)"
+  },
+  {
+   "name": "textures_bunnymark_optimized.rb",
+   "verdict": "invalid",
+   "detail": "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)"
+  },
+  {
+   "name": "textures_bunnymark_plain.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_gif_player.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_image_generation.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_image_rotate.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_mouse_painting.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "textures_sprite_anim.rb",
+   "verdict": "analyzed"
+  },
+  {
+   "name": "toon_character_sprites.rb",
+   "verdict": "refusal",
+   "detail": "cannot load such file -- rexml/document (require \"rexml/document\")"
+  },
+  {
+   "name": "utf8_font.rb",
+   "verdict": "analyzed"
+  }
+ ]
 }

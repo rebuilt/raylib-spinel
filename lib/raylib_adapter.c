@@ -7,6 +7,11 @@
 #include "rl_handle_views.h"
 
 /* --- P2 view payload access (owned vs view objects). */
+#define RL_AEVENT(o) (((rl_AutomationEvent *)(o))->p ? ((rl_AutomationEvent *)(o))->p : &((rl_AutomationEvent *)(o))->v)
+#define RL_AEVLIST(o) (((rl_AutomationEventList *)(o))->p ? ((rl_AutomationEventList *)(o))->p : &((rl_AutomationEventList *)(o))->v)
+
+
+/* --- P2 view payload access (owned vs view objects). */
 #define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
 
 
@@ -612,6 +617,7 @@ rl_Transform *rl_Transform_new(sp_int cls_id) {
 Transform *rl_Transform_view(sp_int cls_id, void *p, sp_RbVal owner) {
   rl_Transform *self = (rl_Transform *)sp_gc_alloc(sizeof(rl_Transform), NULL, rl_Transform_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->p = (Transform *)p;
   self->owner = owner;
   return self;
@@ -927,53 +933,81 @@ const char *rl_FilePathList_path(rl_FilePathList *self, int index) {
 
 /* rl_AutomationEvent — GC-embedded AutomationEvent (see raylib_ffi.rb) */typedef struct rl_AutomationEvent_s {
   sp_int cls_id;
+  AutomationEvent *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   AutomationEvent v;
 } rl_AutomationEvent;
-static void rl_AutomationEvent_scan(void *p) { (void)p; }
+static void rl_AutomationEvent_scan(void *p) {
+  rl_AutomationEvent *s = (rl_AutomationEvent *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 rl_AutomationEvent *rl_AutomationEvent_new(sp_int cls_id) {
   rl_AutomationEvent *self = (rl_AutomationEvent *)sp_gc_alloc(sizeof(rl_AutomationEvent), NULL, rl_AutomationEvent_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (AutomationEvent){ 0 };
   return self;
 }
+
+AutomationEvent *rl_AutomationEvent_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_AutomationEvent *self = (rl_AutomationEvent *)sp_gc_alloc(sizeof(rl_AutomationEvent), NULL, rl_AutomationEvent_scan);
+  self->cls_id = cls_id;
+  self->p = (AutomationEvent *)p;
+  self->owner = owner;
+  return self;
+}
 int rl_AutomationEvent_frame(rl_AutomationEvent *self) {
-  return self->v.frame;
+  return RL_AEVENT(self)->frame;
 }
 int rl_AutomationEvent_set_frame(rl_AutomationEvent *self, int frame) {
-  self->v.frame = frame;
+  RL_AEVENT(self)->frame = frame;
   return frame;
 }
 int rl_AutomationEvent_type(rl_AutomationEvent *self) {
-  return self->v.type;
+  return RL_AEVENT(self)->type;
 }
 int rl_AutomationEvent_set_type(rl_AutomationEvent *self, int type) {
-  self->v.type = type;
+  RL_AEVENT(self)->type = type;
   return type;
 }
 
 /* rl_AutomationEventList — GC-embedded AutomationEventList (see raylib_ffi.rb) */typedef struct rl_AutomationEventList_s {
   sp_int cls_id;
+  AutomationEventList *p;     /* NULL: owned (payload in v); non-NULL: a view */
+  sp_RbVal owner;  /* view: GC-marked reference to the owner */
   AutomationEventList v;
 } rl_AutomationEventList;
-static void rl_AutomationEventList_scan(void *p) { (void)p; }
+static void rl_AutomationEventList_scan(void *p) {
+  rl_AutomationEventList *s = (rl_AutomationEventList *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
 rl_AutomationEventList *rl_AutomationEventList_new(sp_int cls_id) {
   rl_AutomationEventList *self = (rl_AutomationEventList *)sp_gc_alloc(sizeof(rl_AutomationEventList), NULL, rl_AutomationEventList_scan);
   self->cls_id = cls_id;
+  self->p = NULL;
   self->v = (AutomationEventList){ 0 };
   return self;
 }
+
+AutomationEventList *rl_AutomationEventList_view(sp_int cls_id, void *p, sp_RbVal owner) {
+  rl_AutomationEventList *self = (rl_AutomationEventList *)sp_gc_alloc(sizeof(rl_AutomationEventList), NULL, rl_AutomationEventList_scan);
+  self->cls_id = cls_id;
+  self->p = (AutomationEventList *)p;
+  self->owner = owner;
+  return self;
+}
 int rl_AutomationEventList_capacity(rl_AutomationEventList *self) {
-  return self->v.capacity;
+  return RL_AEVLIST(self)->capacity;
 }
 int rl_AutomationEventList_set_capacity(rl_AutomationEventList *self, int capacity) {
-  self->v.capacity = capacity;
+  RL_AEVLIST(self)->capacity = capacity;
   return capacity;
 }
 int rl_AutomationEventList_count(rl_AutomationEventList *self) {
-  return self->v.count;
+  return RL_AEVLIST(self)->count;
 }
 int rl_AutomationEventList_set_count(rl_AutomationEventList *self, int count) {
-  self->v.count = count;
+  RL_AEVLIST(self)->count = count;
   return count;
 }
 
@@ -1180,23 +1214,23 @@ void rl_UnloadDroppedFiles(void * files) {
 }
 /** LoadAutomationEventList(params: const char * fileName, void * _out -> void) */
 void rl_LoadAutomationEventList(const char * fileName, void * _out) {
-  ((rl_AutomationEventList*)_out)->v = LoadAutomationEventList(fileName);
+  *RL_AEVLIST(_out) = LoadAutomationEventList(fileName);
 }
 /** UnloadAutomationEventList(params: void * list -> void) */
 void rl_UnloadAutomationEventList(void * list) {
-  UnloadAutomationEventList(((rl_AutomationEventList*)list)->v);
+  UnloadAutomationEventList(*RL_AEVLIST(list));
 }
 /** ExportAutomationEventList(params: void * list, const char * fileName -> _Bool) */
 _Bool rl_ExportAutomationEventList(void * list, const char * fileName) {
-  return ExportAutomationEventList(((rl_AutomationEventList*)list)->v, fileName);
+  return ExportAutomationEventList(*RL_AEVLIST(list), fileName);
 }
 /** SetAutomationEventList(params: void * list -> void) */
 void rl_SetAutomationEventList(void * list) {
-  SetAutomationEventList(&((rl_AutomationEventList*)list)->v);
+  SetAutomationEventList(RL_AEVLIST(list));
 }
 /** PlayAutomationEvent(params: void * event -> void) */
 void rl_PlayAutomationEvent(void * event) {
-  PlayAutomationEvent(((rl_AutomationEvent*)event)->v);
+  PlayAutomationEvent(*RL_AEVENT(event));
 }
 /** GetMousePosition(params: void * _out -> void) */
 void rl_GetMousePosition(void * _out) {
@@ -3359,6 +3393,59 @@ rl_Transform *rl_Transform_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) 
   s->owner = owner;
   return s;
 }
+rl_Transform *rl_Transform_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Transform *s = (rl_Transform *)sp_gc_alloc(sizeof(rl_Transform), NULL, rl_Transform_scan);
+  s->cls_id = cls_id;
+  s->p = (Transform *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+rl_AutomationEvent *rl_AutomationEvent_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_AutomationEvent *s = (rl_AutomationEvent *)sp_gc_alloc(sizeof(rl_AutomationEvent), NULL, rl_AutomationEvent_scan);
+  s->cls_id = cls_id;
+  s->p = (AutomationEvent *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+rl_AutomationEvent *rl_AutomationEvent_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_AutomationEvent *s = (rl_AutomationEvent *)sp_gc_alloc(sizeof(rl_AutomationEvent), NULL, rl_AutomationEvent_scan);
+  s->cls_id = cls_id;
+  s->p = (AutomationEvent *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+rl_AutomationEventList *rl_AutomationEventList_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) {
+  rl_AutomationEventList *s = (rl_AutomationEventList *)sp_gc_alloc(sizeof(rl_AutomationEventList), NULL, rl_AutomationEventList_scan);
+  s->cls_id = cls_id;
+  s->p = (AutomationEventList *)rl_h_unbox(pv);
+  s->owner = owner;
+  return s;
+}
+rl_AutomationEventList *rl_AutomationEventList_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_AutomationEventList *s = (rl_AutomationEventList *)sp_gc_alloc(sizeof(rl_AutomationEventList), NULL, rl_AutomationEventList_scan);
+  s->cls_id = cls_id;
+  s->p = (AutomationEventList *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+rl_Vector2 *rl_Vector2_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Vector2 *s = (rl_Vector2 *)sp_gc_alloc(sizeof(rl_Vector2), NULL, rl_Vector2_scan);
+  s->cls_id = cls_id;
+  s->p = (Vector2 *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
+rl_Vector3 *rl_Vector3_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Vector3 *s = (rl_Vector3 *)sp_gc_alloc(sizeof(rl_Vector3), NULL, rl_Vector3_scan);
+  s->cls_id = cls_id;
+  s->p = (Vector3 *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
 
 /* Rectangle view from an address Integer (the gem idiom
  * `Rectangle.new(font.recs + i * Rectangle.size)`; the argument is a
@@ -3382,11 +3469,6 @@ long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }
 
 /* ==== handle helpers, batch 2 ==== */
 void *rl_Material_shader_ptr(void *material) { return (void *)&RL_MAT(material)->shader; }
-void *rl_Model_meshes_ptr(void *model) { return (void *)RL_MODEL(model)->meshes; }
-void *rl_Model_materials_ptr(void *model) { return (void *)RL_MODEL(model)->materials; }
-void *rl_Model_material_at(void *model, int index) { return (void *)&RL_MODEL(model)->materials[index]; }
-void *rl_Model_mesh_at(void *model, int index) { return (void *)&RL_MODEL(model)->meshes[index]; }
-void *rl_Model_transform_ptr(void *model) { return (void *)&RL_MODEL(model)->transform; }
 
 /* ==== handle helpers, batch 3 (bones/poses) ==== */
 void *rl_Model_bone_ptr(void *model, int index) {
@@ -3394,4 +3476,9 @@ void *rl_Model_bone_ptr(void *model, int index) {
 }
 void *rl_ModelAnimation_frame_pose_bone_ptr(void *anim, int frame, int bone) {
   return (void *)&RL_ANIM(anim)->keyframePoses[frame][bone];
+}
+
+/* AutomationEventList#events (the gem indexes it with AutomationEvent.size). */
+long rl_AutomationEventList_events_addr(void *list) {
+  return (long)(intptr_t)RL_AEVLIST(list)->events;
 }

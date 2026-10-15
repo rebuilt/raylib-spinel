@@ -43,6 +43,14 @@ module Raylib
   ffi_func :rl_PhysicsBodyGetEnabled, [:ptr], :int
   ffi_func :rl_PhysicsBodyGetPosY, [:ptr], :float
   ffi_func :rl_PhysicsBodyGetPosX, [:ptr], :float
+  ffi_func :rl_PhysicsBodyData_position_addr, [:ptr], :long
+  ffi_func :rl_PhysicsBodyData_velocity_addr, [:ptr], :long
+  ffi_func :rl_PhysicsBodyData_force_addr, [:ptr], :long
+  ffi_func :rl_PhysicsBodyData_id, [:ptr], :int
+  ffi_func :rl_PhysicsBodyData_enabled, [:ptr], :int
+  ffi_func :rl_PhysicsBodyData_isGrounded, [:ptr], :int
+  ffi_func :rl_PhysicsBodyData_orient, [:ptr], :double
+  ffi_func :rl_PhysicsBodyData_mass, [:ptr], :double
 
   def self.InitPhysics = Raylib.rl_InitPhysics
   def self.UpdatePhysics = Raylib.rl_UpdatePhysics1
@@ -53,7 +61,6 @@ module Raylib
   def self.CreatePhysicsBodyCircle(x, y, radius, density) = Raylib.rl_CreatePhysicsBodyCircle(x, y, radius, density)
   def self.CreatePhysicsBodyRectangle(x, y, w, h, density) = Raylib.rl_CreatePhysicsBodyRectangle(x, y, w, h, density)
   def self.CreatePhysicsBodyPolygon(x, y, radius, sides, density) = Raylib.rl_CreatePhysicsBodyPolygon(x, y, radius, sides, density)
-  def self.DestroyPhysicsBody(body) = Raylib.rl_DestroyPhysicsBody(body)
   def self.PhysicsAddForce(body, x, y) = Raylib.rl_PhysicsAddForce(body, x, y)
   def self.PhysicsAddTorque(body, amount) = Raylib.rl_PhysicsAddTorque(body, amount)
   def self.GetPhysicsBody(index) = Raylib.rl_GetPhysicsBody(index)

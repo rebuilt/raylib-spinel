@@ -63,7 +63,14 @@ CLASSES = [
 
 # Classes whose struct comes from the migration script (no preamble/owned ctor
 # emitted here): only an unboxing view ctor is added, after rl_h_unbox.
-EXTRA_VIEW_CTORS = [("Transform", "Transform", "RL_TRANSFORM")]
+EXTRA_VIEW_CTORS = [("Transform", "Transform", "RL_TRANSFORM"),
+                    ("AutomationEvent", "AutomationEvent", "RL_AEVENT"),
+                    ("AutomationEventList", "AutomationEventList", "RL_AEVLIST")]
+
+# classes whose struct/layout already exist (vectors): only the address ctor,
+# so the [:ptr, :any] view ctor keeps its arity slot
+EXTRA_ADDR_CTORS = [("Vector2", "Vector2", "RL_V2"),
+                    ("Vector3", "Vector3", "RL_V3")]
 
 INT_TYPES = {"int", "unsigned int", "unsigned char", "char", "short"}
 
@@ -141,6 +148,24 @@ def implementation():
         out.append("  s->cls_id = cls_id;")
         out.append("  s->p = (%s *)rl_h_unbox(pv);" % payload)
         out.append("  s->owner = owner;")
+        out.append("  return s;")
+        out.append("}")
+        out.append("rl_%s *rl_%s_view_addr(sp_int cls_id, sp_RbVal addr) {" % (name, name))
+        out.append("  rl_%s *s = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);"
+                   % (name, name, name, name))
+        out.append("  s->cls_id = cls_id;")
+        out.append("  s->p = (%s *)rl_h_unbox(addr);" % payload)
+        out.append("  s->owner = sp_box_nil();")
+        out.append("  return s;")
+        out.append("}")
+        out.append("")
+    for name, payload, macro in EXTRA_ADDR_CTORS:
+        out.append("rl_%s *rl_%s_view_addr(sp_int cls_id, sp_RbVal addr) {" % (name, name))
+        out.append("  rl_%s *s = (rl_%s *)sp_gc_alloc(sizeof(rl_%s), NULL, rl_%s_scan);"
+                   % (name, name, name, name))
+        out.append("  s->cls_id = cls_id;")
+        out.append("  s->p = (%s *)rl_h_unbox(addr);" % payload)
+        out.append("  s->owner = sp_box_nil();")
         out.append("  return s;")
         out.append("}")
         out.append("")

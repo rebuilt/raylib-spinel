@@ -28,7 +28,9 @@ FILES = ["raylib_adapter.c", "raymath_adapter.c", "rlgl_adapter.c",
 # class, macro, payload member (vectors/rectangles embed `v`, Color `c`)
 CLASSES = (("Vector2", "RL_V2", "v"), ("Vector3", "RL_V3", "v"),
            ("Vector4", "RL_V4", "v"), ("Rectangle", "RL_RECT", "v"),
-           ("Color", "RL_COLOR", "c"), ("Transform", "RL_TRANSFORM", "v"))
+           ("Color", "RL_COLOR", "c"), ("Transform", "RL_TRANSFORM", "v"),
+           ("AutomationEvent", "RL_AEVENT", "v"),
+           ("AutomationEventList", "RL_AEVLIST", "v"))
 
 MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -39,6 +41,8 @@ MACROS = """/* --- P2 views: read the Vector2/Vector3 payload through the view p
 #define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
 #define RL_COLOR(o) (((rl_Color *)(o))->p ? ((rl_Color *)(o))->p : &((rl_Color *)(o))->c)
 #define RL_TRANSFORM(o) (((rl_Transform *)(o))->p ? ((rl_Transform *)(o))->p : &((rl_Transform *)(o))->v)
+#define RL_AEVENT(o) (((rl_AutomationEvent *)(o))->p ? ((rl_AutomationEvent *)(o))->p : &((rl_AutomationEvent *)(o))->v)
+#define RL_AEVLIST(o) (((rl_AutomationEventList *)(o))->p ? ((rl_AutomationEventList *)(o))->p : &((rl_AutomationEventList *)(o))->v)
 
 """
 
