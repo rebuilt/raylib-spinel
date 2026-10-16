@@ -276,6 +276,9 @@ INVALID_EXAMPLES = {
         "calls UpdateModelAnimationBonesLerp (not in raylib 6.1 or gem 0.8.4; NoMethodError under CRuby)",
     "textures_bunnymark_optimized.rb":
         "calls Vector2#add! (not defined by the gem; NoMethodError under CRuby)",
+    "text_font_sdf.rb":
+        "calls LoadFontData with 6 arguments; the loaded gem binds 7 (the "
+        "last a glyphCount out-pointer), so both engines raise ArgumentError",
     "rlgl_compute_shader.rb":
         "calls rlLoadComputeShaderProgram/rlCompileShader; the loaded gem exposes "
         "rlLoadShaderProgramCompute instead and has no rlCompileShader",
@@ -321,7 +324,7 @@ RUN_EXAMPLES = [
     "particles_fireworks.rb", "physics_demo.rb", "procedural_texture.rb",
     "shapes_basic_shapes.rb", "shapes_draw_circle_sector.rb",
     "shapes_lines_bezier.rb", "snake_case_api.rb", "snake_case_rlgl.rb",
-    "template.rb", "text_rectangle_bounds.rb", "text_font_sdf.rb", "textures_image_generation.rb", "textures_gif_player.rb",
+    "template.rb", "text_rectangle_bounds.rb", "textures_image_generation.rb", "textures_gif_player.rb",
     "textures_mouse_painting.rb", "toon_character_sprites.rb", "utf8_font.rb",
 ]
 
