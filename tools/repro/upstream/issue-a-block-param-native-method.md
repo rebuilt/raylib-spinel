@@ -169,8 +169,19 @@ class's Ruby methods entirely.
 
 - A Ruby method on an **ordinary** class, called from a block, works (a class
   with `def value = 7` prints `7` from `[Thing.new].each { |t| t.value }`).
-- A native **accessor** (`native_method`, statically resolved) is fine from a
-  block; only Ruby-level methods on the native class are affected.
+- A native **accessor** (`native_method`) is affected too: it is equally
+  unreachable from a poly receiver. The distinction is "poly receiver on a
+  native class", not "Ruby method vs C method".
+- Supplying the accessors as Ruby methods that call module-level `ffi_func`s —
+  no `native_method` in the class at all — changes nothing (see
+  `a_native_class_methods/`, which runs that experiment across 16 variants).
+  Neither does where the method is defined (package file or app-level monkey
+  patch), the body shape (a direct C call, a C call plus arithmetic, a sibling
+  call, two C calls, a comparison, wrapping the result in an object), the method
+  name, or the array size.
+- Beware a false positive when testing this: a call named `value` does not
+  raise, and answers `nil` (not the method's value). Check the value, not just
+  the absence of an exception.
 - Reaching the same object through a typed local, or through an array element
   assigned to a local, works.
 - Adding the method through an included module (`class Model; include Helpers;

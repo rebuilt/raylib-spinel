@@ -28,6 +28,32 @@ constraints on raylib-spinel's design, not upstream bugs.
 Both limitations below were reproduced with the compiler installed on
 2026-10-16, `spinel 2026.09.12+10301 (f90da21b9)`.
 
+## Limitation A — a native class's methods are unreachable from a poly receiver
+
+**Symptom.** A method on a native class (`native_struct` + `native_new`, with or
+without `native_method`) is not reachable when the receiver is a block parameter
+or another poly value: the call raises `NoMethodError`, while a statically typed
+receiver calls it correctly. The mechanism is the documented one — poly arms are
+emitted for receivers whose static type names the class — and `docs/FFI.md`
+§Limitations adds the pointer-in-poly rule on top.
+
+**Experiment** (`upstream/a_native_class_methods/`, 16 variants on
+`+10301 (f90da21b9)`): moving the accessors into Ruby over module-level
+`ffi_func`s, with no `native_method` on the class, does **not** help. Definition
+site (package file vs app-level monkey patch), body shape (direct C call, plus
+arithmetic, sibling call, two C calls, comparison, object construction), method
+name and array size are all irrelevant; a typed receiver is the only one that
+resolves. `native_method` accessors behave the same way, so it is not a
+Ruby-vs-C distinction.
+
+**Trap.** A call named `value` does not raise — it answers `nil` — so a test
+that only checks for the absence of an exception reports a false success.
+
+**Workaround.** Keep the receiver statically typed. That is what our scenes do
+(typed locals, direct calls), which is why `make check` is unaffected; it is why
+the gem's `models.each { |model| model.material(0) }` cannot be fixed from our
+side.
+
 ## Limitation B — a Ruby writer on a native class breaks `self` in that class's `:ptr` parameters
 
 **Symptom.** Adding a plain Ruby writer to a native class makes every `self`

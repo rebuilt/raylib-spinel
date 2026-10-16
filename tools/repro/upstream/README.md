@@ -16,6 +16,7 @@ Toolchain for every observation: `spinel 2026.09.12+10301 (f90da21b9)`
 | --- | --- | --- |
 | `issue-d-string-pack-p.md` | `Array#pack("p*")` emits a single pointer regardless of the array size | **filed**: https://github.com/matz/spinel/issues/9349 |
 | `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | draft, **not filed** (undocumented layer; mechanism is documented design) |
+| `a_native_class_methods/` | experiment: monkey-patched Ruby accessors on a `native_struct` class, 16 variants | evidence; **does not work** — see its README |
 | `../engine-limitations.md` | a Ruby writer on a native class breaks `self` in `:ptr` parameters; a union return poisons `:ptr` acceptance program-wide | internal notes, no filing |
 
 ## Running the verified repro
