@@ -356,448 +356,6 @@
  ],
  "run": [
   {
-   "name": "basic_loop.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "3 0.263621 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "3 0.263621 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=3 0.263621 1280x1024 | spinel shot=3 0.263621 1280x1024"
-  },
-  {
-   "name": "bitmap_font.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "5 0.0537468 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.0537468 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=5 0.0537468 1280x1024 | spinel shot=5 0.0537468 1280x1024"
-  },
-  {
-   "name": "core_2d_camera.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "18 0.161866 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "16 0.164671 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=18 0.161866 1280x1024 | spinel shot=16 0.164671 1280x1024"
-  },
-  {
-   "name": "core_3d_camera_first_person.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "13 0.20611 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "11 0.18117 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=13 0.20611 1280x1024 | spinel shot=11 0.18117 1280x1024"
-  },
-  {
-   "name": "core_3d_split_screen.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "6 0.159456 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "6 0.159456 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=6 0.159456 1280x1024 | spinel shot=6 0.159456 1280x1024"
-  },
-  {
-   "name": "core_automation_events.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "10 0.177944 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "10 0.177944 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=10 0.177944 1280x1024 | spinel shot=10 0.177944 1280x1024"
-  },
-  {
-   "name": "core_drop_files.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "3 0.263192 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "3 0.263192 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=3 0.263192 1280x1024 | spinel shot=3 0.263192 1280x1024"
-  },
-  {
-   "name": "core_loading_thread.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "3 0.262302 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "3 0.262302 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=3 0.262302 1280x1024 | spinel shot=3 0.262302 1280x1024"
-  },
-  {
-   "name": "core_world_screen.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "7 0.25922 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "7 0.25922 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=7 0.25922 1280x1024 | spinel shot=7 0.25922 1280x1024"
-  },
-  {
-   "name": "flocking_optimized.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "6 0.304237 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "6 0.304018 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=6 0.304237 1280x1024 | spinel shot=6 0.304018 1280x1024"
-  },
-  {
-   "name": "flocking_plain.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "6 0.304072 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "6 0.304161 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=6 0.304072 1280x1024 | spinel shot=6 0.304161 1280x1024"
-  },
-  {
-   "name": "game_of_life_simple.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "3 0.0134672 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "3 0.0134672 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=3 0.0134672 1280x1024 | spinel shot=3 0.0134672 1280x1024"
-  },
-  {
-   "name": "game_of_life_ui.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "9 0.0726668 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "9 0.0726668 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=9 0.0726668 1280x1024 | spinel shot=9 0.0726668 1280x1024"
-  },
-  {
-   "name": "gui_controls.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "27336 0.354044 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "21775 0.354996 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=27336 0.354044 1280x1024 | spinel shot=21775 0.354996 1280x1024"
-  },
-  {
-   "name": "lissajous_curve.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "5 0.220916 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.220916 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=5 0.220916 1280x1024 | spinel shot=5 0.220916 1280x1024"
-  },
-  {
-   "name": "models_box_collisions.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "8 0.252021 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "8 0.252021 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=8 0.252021 1280x1024 | spinel shot=8 0.252021 1280x1024"
-  },
-  {
-   "name": "models_geometric_shapes.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "15 0.237963 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "15 0.237963 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=15 0.237963 1280x1024 | spinel shot=15 0.237963 1280x1024"
-  },
-  {
-   "name": "models_mesh_generation.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "13 0.25706 1280x1024"
-   },
-   "spinel": {
-    "rc": 1,
-    "stdout": "",
-    "stderr": "undefined method 'triangleCount=' for an instance of Raylib::Mesh (NoMethodError)\n",
-    "shot": "1 0 1280x1024"
-   },
-   "verdict": "spinel-error",
-   "detail": "spinel rc=1 undefined method 'triangleCount=' for an instance of Raylib:"
-  },
-  {
-   "name": "models_rlgl_solar_system.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "7 0.262474 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "7 0.262474 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=7 0.262474 1280x1024 | spinel shot=7 0.262474 1280x1024"
-  },
-  {
-   "name": "models_waving_cubes.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "25 0.217051 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "25 0.225764 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=25 0.217051 1280x1024 | spinel shot=25 0.225764 1280x1024"
-  },
-  {
-   "name": "particles_fireworks.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "2 0.00192638 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "2 0.00192638 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=2 0.00192638 1280x1024 | spinel shot=2 0.00192638 1280x1024"
-  },
-  {
-   "name": "physics_demo.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "7 0.00206353 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "7 0.00206353 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=7 0.00206353 1280x1024 | spinel shot=7 0.00206353 1280x1024"
-  },
-  {
-   "name": "procedural_texture.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "715 0.0945784 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "715 0.0945784 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=715 0.0945784 1280x1024 | spinel shot=715 0.0945784 1280x1024"
-  },
-  {
-   "name": "shapes_basic_shapes.rb",
-   "mri": {
-    "rc": 1,
-    "stdout": "",
-    "stderr": "/tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17:in 'Raylib#DrawCircleGradient': wrong number of arguments (5 for 4) (ArgumentError)\n\n    caller: /tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17\n    |     DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE)\n          ^^^^^^^^^^^^^^^^^^\n\tfrom /tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17:in '<main>'\n",
-    "shot": "1 0 1280x1024"
-   },
-   "spinel": {
-    "rc": 1,
-    "stdout": "",
-    "stderr": "wrong number of arguments (given 5, expected 4) (ArgumentError)\n",
-    "shot": "1 0 1280x1024"
-   },
-   "verdict": "mri-error",
-   "detail": "mri rc=1 \tfrom /tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17:in '<main>'"
-  },
-  {
-   "name": "shapes_draw_circle_sector.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "14 0.250008 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "14 0.250008 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=14 0.250008 1280x1024 | spinel shot=14 0.250008 1280x1024"
-  },
-  {
-   "name": "shapes_lines_bezier.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "10 0.26191 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "10 0.26191 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=10 0.26191 1280x1024 | spinel shot=10 0.26191 1280x1024"
-  },
-  {
    "name": "snake_case_api.rb",
    "verdict": "skipped",
    "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
@@ -813,21 +371,468 @@
    "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
   },
   {
-   "name": "text_rectangle_bounds.rb",
+   "name": "utf8_font.rb",
+   "verdict": "skipped",
+   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
+  },
+  {
+   "name": "basic_loop.rb",
    "mri": {
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "5 0.241475 1280x1024"
+    "shot": "3 0.2636 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.241475 1280x1024"
+    "shot": "3 0.2636 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=5 0.241475 1280x1024 | spinel shot=5 0.241475 1280x1024"
+   "detail": "mri shot=3 0.2636 1280x1024 | spinel shot=3 0.2636 1280x1024"
+  },
+  {
+   "name": "bitmap_font.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "5 0.0537 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "5 0.0537 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=5 0.0537 1280x1024 | spinel shot=5 0.0537 1280x1024"
+  },
+  {
+   "name": "core_2d_camera.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "16 0.1648 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "15 0.1645 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=16 0.1648 1280x1024 | spinel shot=15 0.1645 1280x1024"
+  },
+  {
+   "name": "core_3d_camera_first_person.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "8 0.2119 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "11 0.1971 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=8 0.2119 1280x1024 | spinel shot=11 0.1971 1280x1024"
+  },
+  {
+   "name": "core_3d_split_screen.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "6 0.1595 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "6 0.1595 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=6 0.1595 1280x1024 | spinel shot=6 0.1595 1280x1024"
+  },
+  {
+   "name": "core_automation_events.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "10 0.1779 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "10 0.1779 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=10 0.1779 1280x1024 | spinel shot=10 0.1779 1280x1024"
+  },
+  {
+   "name": "core_drop_files.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "3 0.2632 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "3 0.2632 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=3 0.2632 1280x1024 | spinel shot=3 0.2632 1280x1024"
+  },
+  {
+   "name": "core_loading_thread.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "3 0.2623 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "3 0.2623 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=3 0.2623 1280x1024 | spinel shot=3 0.2623 1280x1024"
+  },
+  {
+   "name": "core_world_screen.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "7 0.2592 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "7 0.2592 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=7 0.2592 1280x1024 | spinel shot=7 0.2592 1280x1024"
+  },
+  {
+   "name": "flocking_optimized.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "6 0.3041 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "6 0.3041 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=6 0.3041 1280x1024 | spinel shot=6 0.3041 1280x1024"
+  },
+  {
+   "name": "flocking_plain.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "6 0.3042 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "6 0.3042 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=6 0.3042 1280x1024 | spinel shot=6 0.3042 1280x1024"
+  },
+  {
+   "name": "game_of_life_simple.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "3 0.0135 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "3 0.0135 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=3 0.0135 1280x1024 | spinel shot=3 0.0135 1280x1024"
+  },
+  {
+   "name": "game_of_life_ui.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "9 0.0727 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "9 0.0727 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=9 0.0727 1280x1024 | spinel shot=9 0.0727 1280x1024"
+  },
+  {
+   "name": "gui_controls.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "27336 0.3540 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "21775 0.3550 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=27336 0.3540 1280x1024 | spinel shot=21775 0.3550 1280x1024"
+  },
+  {
+   "name": "lissajous_curve.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "5 0.2209 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "5 0.2209 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=5 0.2209 1280x1024 | spinel shot=5 0.2209 1280x1024"
+  },
+  {
+   "name": "models_box_collisions.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "8 0.2520 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "8 0.2520 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=8 0.2520 1280x1024 | spinel shot=8 0.2520 1280x1024"
+  },
+  {
+   "name": "models_geometric_shapes.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "15 0.2380 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "15 0.2380 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2380 1280x1024"
+  },
+  {
+   "name": "models_mesh_generation.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "13 0.2571 1280x1024"
+   },
+   "spinel": {
+    "rc": 1,
+    "stdout": "",
+    "stderr": "undefined method 'vertices=' for an instance of Raylib::Mesh (NoMethodError)\n",
+    "shot": "1 0.0000 1280x1024"
+   },
+   "verdict": "spinel-error",
+   "detail": "spinel rc=1 undefined method 'vertices=' for an instance of Raylib::Mesh"
+  },
+  {
+   "name": "models_rlgl_solar_system.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "7 0.2625 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "7 0.2625 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=7 0.2625 1280x1024 | spinel shot=7 0.2625 1280x1024"
+  },
+  {
+   "name": "models_waving_cubes.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "25 0.2142 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "25 0.2263 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=25 0.2142 1280x1024 | spinel shot=25 0.2263 1280x1024"
+  },
+  {
+   "name": "particles_fireworks.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "2 0.0019 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "2 0.0019 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=2 0.0019 1280x1024 | spinel shot=2 0.0019 1280x1024"
+  },
+  {
+   "name": "physics_demo.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "7 0.0021 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "7 0.0021 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=7 0.0021 1280x1024 | spinel shot=7 0.0021 1280x1024"
+  },
+  {
+   "name": "procedural_texture.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "715 0.0946 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "715 0.0946 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=715 0.0946 1280x1024 | spinel shot=715 0.0946 1280x1024"
+  },
+  {
+   "name": "shapes_basic_shapes.rb",
+   "mri": {
+    "rc": 1,
+    "stdout": "",
+    "stderr": "/tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17:in 'Raylib#DrawCircleGradient': wrong number of arguments (5 for 4) (ArgumentError)\n\n    caller: /tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17\n    |     DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE)\n          ^^^^^^^^^^^^^^^^^^\n\tfrom /tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17:in '<main>'\n",
+    "shot": "1 0.0000 1280x1024"
+   },
+   "spinel": {
+    "rc": 1,
+    "stdout": "",
+    "stderr": "wrong number of arguments (given 5, expected 4) (ArgumentError)\n",
+    "shot": "1 0.0000 1280x1024"
+   },
+   "verdict": "mri-error",
+   "detail": "mri rc=1 \tfrom /tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17:in '<main>'"
+  },
+  {
+   "name": "shapes_draw_circle_sector.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "14 0.2500 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "14 0.2500 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=14 0.2500 1280x1024 | spinel shot=14 0.2500 1280x1024"
+  },
+  {
+   "name": "shapes_lines_bezier.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "10 0.2619 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "10 0.2619 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024"
+  },
+  {
+   "name": "text_rectangle_bounds.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "5 0.2415 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "5 0.2415 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024"
   },
   {
    "name": "textures_image_generation.rb",
@@ -835,16 +840,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "459 0.12471 1280x1024"
+    "shot": "459 0.1247 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "459 0.12471 1280x1024"
+    "shot": "459 0.1247 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=459 0.12471 1280x1024 | spinel shot=459 0.12471 1280x1024"
+   "detail": "mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024"
   },
   {
    "name": "textures_mouse_painting.rb",
@@ -852,16 +857,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "23 0.255827 1280x1024"
+    "shot": "23 0.2558 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "23 0.255827 1280x1024"
+    "shot": "23 0.2558 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=23 0.255827 1280x1024 | spinel shot=23 0.255827 1280x1024"
+   "detail": "mri shot=23 0.2558 1280x1024 | spinel shot=23 0.2558 1280x1024"
   },
   {
    "name": "toon_character_sprites.rb",
@@ -869,21 +874,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "5 0.500409 1280x1024"
+    "shot": "5 0.5007 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.500668 1280x1024"
+    "shot": "5 0.5004 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=5 0.500409 1280x1024 | spinel shot=5 0.500668 1280x1024"
-  },
-  {
-   "name": "utf8_font.rb",
-   "verdict": "skipped",
-   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
+   "detail": "mri shot=5 0.5007 1280x1024 | spinel shot=5 0.5004 1280x1024"
   }
  ]
 }

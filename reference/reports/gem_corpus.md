@@ -44,39 +44,39 @@ Invalid upstream (excluded from the target):
 
 | example | verdict | detail |
 | --- | --- | --- |
-| basic_loop.rb | ran | mri shot=3 0.263621 1280x1024 | spinel shot=3 0.263621 1280x1024 |
-| bitmap_font.rb | ran | mri shot=5 0.0537468 1280x1024 | spinel shot=5 0.0537468 1280x1024 |
-| core_2d_camera.rb | ran | mri shot=18 0.161866 1280x1024 | spinel shot=16 0.164671 1280x1024 |
-| core_3d_camera_first_person.rb | ran | mri shot=13 0.20611 1280x1024 | spinel shot=11 0.18117 1280x1024 |
-| core_3d_split_screen.rb | ran | mri shot=6 0.159456 1280x1024 | spinel shot=6 0.159456 1280x1024 |
-| core_automation_events.rb | ran | mri shot=10 0.177944 1280x1024 | spinel shot=10 0.177944 1280x1024 |
-| core_drop_files.rb | ran | mri shot=3 0.263192 1280x1024 | spinel shot=3 0.263192 1280x1024 |
-| core_loading_thread.rb | ran | mri shot=3 0.262302 1280x1024 | spinel shot=3 0.262302 1280x1024 |
-| core_world_screen.rb | ran | mri shot=7 0.25922 1280x1024 | spinel shot=7 0.25922 1280x1024 |
-| flocking_optimized.rb | ran | mri shot=6 0.304237 1280x1024 | spinel shot=6 0.304018 1280x1024 |
-| flocking_plain.rb | ran | mri shot=6 0.304072 1280x1024 | spinel shot=6 0.304161 1280x1024 |
-| game_of_life_simple.rb | ran | mri shot=3 0.0134672 1280x1024 | spinel shot=3 0.0134672 1280x1024 |
-| game_of_life_ui.rb | ran | mri shot=9 0.0726668 1280x1024 | spinel shot=9 0.0726668 1280x1024 |
-| gui_controls.rb | ran | mri shot=27336 0.354044 1280x1024 | spinel shot=21775 0.354996 1280x1024 |
-| lissajous_curve.rb | ran | mri shot=5 0.220916 1280x1024 | spinel shot=5 0.220916 1280x1024 |
-| models_box_collisions.rb | ran | mri shot=8 0.252021 1280x1024 | spinel shot=8 0.252021 1280x1024 |
-| models_geometric_shapes.rb | ran | mri shot=15 0.237963 1280x1024 | spinel shot=15 0.237963 1280x1024 |
-| models_mesh_generation.rb | spinel-error | spinel rc=1 undefined method 'triangleCount=' for an instance of Raylib: |
-| models_rlgl_solar_system.rb | ran | mri shot=7 0.262474 1280x1024 | spinel shot=7 0.262474 1280x1024 |
-| models_waving_cubes.rb | ran | mri shot=25 0.217051 1280x1024 | spinel shot=25 0.225764 1280x1024 |
-| particles_fireworks.rb | ran | mri shot=2 0.00192638 1280x1024 | spinel shot=2 0.00192638 1280x1024 |
-| physics_demo.rb | ran | mri shot=7 0.00206353 1280x1024 | spinel shot=7 0.00206353 1280x1024 |
-| procedural_texture.rb | ran | mri shot=715 0.0945784 1280x1024 | spinel shot=715 0.0945784 1280x1024 |
-| shapes_basic_shapes.rb | mri-error | mri rc=1 	from /tmp/tmpfw7wjfa8/shapes_basic_shapes.rb:17:in '<main>' |
-| shapes_draw_circle_sector.rb | ran | mri shot=14 0.250008 1280x1024 | spinel shot=14 0.250008 1280x1024 |
-| shapes_lines_bezier.rb | ran | mri shot=10 0.26191 1280x1024 | spinel shot=10 0.26191 1280x1024 |
 | snake_case_api.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
 | snake_case_rlgl.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
 | template.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| text_rectangle_bounds.rb | ran | mri shot=5 0.241475 1280x1024 | spinel shot=5 0.241475 1280x1024 |
-| textures_image_generation.rb | ran | mri shot=459 0.12471 1280x1024 | spinel shot=459 0.12471 1280x1024 |
-| textures_mouse_painting.rb | ran | mri shot=23 0.255827 1280x1024 | spinel shot=23 0.255827 1280x1024 |
-| toon_character_sprites.rb | ran | mri shot=5 0.500409 1280x1024 | spinel shot=5 0.500668 1280x1024 |
 | utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
+| basic_loop.rb | ran | mri shot=3 0.2636 1280x1024 | spinel shot=3 0.2636 1280x1024 |
+| bitmap_font.rb | ran | mri shot=5 0.0537 1280x1024 | spinel shot=5 0.0537 1280x1024 |
+| core_2d_camera.rb | ran | mri shot=16 0.1648 1280x1024 | spinel shot=15 0.1645 1280x1024 |
+| core_3d_camera_first_person.rb | ran | mri shot=8 0.2119 1280x1024 | spinel shot=11 0.1971 1280x1024 |
+| core_3d_split_screen.rb | ran | mri shot=6 0.1595 1280x1024 | spinel shot=6 0.1595 1280x1024 |
+| core_automation_events.rb | ran | mri shot=10 0.1779 1280x1024 | spinel shot=10 0.1779 1280x1024 |
+| core_drop_files.rb | ran | mri shot=3 0.2632 1280x1024 | spinel shot=3 0.2632 1280x1024 |
+| core_loading_thread.rb | ran | mri shot=3 0.2623 1280x1024 | spinel shot=3 0.2623 1280x1024 |
+| core_world_screen.rb | ran | mri shot=7 0.2592 1280x1024 | spinel shot=7 0.2592 1280x1024 |
+| flocking_optimized.rb | ran | mri shot=6 0.3041 1280x1024 | spinel shot=6 0.3041 1280x1024 |
+| flocking_plain.rb | ran | mri shot=6 0.3042 1280x1024 | spinel shot=6 0.3042 1280x1024 |
+| game_of_life_simple.rb | ran | mri shot=3 0.0135 1280x1024 | spinel shot=3 0.0135 1280x1024 |
+| game_of_life_ui.rb | ran | mri shot=9 0.0727 1280x1024 | spinel shot=9 0.0727 1280x1024 |
+| gui_controls.rb | ran | mri shot=27336 0.3540 1280x1024 | spinel shot=21775 0.3550 1280x1024 |
+| lissajous_curve.rb | ran | mri shot=5 0.2209 1280x1024 | spinel shot=5 0.2209 1280x1024 |
+| models_box_collisions.rb | ran | mri shot=8 0.2520 1280x1024 | spinel shot=8 0.2520 1280x1024 |
+| models_geometric_shapes.rb | ran | mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2380 1280x1024 |
+| models_mesh_generation.rb | spinel-error | spinel rc=1 undefined method 'vertices=' for an instance of Raylib::Mesh |
+| models_rlgl_solar_system.rb | ran | mri shot=7 0.2625 1280x1024 | spinel shot=7 0.2625 1280x1024 |
+| models_waving_cubes.rb | ran | mri shot=25 0.2142 1280x1024 | spinel shot=25 0.2263 1280x1024 |
+| particles_fireworks.rb | ran | mri shot=2 0.0019 1280x1024 | spinel shot=2 0.0019 1280x1024 |
+| physics_demo.rb | ran | mri shot=7 0.0021 1280x1024 | spinel shot=7 0.0021 1280x1024 |
+| procedural_texture.rb | ran | mri shot=715 0.0946 1280x1024 | spinel shot=715 0.0946 1280x1024 |
+| shapes_basic_shapes.rb | mri-error | mri rc=1 	from /tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17:in '<main>' |
+| shapes_draw_circle_sector.rb | ran | mri shot=14 0.2500 1280x1024 | spinel shot=14 0.2500 1280x1024 |
+| shapes_lines_bezier.rb | ran | mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024 |
+| text_rectangle_bounds.rb | ran | mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024 |
+| textures_image_generation.rb | ran | mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024 |
+| textures_mouse_painting.rb | ran | mri shot=23 0.2558 1280x1024 | spinel shot=23 0.2558 1280x1024 |
+| toon_character_sprites.rb | ran | mri shot=5 0.5007 1280x1024 | spinel shot=5 0.5004 1280x1024 |
 
 28/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).
