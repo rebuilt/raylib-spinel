@@ -3829,3 +3829,8 @@ long rl_m_Material_maps(rl_Material *self) { return (long)(intptr_t)RL_MAT(self)
 void rl_Material_set_maps_ptr(void *self, void *p) { RL_MAT(self)->maps = (MaterialMap *)p; }
 long rl_m_Material_params(rl_Material *self) { return (long)(intptr_t)RL_MAT(self)->params; }
 void rl_Material_set_params_ptr(void *self, void *p) { memcpy(RL_MAT(self)->params, p, 4 * sizeof(float)); }
+/* Transform writers: Vector3 (translation/scale) and Quaternion (rotation,
+ * a Vector4) by value. */
+void rl_Transform_set_translation(void *self, void *v) { RL_TRANSFORM(self)->translation = *RL_V3(v); }
+void rl_Transform_set_rotation(void *self, void *v) { RL_TRANSFORM(self)->rotation = *RL_V4(v); }
+void rl_Transform_set_scale(void *self, void *v) { RL_TRANSFORM(self)->scale = *RL_V3(v); }

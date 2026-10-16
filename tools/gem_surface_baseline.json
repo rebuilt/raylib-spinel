@@ -805,7 +805,11 @@
       "rotation",
       "scale"
     ],
-    "write": [],
+    "write": [
+      "translation",
+      "rotation",
+      "scale"
+    ],
     "helpers": [
       [
         "t",

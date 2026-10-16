@@ -205,11 +205,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Transform
 
-    fields     read 3/3   write 0/3
-               missing write: translation, rotation, scale
+    fields     read 3/3   write 3/3
     helpers    3/3
     functions  0/0
-    coverage   6/9
+    coverage   9/9
 
 ## Vector2
 

@@ -210,8 +210,12 @@ native_struct "MaterialMap", "rl_MaterialMap"
   native_method :parent_bone_index=, [:int], :int, "rl_m_BoneInfo_set_parent_bone_index"
 
   native_struct "Transform", "rl_Transform"
+  native_new [], "rl_Transform_new"
   native_new [:any, :any], "rl_Transform_view_any"
   native_new [:any], "rl_Transform_view_addr"
+  native_method :translation=, [:ptr], :void, "rl_Transform_set_translation"
+  native_method :rotation=, [:ptr], :void, "rl_Transform_set_rotation"
+  native_method :scale=, [:ptr], :void, "rl_Transform_set_scale"
 
   native_struct "ModelAnimation", "rl_ModelAnimation"
   native_new [], "rl_ModelAnimation_new"
