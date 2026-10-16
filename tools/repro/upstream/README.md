@@ -19,6 +19,7 @@ current.
 | `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | **verified**: `a_block_param/` (dependency-free spin project, reproduces) |
 | `issue-b-native-writer-ptr-self.md` | adding a Ruby writer to a native class breaks `self` in that class's `:ptr` parameters | **not yet minimised** — reproduced only inside raylib-spinel (`b_writer_ptr_self/` records the shape that does *not* trigger it) |
 | `issue-c-ptr-union-poisoning.md` | an untyped helper's union return poisoning `:ptr` acceptance program-wide | **not yet minimised** — reproduced only inside raylib-spinel |
+| `issue-d-string-pack-p.md` | `String#pack("p*")` emits a single pointer regardless of the array size | **verified**: `pack_repro.rb` (dependency-free, no native code) |
 
 ## Running the verified repro
 

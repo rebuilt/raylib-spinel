@@ -314,6 +314,45 @@ void rl_GuiDrawIcon(int iconId, int posX, int posY, int pixelSize, void *color) 
 }
 
 /* ---- value-returning controls ---- */
+int rl_GuiToggleValue(float x, float y, float w, float h, const char *text, int active) {
+  bool a = active != 0;
+  int r = GuiToggle((Rectangle){ x, y, w, h }, text, &a);
+  sp_gui_int_result = a ? 1 : 0;
+  return r;
+}
+int rl_GuiTabBarValue(float x, float y, float w, float h, const char *text, int hscroll, int active) {
+  int hs = hscroll;
+  int ac = active;
+  int r = GuiTabBar((Rectangle){ x, y, w, h }, text, &hs, &ac);
+  sp_gui_int_result = hs;
+  sp_gui_int_result2 = ac;
+  return r;
+}
+int rl_GuiListViewExValue(float x, float y, float w, float h, const char *text, int count,
+                          int textBytes, int scrollIndex, int active, int focus) {
+  /* The gem builds the char** with String#pack("p*"). Clamp the item count to
+   * what the blob actually holds: Spinel's pack("p*") currently allocates a
+   * single pointer (see tools/repro/upstream/issue-d), and dereferencing past
+   * the blob crashes inside raygui. */
+  int n = count;
+  long maxItems = (long)textBytes / (long)sizeof(char *);
+  if (text == NULL || maxItems <= 0) n = 0;
+  else if (n > (int)maxItems) n = (int)maxItems;
+  if (n < 0) n = 0;
+  int si = scrollIndex, ac = active, fo = focus;
+  int r = GuiListViewEx((Rectangle){ x, y, w, h }, (char **)text, n, &si, &ac, &fo);
+  sp_gui_int_result = si;
+  sp_gui_int_result2 = ac;
+  sp_gui_int_result3 = fo;
+  return r;
+}
+int rl_GuiColorBarHueValue(float x, float y, float w, float h, const char *text, float value) {
+  float v = value;
+  int r = GuiColorBarHue((Rectangle){ x, y, w, h }, text, &v);
+  sp_gui_float_result = v;
+  return r;
+}
+
 int rl_GuiToggleGroupValue(float x, float y, float w, float h, const char *text, int active) {
   int a = active;
   int r = GuiToggleGroup((Rectangle){ x, y, w, h }, text, &a);
@@ -459,12 +498,17 @@ static char **sp_gui_split_text(const char *text, int *count_out) {
   *count_out = n;
   return sp_gui_list_items;
 }
-int rl_GuiListViewEx(float x, float y, float w, float h, void *text, int count,
-                       void *scrollIndex, void *active, void *focus) {
+int rl_GuiListViewEx(float x, float y, float w, float h, const char *text, int count,
+                       int textBytes, void *scrollIndex, void *active, void *focus) {
   int si = scrollIndex != NULL ? *(int *)scrollIndex : -1;
   int ac = active != NULL ? *(int *)active : -1;
   int fo = focus != NULL ? *(int *)focus : -1;
-  int r = GuiListViewEx((Rectangle){ x, y, w, h }, (char **)text, count, &si, &ac, &fo);
+  int n = count;
+  long maxItems = (long)textBytes / (long)sizeof(char *);
+  if (text == NULL || maxItems <= 0) n = 0;
+  else if (n > (int)maxItems) n = (int)maxItems;
+  if (n < 0) n = 0;
+  int r = GuiListViewEx((Rectangle){ x, y, w, h }, (char **)text, n, &si, &ac, &fo);
   if (scrollIndex != NULL) *(int *)scrollIndex = si;
   if (active != NULL) *(int *)active = ac;
   if (focus != NULL) *(int *)focus = fo;

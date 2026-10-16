@@ -10,26 +10,26 @@
 # (rl_Gui*Value + rl_Gui_Get*) carry the out-params out of C.
 module Raylib
   def self.RGuiTabBar(bounds, text, count, active)
-    res = Raylib.rl_GuiTabBar(bounds.x, bounds.y, bounds.width, bounds.height,
-                              text, (count || 0).to_i, (active || 0).to_i)
+    res = Raylib.rl_GuiTabBarValue(bounds.x, bounds.y, bounds.width, bounds.height,
+                                   text, (count || 0).to_i, (active || 0).to_i)
     [Raylib.rl_Gui_GetInt, res]
   end
 
   def self.RGuiToggle(bounds, text, active)
-    res = Raylib.rl_GuiToggle(bounds.x, bounds.y, bounds.width, bounds.height,
-                              text, active ? 1 : 0)
+    res = Raylib.rl_GuiToggleValue(bounds.x, bounds.y, bounds.width, bounds.height,
+                                   text, active ? 1 : 0)
     [Raylib.rl_Gui_GetInt, res]
   end
 
   def self.RGuiToggleGroup(bounds, text, active)
-    res = Raylib.rl_GuiToggleGroup(bounds.x, bounds.y, bounds.width,
-                                   bounds.height, text, (active || 0).to_i)
+    res = Raylib.rl_GuiToggleGroupValue(bounds.x, bounds.y, bounds.width,
+                                        bounds.height, text, (active || 0).to_i)
     [Raylib.rl_Gui_GetInt, res]
   end
 
   def self.RGuiToggleSlider(bounds, text, active)
-    res = Raylib.rl_GuiToggleSlider(bounds.x, bounds.y, bounds.width,
-                                    bounds.height, text, (active || 0).to_i)
+    res = Raylib.rl_GuiToggleSliderValue(bounds.x, bounds.y, bounds.width,
+                                         bounds.height, text, (active || 0).to_i)
     [Raylib.rl_Gui_GetInt, res]
   end
 
@@ -96,21 +96,21 @@ module Raylib
   end
 
   def self.RGuiListViewEx(bounds, text, count, scroll_index, active, focus)
-    res = Raylib.rl_GuiListViewEx(bounds.x, bounds.y, bounds.width,
-                                  bounds.height, text, (count || 0).to_i, (scroll_index || 0).to_i,
-                                  (active || 0).to_i, (focus || 0).to_i)
-    [Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt3, res]
+    res = Raylib.rl_GuiListViewExValue(bounds.x, bounds.y, bounds.width,
+                                       bounds.height, text, (count || 0).to_i, text.bytesize, (scroll_index || 0).to_i,
+                                       (active || 0).to_i, (focus || 0).to_i)
+    [Raylib.rl_Gui_GetInt, Raylib.rl_Gui_GetInt2, Raylib.rl_Gui_GetInt3, res]
   end
 
   def self.RGuiColorBarAlpha(bounds, text, alpha)
-    res = Raylib.rl_GuiColorBarAlpha(bounds.x, bounds.y, bounds.width,
-                                     bounds.height, text, (alpha || 0).to_f)
+    res = Raylib.rl_GuiColorBarAlphaValue(bounds.x, bounds.y, bounds.width,
+                                          bounds.height, text, (alpha || 0).to_f)
     [Raylib.rl_Gui_GetFloat, res]
   end
 
   def self.RGuiColorBarHue(bounds, text, value)
-    res = Raylib.rl_GuiColorBarHue(bounds.x, bounds.y, bounds.width,
-                                   bounds.height, text, (value || 0).to_f)
+    res = Raylib.rl_GuiColorBarHueValue(bounds.x, bounds.y, bounds.width,
+                                        bounds.height, text, (value || 0).to_f)
     [Raylib.rl_Gui_GetFloat, res]
   end
 end

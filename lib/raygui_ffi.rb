@@ -55,6 +55,10 @@ module Raylib
   ffi_func :rl_GuiListViewValue, %i[float float float float str int int], :int
   ffi_func :rl_Gui_GetFloat, [], :float
   ffi_func :rl_GuiToggleGroupValue, %i[float float float float str int], :int
+  ffi_func :rl_GuiToggleValue, %i[float float float float str int], :int
+  ffi_func :rl_GuiTabBarValue, %i[float float float float str int int], :int
+  ffi_func :rl_GuiListViewExValue, %i[float float float float str int int int int int], :int
+  ffi_func :rl_GuiColorBarHueValue, %i[float float float float str float], :int
   ffi_func :rl_GuiToggleSliderValue, %i[float float float float str int], :int
   ffi_func :rl_GuiColorBarAlphaValue, %i[float float float float str float], :int
   ffi_func :rl_Gui_GetInt, [], :int
@@ -96,7 +100,7 @@ module Raylib
   ffi_func :rl_GuiColorPickerHSV, %i[float float float float str ptr], :int
   ffi_func :rl_GuiTextBox, %i[float float float float ptr int int], :int
   ffi_func :rl_GuiTextInputBox, %i[float float float float str str ptr int str ptr ptr], :int
-  ffi_func :rl_GuiListViewEx, %i[float float float float ptr int ptr ptr ptr], :int
+  ffi_func :rl_GuiListViewEx, %i[float float float float str int int ptr ptr ptr], :int
   ffi_func :rl_GuiTabBar, %i[float float float float str ptr ptr], :int
   ffi_func :rl_GuiTabBarEx, %i[float float float float ptr int ptr ptr ptr], :int
   ffi_func :rl_Gui_GetText, [], :str
@@ -159,7 +163,7 @@ module Raylib
   def self.GuiColorPickerHSV(bounds, text, color_hsv) = Raylib.rl_GuiColorPickerHSV(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.vector3_addr(color_hsv))
   def self.GuiColorPanelHSV(bounds, text, color_hsv) = Raylib.rl_GuiColorPanelHSV(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.vector3_addr(color_hsv))
   def self.GuiColorPanel(bounds, text, color) = Raylib.rl_GuiColorPanel(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.color_addr(color))
-  def self.GuiListViewEx(bounds, text, count, scroll, active, focus) = Raylib.rl_GuiListViewEx(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), count, Raylib.ptr_addr(scroll), Raylib.ptr_addr(active), Raylib.ptr_addr(focus))
+  def self.GuiListViewEx(bounds, text, count, scroll, active, focus) = Raylib.rl_GuiListViewEx(bounds.x, bounds.y, bounds.width, bounds.height, text, count, text.bytesize, Raylib.ptr_addr(scroll), Raylib.ptr_addr(active), Raylib.ptr_addr(focus))
   def self.GuiDummyRec(bounds, text) = Raylib.rl_GuiDummyRec(bounds.x, bounds.y, bounds.width, bounds.height, text)
 
   # Value-returning helpers: run the control, then read the updated value.

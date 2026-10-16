@@ -331,6 +331,11 @@ RUN_EXAMPLES = [
 # Not run (reported as skipped): cwd-relative assets the checkout does not
 # ship, or RubyGems reflection rather than the raylib API.
 RUN_SKIP = {
+    "gui_controls.rb":
+        "builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a "
+        "single pointer whatever the element count, so the char** is unusable "
+        "(see tools/repro/upstream/issue-d). The program runs (the shim clamps "
+        "the item count), but it renders differently from CRuby",
     "utf8_font.rb": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)",
     "snake_case_api.rb": "uses Gem::Specification (RubyGems API), not the raylib surface",
     "snake_case_rlgl.rb": "uses Gem::Specification (RubyGems API), not the raylib surface",
