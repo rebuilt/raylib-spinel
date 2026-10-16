@@ -3841,3 +3841,24 @@ void rl_Camera_set_target(void *self, void *v) { ((rl_Camera *)self)->c.target =
 void rl_Camera_set_up(void *self, void *v) { ((rl_Camera *)self)->c.up = *RL_V3(v); }
 void rl_Camera2D_set_offset(void *self, void *v) { ((rl_Camera2D *)self)->v.offset = *RL_V2(v); }
 void rl_Camera2D_set_target(void *self, void *v) { ((rl_Camera2D *)self)->v.target = *RL_V2(v); }
+
+/* Ray, RayCollision, BoneInfo and RenderTexture field accessors. */
+void rl_Ray_position(void *o, void *out) { ((rl_Vector3 *)out)->v = ((rl_Ray *)o)->v.position; }
+void rl_Ray_set_position(void *o, void *v) { ((rl_Ray *)o)->v.position = *RL_V3(v); }
+void rl_Ray_direction(void *o, void *out) { ((rl_Vector3 *)out)->v = ((rl_Ray *)o)->v.direction; }
+void rl_Ray_set_direction(void *o, void *v) { ((rl_Ray *)o)->v.direction = *RL_V3(v); }
+
+sp_int rl_m_RayCollision_hit(void *o) { return ((rl_RayCollision *)o)->v.hit ? 1 : 0; }
+sp_int rl_m_RayCollision_set_hit(void *o, sp_int v) { ((rl_RayCollision *)o)->v.hit = v ? true : false; return v; }
+void rl_RayCollision_set_point(void *o, void *v) { ((rl_RayCollision *)o)->v.point = *RL_V3(v); }
+void rl_RayCollision_set_normal(void *o, void *v) { ((rl_RayCollision *)o)->v.normal = *RL_V3(v); }
+
+const char *rl_BoneInfo_name(void *o) { return RL_BONE(o)->name; }
+void rl_BoneInfo_set_name(void *o, const char *s) { snprintf(RL_BONE(o)->name, sizeof(RL_BONE(o)->name), "%s", s); }
+sp_int rl_m_BoneInfo_parent(void *o) { return (sp_int)RL_BONE(o)->parent; }
+sp_int rl_m_BoneInfo_set_parent(void *o, sp_int v) { RL_BONE(o)->parent = (int)v; return v; }
+
+sp_int rl_m_RenderTexture_id(void *o) { return (sp_int)RL_RT(o)->id; }
+sp_int rl_m_RenderTexture_set_id(void *o, sp_int v) { RL_RT(o)->id = (unsigned int)v; return v; }
+void rl_RenderTexture_set_texture(void *o, void *t) { RL_RT(o)->texture = *RL_TEX(t); }
+void rl_RenderTexture_set_depth(void *o, void *t) { RL_RT(o)->depth = *RL_TEX(t); }

@@ -38,8 +38,14 @@
   {
     "gem": "BoneInfo",
     "ours": "BoneInfo",
-    "read": [],
-    "write": [],
+    "read": [
+      "name",
+      "parent"
+    ],
+    "write": [
+      "name",
+      "parent"
+    ],
     "helpers": [
       [
         "parent_bone_index",
@@ -676,8 +682,14 @@
   {
     "gem": "Ray",
     "ours": "Ray",
-    "read": [],
-    "write": [],
+    "read": [
+      "position",
+      "direction"
+    ],
+    "write": [
+      "position",
+      "direction"
+    ],
     "helpers": [],
     "functions": [
       "DrawRay",
@@ -693,11 +705,15 @@
     "ours": "RayCollision",
     "read": [
       "hit",
-      "distance"
+      "distance",
+      "point",
+      "normal"
     ],
     "write": [
       "hit",
-      "distance"
+      "distance",
+      "point",
+      "normal"
     ],
     "helpers": [],
     "functions": []
@@ -751,10 +767,15 @@
     "gem": "RenderTexture",
     "ours": "RenderTexture",
     "read": [
+      "id",
       "texture",
       "depth"
     ],
-    "write": [],
+    "write": [
+      "id",
+      "texture",
+      "depth"
+    ],
     "helpers": [],
     "functions": []
   },

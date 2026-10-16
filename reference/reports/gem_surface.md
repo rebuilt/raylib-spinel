@@ -22,12 +22,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## BoneInfo
 
-    fields     read 0/2   write 0/2
-               missing read:  name, parent
-               missing write: name, parent
+    fields     read 2/2   write 2/2
     helpers    1/1
     functions  0/0
-    coverage   1/5
+    coverage   5/5
 
 ## BoundingBox
 
@@ -153,21 +151,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Ray
 
-    fields     read 0/2   write 0/2
-               missing read:  position, direction
-               missing write: position, direction
+    fields     read 2/2   write 2/2
     helpers    0/0
     functions  6/6
-    coverage   6/10
+    coverage   10/10
 
 ## RayCollision
 
-    fields     read 2/4   write 2/4
-               missing read:  point, normal
-               missing write: point, normal
+    fields     read 4/4   write 4/4
     helpers    0/0
     functions  0/0
-    coverage   4/8
+    coverage   8/8
 
 ## Rectangle
 
@@ -178,12 +172,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## RenderTexture
 
-    fields     read 2/3   write 0/3
-               missing read:  id
-               missing write: id, texture, depth
+    fields     read 3/3   write 3/3
     helpers    0/0
     functions  0/0
-    coverage   2/6
+    coverage   6/6
 
 ## Shader
 

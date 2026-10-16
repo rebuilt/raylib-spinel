@@ -245,9 +245,31 @@ end
   end
   class Ray
     def pointer = self
+    def position
+      v = Vector3.new(0.0, 0.0, 0.0)
+      Raylib.rl_Ray_position(self, v)
+      v
+    end
+
+    def direction
+      v = Vector3.new(0.0, 0.0, 0.0)
+      Raylib.rl_Ray_direction(self, v)
+      v
+    end
   end
   class RayCollision
     def pointer = self
+    def point
+      v = Vector3.new(0.0, 0.0, 0.0)
+      Raylib.rl_RayCollision_point(self, v)
+      v
+    end
+
+    def normal
+      v = Vector3.new(0.0, 0.0, 0.0)
+      Raylib.rl_RayCollision_normal(self, v)
+      v
+    end
   end
   class Matrix
     def pointer = self
@@ -305,6 +327,11 @@ end
   end
   class BoneInfo
     def pointer = self
+    def name = Raylib.rl_BoneInfo_name(self)
+
+    def name=(s)
+      Raylib.rl_BoneInfo_set_name(self, s)
+    end
   end
 
   # FFI::MemoryPointer/FFI::Pointer (the gem idiom) has no C address the AOT
