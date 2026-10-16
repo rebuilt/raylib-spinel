@@ -299,7 +299,18 @@ def image_stats(path):
         return None
     rc, out, _ = run(["identify", "-format", "%k %[fx:mean] %wx%h", path + "[0]"],
                      os.path.dirname(path), timeout=30)
-    return out.strip() if rc == 0 and out.strip() else None
+    if rc != 0 or not out.strip():
+        return None
+    parts = out.split()
+    if len(parts) == 3:
+        # the mean flaps in the 5th decimal between identical runs; 4 decimals
+        # keep the committed report stable
+        try:
+            parts[1] = "%.4f" % float(parts[1])
+        except ValueError:
+            pass
+        return " ".join(parts)
+    return out.strip()
 
 
 def capture_run(argv, tmp, tag):
