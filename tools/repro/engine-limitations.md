@@ -172,6 +172,70 @@ a `Struct` whose members are `Vector2` views) now fails the examples analysis
 section. Our own scenes keep floats in their structs and are unaffected
 (`make check` stays green).
 
+## Limitation — subclassing the FFI package's `Pointer`
+
+**Symptom.** `class Ptr < FFI::Pointer` produces a class whose instances get
+neither the parent's constructor nor its accessors, against the bundled `ffi`
+package:
+
+```
+$ ruby -e 'p Ptr.new(0)'          # -> ArgumentError: wrong number of arguments (given 1, expected 0)
+```
+
+Adding `def initialize(address) = super(address)` then fails differently
+(`NoMethodError: super: no superclass method 'initialize'`), and assigning
+`@address` directly makes construction work but leaves `#address` undefined
+(`NoMethodError: undefined method 'address' for an instance of Raylib::Ptr`).
+
+**Why we hit it.** `Raylib::Ptr` existed to add the gem's method spellings
+(`put_array_of_float32`) to the package's `FFI::Pointer`, and to keep
+`is_a?(FFI::Pointer)` true for gem code.
+
+**What we do instead.** `Ptr` is a plain Ruby class (`address`, `to_i`, `+`,
+`put_array_of_float32`), with the array write going through the
+`rl_PtrWriteFloat` C shim. It is no longer an `FFI::Pointer`, so gem code that
+calls other `FFI::Pointer` methods (`read_*`, `write_*`) on a pointer we returned
+does not work; that is a gap to look at when a gem example needs it.
+
+**Consequence worth noting.** While `#address` was broken, `model.meshes =
+model.meshes` wrote garbage into the model and `UnloadModel` freed it
+(SIGSEGV). Pointer round trips are worth asserting (read the address back)
+rather than assumed.
+
+## Limitation — delegating through an ivar whose type is a union
+
+**Symptom.** A wrapper method that delegates to a Ruby method on a native class
+through an ivar works only while the compiler pins the ivar's type to that class:
+
+```ruby
+class ModelRef
+  def initialize(model) = @model = model
+  def mesh_count = @model.mesh_count     # works if @model is statically Model
+end
+```
+
+As soon as `ModelRef.new` is called with more than one argument type — a native
+`Model` from the factory *and* a `ModelRef` from user code — `@model` becomes a
+union, the send goes polymorphic, there is no arm for a Ruby method on a native
+class, and it raises
+
+```
+undefined method 'mesh_count' for an instance of Raylib::Model (NoMethodError)
+```
+
+Two gem corpus programs (`10_models`, `13_pointer_fields`) caught it. The same
+rule has two corollaries worth remembering:
+
+- build a wrapper where its argument is statically typed (at the factory call);
+  wrapping a wrapper makes the union;
+- a poly receiver's *result* cannot be used in a typed position — interpolating
+  it, or passing it to an `int` parameter, fails at codegen
+  (`incompatible type for argument 3 of sp_Raylib_s_DrawText`, `sp_poly_to_s`).
+
+**What we do instead.** Every reader and writer on `ModelRef` calls a module
+`ffi_func` with the native view as its argument, the shape that resolves from a
+poly receiver, rather than sending to `@model`.
+
 ## Related
 
 - `upstream/issue-a-block-param-native-method.md` — a Ruby method on a native
