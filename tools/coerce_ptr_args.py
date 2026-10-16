@@ -32,10 +32,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIB = os.path.join(ROOT, "lib")
 
 # file -> function -> parameters to coerce
+# Functions whose pointer argument is filled with ptr_int (always an Integer
+# address) rather than ptr_addr (an untyped union that would poison the AOT's
+# :ptr acceptance for the whole program).
+INT_SAFE = {"UpdateTexture", "UpdateTextureRec"}
+
 TARGETS = {
     "raylib_ffi.rb": {
         # buffer out-parameters
         "LoadImageAnim": ["frames"],
+        "UpdateTexture": ["pixels"],
+        "UpdateTextureRec": ["pixels"],
         "LoadImageAnimFromMemory": ["frames"],
         "LoadModelAnimations": ["animCount"],
         "LoadFileData": ["dataSize"],
@@ -112,7 +119,8 @@ def coerce_args(call_line, params, wanted, func):
             continue
         idx = params.index(name)
         if idx < len(args) and args[idx] == name:
-            args[idx] = "Raylib.ptr_addr(%s)" % name
+            fn = "ptr_int" if func in INT_SAFE else "ptr_addr"
+            args[idx] = "Raylib.%s(%s)" % (fn, name)
             changed.append(name)
     if not changed:
         return call_line, []
@@ -142,7 +150,7 @@ def main():
                         lines[i] = new
                         done.extend(changed)
             if not done:
-                if any("ptr_addr" in l for l in lines):
+                if any("ptr_addr" in l or "ptr_int" in l for l in lines):
                     continue  # already done
                 total.append((fname, func, "no call line matched"))
                 continue
@@ -159,7 +167,7 @@ def main():
         for fname, text in out_files.items():
             # a coerced call line may keep the original line's newline; drop the
             # blank line that leaves inside the wrapper
-            text = re.sub(r"(?m)(\n[ \t]+(?:Raylib|Rlgl)\.(?:rl_)?\w+\([^\n]*ptr_addr[^\n]*)\n\n(    end\n)",
+            text = re.sub(r"(?m)(\n[ \t]+(?:Raylib|Rlgl)\.(?:rl_)?\w+\([^\n]*ptr_(?:addr|int)[^\n]*)\n\n(    end\n)",
                           r"\1\n\2", text)
             open(os.path.join(LIB, fname), "w").write(text)
     return 1 if (check_only and fixed) else 0

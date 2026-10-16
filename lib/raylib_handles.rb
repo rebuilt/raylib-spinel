@@ -19,6 +19,7 @@ module Raylib
 
     def +(offset) = @addr + offset
     def to_i = @addr
+    def address = @addr
   end
 
   class Font
@@ -223,6 +224,12 @@ module Raylib
   # Integer addresses, boxed pointers returned by :ptr functions, nil — pass
   # through untouched.
   def self.ptr_addr(x) = x.respond_to?(:address) ? x.address : x
+
+  # Integer address for a :ptr slot. ptr_addr's untyped union poisons the AOT's
+  # :ptr acceptance program-wide when its result reaches a :ptr parameter (the
+  # compiler then refuses view instances elsewhere), so wrappers that take
+  # pointer-shaped arguments pin the type here.
+  def self.ptr_int(x) = x.respond_to?(:address) ? x.address.to_i : x.to_i
 
   # View -> payload address for raygui's struct-pointer parameters (the gem
   # hands an FFI::Struct's address; ours sits behind the view). Integer

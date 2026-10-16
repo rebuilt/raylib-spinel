@@ -1996,10 +1996,10 @@ module Raylib
       Raylib.rl_UnloadRenderTexture(target)
     end
     def self.UpdateTexture(texture, pixels)
-      Raylib.rl_UpdateTexture(texture, pixels)
+      Raylib.rl_UpdateTexture(texture, Raylib.ptr_int(pixels))
     end
     def self.UpdateTextureRec(texture, rec, pixels)
-      Raylib.rl_UpdateTextureRec(texture, rec, pixels)
+      Raylib.rl_UpdateTextureRec(texture, rec, Raylib.ptr_int(pixels))
     end
     def self.SetTextureFilter(texture, filter)
       Raylib.rl_SetTextureFilter(texture, filter)

@@ -18,8 +18,10 @@ Tool: `tools/run_gem_corpus.py`. Oracle: CRuby + raylib-bindings; Spinel: `spine
 | 10_models.rb | same |  |
 | 11_render_texture.rb | same |  |
 | 12_field_index.rb | same |  |
+| 13_pointer_fields.rb | same |  |
+| 14_font_fields.rb | same |  |
 
-12/12 run identically under both engines.
+14/14 run identically under both engines.
 
 ## raylib-bindings examples (loader line replaced, `spinel -c`)
 
@@ -44,10 +46,6 @@ Invalid upstream (excluded from the target):
 
 | example | verdict | detail |
 | --- | --- | --- |
-| snake_case_api.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| snake_case_rlgl.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| template.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 | basic_loop.rb | ran | mri shot=3 0.2636 1280x1024 | spinel shot=3 0.2636 1280x1024 |
 | bitmap_font.rb | ran | mri shot=5 0.0537 1280x1024 | spinel shot=5 0.0537 1280x1024 |
 | core_2d_camera.rb | ran | mri shot=16 0.1648 1280x1024 | spinel shot=15 0.1645 1280x1024 |
@@ -65,7 +63,7 @@ Invalid upstream (excluded from the target):
 | lissajous_curve.rb | ran | mri shot=5 0.2209 1280x1024 | spinel shot=5 0.2209 1280x1024 |
 | models_box_collisions.rb | ran | mri shot=8 0.2520 1280x1024 | spinel shot=8 0.2520 1280x1024 |
 | models_geometric_shapes.rb | ran | mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2380 1280x1024 |
-| models_mesh_generation.rb | spinel-error | spinel rc=1 undefined method 'vertices=' for an instance of Raylib::Mesh |
+| models_mesh_generation.rb | spinel-error | spinel rc=1 undefined method 'material' for an instance of Raylib::Model |
 | models_rlgl_solar_system.rb | ran | mri shot=7 0.2625 1280x1024 | spinel shot=7 0.2625 1280x1024 |
 | models_waving_cubes.rb | ran | mri shot=25 0.2142 1280x1024 | spinel shot=25 0.2263 1280x1024 |
 | particles_fireworks.rb | ran | mri shot=2 0.0019 1280x1024 | spinel shot=2 0.0019 1280x1024 |
@@ -74,9 +72,15 @@ Invalid upstream (excluded from the target):
 | shapes_basic_shapes.rb | mri-error | mri rc=1 	from /tmp/tmpgicmdh_l/shapes_basic_shapes.rb:17:in '<main>' |
 | shapes_draw_circle_sector.rb | ran | mri shot=14 0.2500 1280x1024 | spinel shot=14 0.2500 1280x1024 |
 | shapes_lines_bezier.rb | ran | mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024 |
+| snake_case_api.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
+| snake_case_rlgl.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
+| template.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
+| text_font_sdf.rb | mri-error | mri rc=1 	from /tmp/tmph5l_vjfz/text_font_sdf.rb:35:in '<main>' |
 | text_rectangle_bounds.rb | ran | mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024 |
+| textures_gif_player.rb | ran | mri shot=8 0.2597 1280x1024 | spinel shot=8 0.2598 1280x1024 |
 | textures_image_generation.rb | ran | mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024 |
 | textures_mouse_painting.rb | ran | mri shot=23 0.2558 1280x1024 | spinel shot=23 0.2558 1280x1024 |
 | toon_character_sprites.rb | ran | mri shot=5 0.5007 1280x1024 | spinel shot=5 0.5004 1280x1024 |
+| utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 
-28/34 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).
+29/36 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).

@@ -43,6 +43,8 @@ module Raylib
   native_method :mipmaps=, [:int], :int, "rl_m_Image_set_mipmaps"
   native_method :format, [], :int, "rl_m_Image_format"
   native_method :format=, [:int], :int, "rl_m_Image_set_format"
+  ffi_func :rl_m_Image_data, [:ptr], :long
+  native_method :data=, [:any], :void, "rl_m_Image_set_data"
 
   # -------------------------------------------------------------- Texture2D
   native_struct "Texture2D", "rl_Texture2D"
@@ -69,6 +71,9 @@ module Raylib
   native_method :glyphCount=, [:int], :int, "rl_m_Font_set_glyphCount"
   native_method :glyphPadding, [], :int, "rl_m_Font_glyphPadding"
   native_method :glyphPadding=, [:int], :int, "rl_m_Font_set_glyphPadding"
+  native_method :glyphs=, [:any], :void, "rl_m_Font_set_glyphs"
+  native_method :recs=, [:any], :void, "rl_m_Font_set_recs"
+  native_method :texture=, [:ptr], :void, "rl_m_Font_set_texture"
   native_method :texture_ptr, [], :ptr, "rl_Font_texture_ptr"
 
   # -------------------------------------------------------------- GlyphInfo

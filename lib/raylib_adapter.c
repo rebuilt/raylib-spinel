@@ -3511,6 +3511,9 @@ sp_int rl_FilePathList_sizeof(void) { return (sp_int)sizeof(FilePathList); }
 void *rl_Font_texture_ptr(void *font) { return (void *)&RL_FONT(font)->texture; }
 long rl_Font_recs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->recs; }
 long rl_Font_glyphs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->glyphs; }
+void rl_m_Font_set_glyphs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->glyphs = (GlyphInfo *)rl_h_unbox(pv); }
+void rl_m_Font_set_recs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->recs = (Rectangle *)rl_h_unbox(pv); }
+void rl_m_Font_set_texture(rl_Font *self, void *tex) { RL_FONT(self)->texture = *RL_TEX(tex); }
 void *rl_GlyphInfo_image_ptr(void *g) { return (void *)&RL_GLYPH(g)->image; }
 long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }
 
@@ -3722,3 +3725,5 @@ long rl_m_Mesh_colors(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->col
 void rl_m_Mesh_set_colors(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->colors = (unsigned char *)rl_h_unbox(pv); }
 long rl_m_Mesh_indices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->indices; }
 void rl_m_Mesh_set_indices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->indices = (unsigned short *)rl_h_unbox(pv); }
+long rl_m_Image_data(rl_Image *self) { return (long)(intptr_t)RL_IMG(self)->data; }
+void rl_m_Image_set_data(rl_Image *self, sp_RbVal pv) { RL_IMG(self)->data = (unsigned char *)rl_h_unbox(pv); }

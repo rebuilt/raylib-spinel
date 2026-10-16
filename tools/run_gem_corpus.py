@@ -180,6 +180,62 @@ def section_synthetic(flags):
     return rows
 
 
+ASSET_ROOT = "/tmp/opencode/corpus_assets"
+
+# The gem examples read their resources from the raylib-bindings checkout
+# (raylib_dll/raylib/examples/*/resources), which is not vendored here. Build the
+# few files the run set needs and point the RAYLIB_* constants at them: the GIF
+# comes from ImageMagick, the TTF is copied from the system.
+ASSET_CONSTANTS = """RAYLIB_MODELS_PATH = "%(root)s/models/"
+RAYLIB_MODELS_SHADERS_PATH = "%(root)s/models/resources/shaders/"
+RAYLIB_TEXT_PATH = "%(root)s/text/"
+RAYLIB_TEXTURE_PATH = "%(root)s/textures/"
+RAYLIB_AUDIO_PATH = "%(root)s/audio/"
+RAYLIB_OTHERS_PATH = "%(root)s/others/"
+RAYLIB_SHADERS_PATH = "%(root)s/shaders/resources/"
+RAYGUI_STYLE_PATH = "%(root)s/styles/"
+""" % {"root": ASSET_ROOT}
+
+
+def synth_assets():
+    for sub in ("textures/resources", "text/resources", "models/resources/shaders",
+                "shaders/resources", "audio/resources", "others", "styles"):
+        os.makedirs(os.path.join(ASSET_ROOT, sub), exist_ok=True)
+    gif = os.path.join(ASSET_ROOT, "textures", "resources", "scarfy_run.gif")
+    if not os.path.exists(gif):
+        run(["convert", "-size", "32x32", "xc:#ffcc00", "-size", "32x32", "xc:#cc3300",
+             "-size", "32x32", "xc:#3333cc", "-loop", "0", gif], ASSET_ROOT)
+    ttf = os.path.join(ASSET_ROOT, "text", "resources", "anonymous_pro_bold.ttf")
+    # the SDF example loads a fragment shader from the resource tree; a minimal
+    # valid GLSL 330 shader is enough for the differential run (both engines
+    # load the same file)
+    shader = os.path.join(ASSET_ROOT, "text", "resources", "shaders", "glsl330", "sdf.fs")
+    os.makedirs(os.path.dirname(shader), exist_ok=True)
+    if not os.path.exists(shader):
+        open(shader, "w").write("""#version 330
+
+in vec2 fragTexCoord;
+in vec4 fragColor;
+
+uniform sampler2D texture0;
+uniform vec4 colDiffuse;
+
+out vec4 finalColor;
+
+void main()
+{
+    vec4 texelColor = texture(texture0, fragTexCoord);
+    finalColor = texelColor * colDiffuse * fragColor;
+}
+""")
+    if not os.path.exists(ttf):
+        for cand in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                     "/usr/share/fonts/truetype/andika/Andika-Bold.ttf"):
+            if os.path.exists(cand):
+                shutil.copyfile(cand, ttf)
+                break
+
+
 def prepare_example(src, dst_dir):
     dst = os.path.join(dst_dir, os.path.basename(src))
     text = open(src).read()
@@ -195,6 +251,11 @@ def prepare_example(src, dst_dir):
     text = text.replace("require 'raylib'", 'require "raylib"')
     text = text.replace("require_relative 'util/", "require_relative '%s/util/" % EXAMPLES)
     text = text.replace('require_relative "util/', 'require_relative "%s/util/' % EXAMPLES)
+    # resource paths: point the gem's constants at the synthesized assets
+    for req in ("require_relative '%s/util/resource_path'" % EXAMPLES,
+                'require_relative "%s/util/resource_path"' % EXAMPLES):
+        if req in text:
+            text = text.replace(req, ASSET_CONSTANTS.strip())
     open(dst, "w").write(text)
     return dst
 
@@ -260,7 +321,7 @@ RUN_EXAMPLES = [
     "particles_fireworks.rb", "physics_demo.rb", "procedural_texture.rb",
     "shapes_basic_shapes.rb", "shapes_draw_circle_sector.rb",
     "shapes_lines_bezier.rb", "snake_case_api.rb", "snake_case_rlgl.rb",
-    "template.rb", "text_rectangle_bounds.rb", "textures_image_generation.rb",
+    "template.rb", "text_rectangle_bounds.rb", "text_font_sdf.rb", "textures_image_generation.rb", "textures_gif_player.rb",
     "textures_mouse_painting.rb", "toon_character_sprites.rb", "utf8_font.rb",
 ]
 
@@ -377,6 +438,7 @@ def section_run(flags, names=None):
     skipped = [{"name": n, "verdict": "skipped", "detail": RUN_SKIP[n]}
                for n in wanted if n in RUN_SKIP]
     files = [os.path.join(EXAMPLES, n) for n in wanted if n not in RUN_SKIP]
+    synth_assets()
     files = [f for f in files if os.path.exists(f)]
     with ThreadPoolExecutor(max_workers=2) as ex:
         return skipped + list(ex.map(lambda f: run_example(f, flags), files))

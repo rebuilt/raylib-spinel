@@ -59,6 +59,16 @@
    "name": "12_field_index.rb",
    "verdict": "same",
    "detail": ""
+  },
+  {
+   "name": "13_pointer_fields.rb",
+   "verdict": "same",
+   "detail": ""
+  },
+  {
+   "name": "14_font_fields.rb",
+   "verdict": "same",
+   "detail": ""
   }
  ],
  "examples": [
@@ -355,26 +365,6 @@
   }
  ],
  "run": [
-  {
-   "name": "snake_case_api.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "snake_case_rlgl.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "template.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "utf8_font.rb",
-   "verdict": "skipped",
-   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
-  },
   {
    "name": "basic_loop.rb",
    "mri": {
@@ -675,11 +665,11 @@
    "spinel": {
     "rc": 1,
     "stdout": "",
-    "stderr": "undefined method 'vertices=' for an instance of Raylib::Mesh (NoMethodError)\n",
+    "stderr": "undefined method 'material' for an instance of Raylib::Model (NoMethodError)\n",
     "shot": "1 0.0000 1280x1024"
    },
    "verdict": "spinel-error",
-   "detail": "spinel rc=1 undefined method 'vertices=' for an instance of Raylib::Mesh"
+   "detail": "spinel rc=1 undefined method 'material' for an instance of Raylib::Model"
   },
   {
    "name": "models_rlgl_solar_system.rb",
@@ -818,6 +808,38 @@
    "detail": "mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024"
   },
   {
+   "name": "snake_case_api.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "snake_case_rlgl.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "template.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "text_font_sdf.rb",
+   "mri": {
+    "rc": 1,
+    "stdout": "",
+    "stderr": "/tmp/tmph5l_vjfz/text_font_sdf.rb:35:in 'Raylib#LoadFontData': wrong number of arguments (6 for 7) (ArgumentError)\n\n    caller: /tmp/tmph5l_vjfz/text_font_sdf.rb:35\n    |   fontDefault.glyphs = LoadFontData(fileData, fileSize.read_int, 16, nil, 95, FONT_DEFAULT)\n                             ^^^^^^^^^^^^\n\tfrom /tmp/tmph5l_vjfz/text_font_sdf.rb:35:in '<main>'\n",
+    "shot": "1 0.0000 1280x1024"
+   },
+   "spinel": {
+    "rc": 1,
+    "stdout": "",
+    "stderr": "wrong number of arguments (given 6, expected 7) (ArgumentError)\n",
+    "shot": "1 0.0000 1280x1024"
+   },
+   "verdict": "mri-error",
+   "detail": "mri rc=1 \tfrom /tmp/tmph5l_vjfz/text_font_sdf.rb:35:in '<main>'"
+  },
+  {
    "name": "text_rectangle_bounds.rb",
    "mri": {
     "rc": 143,
@@ -833,6 +855,23 @@
    },
    "verdict": "ran",
    "detail": "mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024"
+  },
+  {
+   "name": "textures_gif_player.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "8 0.2597 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "8 0.2598 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=8 0.2597 1280x1024 | spinel shot=8 0.2598 1280x1024"
   },
   {
    "name": "textures_image_generation.rb",
@@ -884,6 +923,11 @@
    },
    "verdict": "ran",
    "detail": "mri shot=5 0.5007 1280x1024 | spinel shot=5 0.5004 1280x1024"
+  },
+  {
+   "name": "utf8_font.rb",
+   "verdict": "skipped",
+   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
   }
  ]
 }

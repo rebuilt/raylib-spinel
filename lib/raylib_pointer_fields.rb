@@ -18,6 +18,10 @@ module Raylib
     end
   end
 
+  class Image
+    def data = Ptr.new(Raylib.rl_m_Image_data(self))
+  end
+
   class Mesh
     def vertices = Ptr.new(Raylib.rl_m_Mesh_vertices(self))
     def texcoords = Ptr.new(Raylib.rl_m_Mesh_texcoords(self))
