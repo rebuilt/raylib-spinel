@@ -93,12 +93,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Material
 
-    fields     read 1/3   write 0/3
-               missing read:  maps, params
-               missing write: shader, maps, params
+    fields     read 3/3   write 3/3
     helpers    0/0
     functions  5/5
-    coverage   6/11
+    coverage   11/11
+
+## MaterialMap
+
+    fields     read 3/3   write 3/3
+    helpers    0/0
+    functions  0/0
+    coverage   6/6
 
 ## Matrix
 
@@ -245,5 +250,5 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
     functions  2/2
     coverage   2/18
 
-Structs with any coverage: 30
-Gem structs with no class of ours: MaterialMap, Wave, AudioStream, Sound, Music
+Structs with any coverage: 31
+Gem structs with no class of ours: Wave, AudioStream, Sound, Music

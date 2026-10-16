@@ -425,9 +425,15 @@
     "gem": "Material",
     "ours": "Material",
     "read": [
-      "shader"
+      "shader",
+      "maps",
+      "params"
     ],
-    "write": [],
+    "write": [
+      "shader",
+      "maps",
+      "params"
+    ],
     "helpers": [],
     "functions": [
       "LoadMaterials",
@@ -436,6 +442,22 @@
       "UnloadMaterial",
       "SetMaterialTexture"
     ]
+  },
+  {
+    "gem": "MaterialMap",
+    "ours": "MaterialMap",
+    "read": [
+      "texture",
+      "color",
+      "value"
+    ],
+    "write": [
+      "texture",
+      "color",
+      "value"
+    ],
+    "helpers": [],
+    "functions": []
   },
   {
     "gem": "Matrix",

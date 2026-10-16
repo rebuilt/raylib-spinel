@@ -64,6 +64,31 @@ module Raylib
     def shader = Shader.new(Raylib.rl_Material_shader_ptr(self), self)
   end
 
+  # MaterialMap: texture and color are stored by value, value is a float.
+  class MaterialMap
+    def pointer = self
+    def texture = Texture2D.new(Raylib.rl_MaterialMap_texture_ptr(self), self)
+def color
+  c = Color.new
+  Raylib.rl_MaterialMap_color(self, c)
+  c
+end
+  end
+
+  # Material's remaining fields: the two pointers, with writer shims.
+  class Material
+    def maps = Ptr.new(Raylib.rl_m_Material_maps(self))
+    def params = Ptr.new(Raylib.rl_m_Material_params(self))
+
+    def maps=(v)
+      Raylib.rl_Material_set_maps_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def params=(v)
+      Raylib.rl_Material_set_params_ptr(self, Raylib.ptr_addr(v))
+    end
+  end
+
   class Model
     def bone_info(index = 0) = BoneInfo.new(Raylib.rl_Model_bone_ptr(self, index), self)
 

@@ -145,11 +145,25 @@ ffi_func :rl_Model_skeleton_ptr, [:ptr], :ptr
   ffi_func :rl_ModelSkeleton_set_bones_ptr, [:ptr, :ptr], :void
   ffi_func :rl_m_ModelSkeleton_bindPose, [:ptr], :long
   ffi_func :rl_ModelSkeleton_set_bindPose_ptr, [:ptr, :ptr], :void
+native_struct "MaterialMap", "rl_MaterialMap"
+  native_new [], "rl_MaterialMap_new"
+  native_new [:any, :any], "rl_MaterialMap_view_any"
+  ffi_func :rl_MaterialMap_texture_ptr, [:ptr], :ptr
+  native_method :texture=, [:ptr], :void, "rl_MaterialMap_set_texture"
+  ffi_func :rl_MaterialMap_color, [:ptr, :ptr], :void
+  native_method :color=, [:ptr], :void, "rl_MaterialMap_set_color"
+  native_method :value, [], :float, "rl_m_MaterialMap_value"
+  native_method :value=, [:float], :float, "rl_m_MaterialMap_set_value"
+  ffi_func :rl_m_Material_maps, [:ptr], :long
+  ffi_func :rl_Material_set_maps_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_Material_params, [:ptr], :long
+  ffi_func :rl_Material_set_params_ptr, [:ptr, :ptr], :void
   ffi_func :rl_m_Model_meshCount_v, [:ptr], :int
   ffi_func :rl_m_Model_materialCount_v, [:ptr], :int
   ffi_func :rl_m_Model_boneCount_v, [:ptr], :int
 
   native_struct "Material", "rl_Material"
+  native_method :shader=, [:ptr], :void, "rl_Material_set_shader"
   native_new [], "rl_Material_new"
   native_new [:any, :any], "rl_Material_view"
   native_new [:any], "rl_Material_view_addr"

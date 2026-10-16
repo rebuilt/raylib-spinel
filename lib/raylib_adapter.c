@@ -3791,3 +3791,41 @@ long rl_m_ModelSkeleton_bones(rl_ModelSkeleton *self) { return (long)(intptr_t)R
 void rl_ModelSkeleton_set_bones_ptr(void *self, void *p) { RL_MODELSKELETON(self)->bones = (BoneInfo *)p; }
 long rl_m_ModelSkeleton_bindPose(rl_ModelSkeleton *self) { return (long)(intptr_t)RL_MODELSKELETON(self)->bindPose; }
 void rl_ModelSkeleton_set_bindPose_ptr(void *self, void *p) { RL_MODELSKELETON(self)->bindPose = (Transform *)p; }
+/* rl_MaterialMap — GC-embedded MaterialMap: texture and color by value. */
+typedef struct rl_MaterialMap_s {
+  sp_int cls_id;
+  MaterialMap *p;
+  sp_RbVal owner;
+  MaterialMap v;
+} rl_MaterialMap;
+#define RL_MAP(o) (((rl_MaterialMap *)(o))->p ? ((rl_MaterialMap *)(o))->p : &((rl_MaterialMap *)(o))->v)
+static void rl_MaterialMap_scan(void *p) {
+  rl_MaterialMap *s = (rl_MaterialMap *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_MaterialMap *rl_MaterialMap_new(sp_int cls_id) {
+  rl_MaterialMap *s = (rl_MaterialMap *)sp_gc_alloc(sizeof(rl_MaterialMap), NULL, rl_MaterialMap_scan);
+  s->cls_id = cls_id;
+  s->p = NULL;
+  s->v = (MaterialMap){ 0 };
+  return s;
+}
+rl_MaterialMap *rl_MaterialMap_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner_val) {
+  rl_MaterialMap *s = (rl_MaterialMap *)sp_gc_alloc(sizeof(rl_MaterialMap), NULL, rl_MaterialMap_scan);
+  s->cls_id = cls_id;
+  s->p = (MaterialMap *)rl_h_unbox(pv);
+  s->owner = owner_val;
+  return s;
+}
+void *rl_MaterialMap_texture_ptr(rl_MaterialMap *self) { return (void *)&RL_MAP(self)->texture; }
+void rl_MaterialMap_set_texture(rl_MaterialMap *self, void *t) { RL_MAP(self)->texture = *RL_TEX(t); }
+void rl_MaterialMap_color(rl_MaterialMap *self, void *out) { ((rl_Color *)out)->c = RL_MAP(self)->color; }
+void rl_MaterialMap_set_color(rl_MaterialMap *self, void *c) { RL_MAP(self)->color = *RL_COLOR(c); }
+double rl_m_MaterialMap_value(rl_MaterialMap *self) { return (double)RL_MAP(self)->value; }
+double rl_m_MaterialMap_set_value(rl_MaterialMap *self, double v) { RL_MAP(self)->value = (float)v; return v; }
+
+/* Material: maps and params are pointers, shader is by value. */
+long rl_m_Material_maps(rl_Material *self) { return (long)(intptr_t)RL_MAT(self)->maps; }
+void rl_Material_set_maps_ptr(void *self, void *p) { RL_MAT(self)->maps = (MaterialMap *)p; }
+long rl_m_Material_params(rl_Material *self) { return (long)(intptr_t)RL_MAT(self)->params; }
+void rl_Material_set_params_ptr(void *self, void *p) { memcpy(RL_MAT(self)->params, p, 4 * sizeof(float)); }
