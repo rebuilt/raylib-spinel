@@ -1,9 +1,7 @@
-# Draft: `String#pack("p*")` allocates one pointer whatever the element count
+# `Array#pack("p*")` emits a single pointer regardless of the array size
 
-**Title:** `String#pack("p*")` emits a single pointer regardless of the array
-size (and `unpack("p*")` raises)
-
-**Toolchain:** `spinel 2026.09.12+10159 (a632e3b18)`
+**Toolchain:** `spinel 2026.09.12+10301 (f90da21b9)` (also reproduces on
+`+10159 (a632e3b18)`).
 
 **Status: verified, dependency-free, no native code involved.**
 
@@ -11,7 +9,8 @@ size (and `unpack("p*")` raises)
 
 `Array#pack("p*")` — the idiom for building a `char **` / pointer array to hand
 to a C function — produces 8 bytes (one pointer) no matter how many elements the
-array has. CRuby produces `8 * n`.
+array has. CRuby produces `8 * n`. The `*` repetition works for the integer
+directives, so this looks specific to the pointer directives `p`/`P`.
 
 ## Reproduction
 
@@ -22,7 +21,11 @@ array has. CRuby produces `8 * n`.
 end
 
 b = ["This", "is"].pack("p*")
-puts "unpack: #{b.unpack("p*").inspect}"
+begin
+  puts "unpack: #{b.unpack("p*").inspect}"
+rescue => e
+  puts "unpack: #{e.class}: #{e.message}"
+end
 ```
 
 ```
@@ -39,6 +42,19 @@ n=2 bytesize=16 (expected 16)
 n=3 bytesize=24 (expected 24)
 unpack: ["This", "is"]
 ```
+
+## The `*` works for other directives
+
+```
+                  CRuby   Spinel
+[1, 2, 3].pack("C*").bytesize      3       3
+[1, 2].pack("J*").bytesize         16      16
+["a", "b"].pack("p*").bytesize     16       8      <- ignored
+["a", "b"].pack("p").bytesize       8       8      (no star: correct, first element only)
+```
+
+`test/array_pack_native_ints.rb` covers single-element `p`/`P`, but no test in
+the tree uses the `p*` / `P*` form.
 
 ## Impact
 
@@ -62,4 +78,6 @@ report (it draws one row where CRuby draws eight).
 
 `p` (pointer) and `P` (freed pointer) both look affected; the length is the
 symptom to check first. `unpack("p*")` failing on the compiler's own output
-suggests the pack side writes a single pointer rather than an array.
+suggests the pack side writes a single pointer rather than an array. Repeat the
+directive (CRuby's behaviour) or refuse it — silently writing one pointer is the
+part that hurts.

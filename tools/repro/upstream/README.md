@@ -1,25 +1,22 @@
-# Upstream drafts — Spinel AOT findings from the raylib-spinel compat work
+# Engine notes and upstream drafts from the raylib-spinel compat work
 
-Nothing here has been filed. Each `issue-*.md` is the text I would submit to
-`matz/spinel`, with the reproduction and the exact toolchain version. Review
-them, then say go (and for which ones).
+Two kinds of file live here:
 
-Toolchain for every observation:
+- **Drafts for upstream** (`issue-*.md`): text I would submit to `matz/spinel`,
+  with a reproduction and the exact toolchain version. Nothing is submitted
+  without Nelson's go-ahead.
+- **Internal notes** (`../engine-limitations.md`): findings in the compiler's
+  undocumented `native_struct` layer. Those are constraints we design around,
+  not upstream bugs -- the reasoning and the doc quotes are in that file.
 
-```
-$ spinel --version
-spinel 2026.09.12+10159 (a632e3b18)
-```
+Toolchain for every observation: `spinel 2026.09.12+10301 (f90da21b9)`
+(installed 2026-10-16; earlier runs used `+10159 (a632e3b18)`).
 
-AOT note: `7aa51b34f` (the `#9289` fix) is an ancestor, so the compiler is
-current.
-
-| draft | subject | standalone repro |
+| file | subject | status |
 | --- | --- | --- |
-| `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | **verified**: `a_block_param/` (dependency-free spin project, reproduces) |
-| `issue-b-native-writer-ptr-self.md` | adding a Ruby writer to a native class breaks `self` in that class's `:ptr` parameters | **not yet minimised** — reproduced only inside raylib-spinel (`b_writer_ptr_self/` records the shape that does *not* trigger it) |
-| `issue-c-ptr-union-poisoning.md` | an untyped helper's union return poisoning `:ptr` acceptance program-wide | **not yet minimised** — reproduced only inside raylib-spinel |
-| `issue-d-string-pack-p.md` | `String#pack("p*")` emits a single pointer regardless of the array size | **verified**: `pack_repro.rb` (dependency-free, no native code) |
+| `issue-d-string-pack-p.md` | `String#pack("p*")` emits a single pointer regardless of the array size | **filed** (see the draft for the link) |
+| `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | draft, **not filed** (undocumented layer; mechanism is documented design) |
+| `../engine-limitations.md` | a Ruby writer on a native class breaks `self` in `:ptr` parameters; a union return poisons `:ptr` acceptance program-wide | internal notes, no filing |
 
 ## Running the verified repro
 
@@ -35,3 +32,12 @@ The project is two spin projects (a local `thing` package carrying the C, and an
 application using it) because a spin *application* cannot carry native C of its
 own — the package is exactly spinel's "Path B typed object" shape, as used by
 the bundled `stringio` package.
+
+The `pack("p*")` repro is one file, no native code:
+
+```bash
+spinel pack_repro.rb -o pack_repro && ./pack_repro    # compare with: ruby pack_repro.rb
+```
+
+`b_writer_ptr_self/` is evidence for the internal note B (the shape that does
+*not* trigger the refusal), not a repro of a filed issue.

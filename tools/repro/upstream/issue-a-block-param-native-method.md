@@ -3,8 +3,15 @@
 **Title:** Ruby method defined on a native class raises NoMethodError when the
 receiver is a block parameter
 
-**Toolchain:** `spinel 2026.09.12+10159 (a632e3b18)` (also reproduces on
-`2026.09.12+10027 (bcba2dbb7)`)
+**Toolchain:** reproduces on `2026.09.12+10301 (f90da21b9)`, and on the earlier
+`+10159 (a632e3b18)` and `+10027 (bcba2dbb7)`
+
+**Status: kept as a record, not filed.** The mechanism is a documented design
+property -- `docs/limitations.md` records the same rule for exceptions ("the
+`#message`/`#to_s` arm is only emitted for a receiver whose static type names
+the exception class") -- and the class layer here is the undocumented
+`native_struct`/`native_method` DSL, which tries to reach a C-bound class the
+documented promise does not cover. See `../engine-limitations.md`.
 
 ## Summary
 
