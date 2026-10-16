@@ -1,0 +1,969 @@
+[
+  {
+    "gem": "AutomationEvent",
+    "ours": "AutomationEvent",
+    "read": [
+      "frame",
+      "type"
+    ],
+    "write": [
+      "frame",
+      "type"
+    ],
+    "helpers": [],
+    "functions": [
+      "PlayAutomationEvent"
+    ]
+  },
+  {
+    "gem": "AutomationEventList",
+    "ours": "AutomationEventList",
+    "read": [
+      "capacity",
+      "count",
+      "events"
+    ],
+    "write": [
+      "capacity",
+      "count"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadAutomationEventList",
+      "UnloadAutomationEventList",
+      "ExportAutomationEventList",
+      "SetAutomationEventList"
+    ]
+  },
+  {
+    "gem": "BoneInfo",
+    "ours": "BoneInfo",
+    "read": [],
+    "write": [],
+    "helpers": [],
+    "functions": []
+  },
+  {
+    "gem": "BoundingBox",
+    "ours": "BoundingBox",
+    "read": [
+      "min",
+      "max"
+    ],
+    "write": [],
+    "helpers": [
+      [
+        "create",
+        true
+      ]
+    ],
+    "functions": [
+      "DrawBoundingBox",
+      "CheckCollisionBoxes",
+      "CheckCollisionBoxSphere"
+    ]
+  },
+  {
+    "gem": "Camera2D",
+    "ours": "Camera2D",
+    "read": [
+      "offset",
+      "target",
+      "rotation",
+      "zoom"
+    ],
+    "write": [
+      "rotation",
+      "zoom"
+    ],
+    "helpers": [
+      [
+        "with_offset",
+        false
+      ],
+      [
+        "with_target",
+        false
+      ],
+      [
+        "with_rotation",
+        false
+      ],
+      [
+        "with_zoom",
+        false
+      ]
+    ],
+    "functions": [
+      "BeginMode2D",
+      "GetCameraMatrix2D"
+    ]
+  },
+  {
+    "gem": "Camera3D",
+    "ours": "Camera",
+    "read": [
+      "position",
+      "target",
+      "up",
+      "fovy",
+      "projection"
+    ],
+    "write": [
+      "fovy",
+      "projection"
+    ],
+    "helpers": [
+      [
+        "with_position",
+        false
+      ],
+      [
+        "with_target",
+        false
+      ],
+      [
+        "with_up",
+        false
+      ],
+      [
+        "with_fovy",
+        false
+      ],
+      [
+        "with_projection",
+        false
+      ]
+    ],
+    "functions": [
+      "BeginMode3D"
+    ]
+  },
+  {
+    "gem": "Color",
+    "ours": "Color",
+    "read": [
+      "r",
+      "g",
+      "b",
+      "a"
+    ],
+    "write": [
+      "r",
+      "g",
+      "b",
+      "a"
+    ],
+    "helpers": [
+      [
+        "from_u8",
+        true
+      ],
+      [
+        "from_u32",
+        true
+      ],
+      [
+        "set",
+        false
+      ],
+      [
+        "copy",
+        false
+      ]
+    ],
+    "functions": [
+      "ClearBackground",
+      "DrawPixel",
+      "DrawLine",
+      "DrawLineStrip",
+      "DrawTriangleFan",
+      "DrawTriangleStrip",
+      "DrawRectangle",
+      "DrawRectangleGradientV",
+      "DrawRectangleGradientH",
+      "DrawRectangleLines",
+      "DrawCircle",
+      "DrawCircleLines",
+      "DrawEllipse",
+      "DrawEllipseLines",
+      "DrawSplineLinear",
+      "DrawSplineBasis",
+      "DrawSplineCatmullRom",
+      "DrawSplineBezierQuadratic",
+      "DrawSplineBezierCubic",
+      "GenImageColor",
+      "GenImageGradientLinear",
+      "GenImageGradientRadial",
+      "GenImageGradientSquare",
+      "GenImageChecked",
+      "ImageText",
+      "UnloadImageColors",
+      "UnloadImagePalette",
+      "DrawTexture",
+      "ColorIsEqual",
+      "Fade",
+      "ColorToInt",
+      "ColorNormalize",
+      "ColorToHSV",
+      "ColorFromHSV",
+      "ColorTint",
+      "ColorBrightness",
+      "ColorContrast",
+      "ColorAlpha",
+      "ColorAlphaBlend",
+      "ColorLerp",
+      "GetColor",
+      "GetPixelColor",
+      "SetPixelColor",
+      "DrawText",
+      "DrawTriangleStrip3D"
+    ]
+  },
+  {
+    "gem": "FilePathList",
+    "ours": "FilePathList",
+    "read": [
+      "count"
+    ],
+    "write": [
+      "count"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadDirectoryFiles",
+      "LoadDirectoryFilesEx",
+      "UnloadDirectoryFiles",
+      "LoadDroppedFiles",
+      "UnloadDroppedFiles"
+    ]
+  },
+  {
+    "gem": "Font",
+    "ours": "Font",
+    "read": [
+      "baseSize",
+      "glyphCount",
+      "glyphPadding",
+      "texture",
+      "recs",
+      "glyphs"
+    ],
+    "write": [
+      "baseSize",
+      "glyphCount",
+      "glyphPadding"
+    ],
+    "helpers": [],
+    "functions": [
+      "ImageTextEx",
+      "GetFontDefault",
+      "LoadFont",
+      "LoadFontEx",
+      "LoadFontFromMemory",
+      "IsFontValid",
+      "UnloadFont",
+      "ExportFontAsCode",
+      "DrawTextEx",
+      "DrawTextPro",
+      "DrawTextCodepoint",
+      "DrawTextCodepoints",
+      "MeasureTextEx",
+      "MeasureTextCodepoints",
+      "GetGlyphIndex",
+      "GetGlyphInfo",
+      "GetGlyphAtlasRec"
+    ]
+  },
+  {
+    "gem": "GlyphInfo",
+    "ours": "GlyphInfo",
+    "read": [
+      "value",
+      "offsetX",
+      "offsetY",
+      "advanceX",
+      "image"
+    ],
+    "write": [
+      "value",
+      "offsetX",
+      "offsetY",
+      "advanceX"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadFontData"
+    ]
+  },
+  {
+    "gem": "Image",
+    "ours": "Image",
+    "read": [
+      "data",
+      "width",
+      "height",
+      "mipmaps",
+      "format"
+    ],
+    "write": [
+      "width",
+      "height",
+      "mipmaps",
+      "format"
+    ],
+    "helpers": [],
+    "functions": [
+      "SetWindowIcon",
+      "GetClipboardImage",
+      "LoadImage",
+      "LoadImageRaw",
+      "LoadImageAnim",
+      "LoadImageAnimFromMemory",
+      "LoadImageFromMemory",
+      "LoadImageFromTexture",
+      "LoadImageFromScreen",
+      "IsImageValid",
+      "UnloadImage",
+      "ExportImage",
+      "ExportImageToMemory",
+      "ExportImageAsCode",
+      "GenImageWhiteNoise",
+      "GenImagePerlinNoise",
+      "GenImageCellular",
+      "GenImageText",
+      "ImageCopy",
+      "ImageFromImage",
+      "ImageFromChannel",
+      "ImageFormat",
+      "ImageToPOT",
+      "ImageCrop",
+      "ImageAlphaCrop",
+      "ImageAlphaClear",
+      "ImageAlphaMask",
+      "ImageAlphaPremultiply",
+      "ImageBlurGaussian",
+      "ImageKernelConvolution",
+      "ImageResize",
+      "ImageResizeNN",
+      "ImageResizeCanvas",
+      "ImageMipmaps",
+      "ImageDither",
+      "ImageFlipVertical",
+      "ImageFlipHorizontal",
+      "ImageRotate",
+      "ImageRotateCW",
+      "ImageRotateCCW",
+      "ImageColorTint",
+      "ImageColorInvert",
+      "ImageColorGrayscale",
+      "ImageColorContrast",
+      "ImageColorBrightness",
+      "ImageColorReplace",
+      "LoadImageColors",
+      "LoadImagePalette",
+      "GetImageAlphaBorder",
+      "GetImageColor",
+      "ImageClearBackground",
+      "ImageDrawPixel",
+      "ImageDrawPixelV",
+      "ImageDrawLine",
+      "ImageDrawLineV",
+      "ImageDrawLineEx",
+      "ImageDrawLineStrip",
+      "ImageDrawTriangle",
+      "ImageDrawTriangleGradient",
+      "ImageDrawTriangleLines",
+      "ImageDrawTriangleFan",
+      "ImageDrawTriangleStrip",
+      "ImageDrawRectangle",
+      "ImageDrawRectangleV",
+      "ImageDrawRectangleRec",
+      "ImageDrawRectanglePro",
+      "ImageDrawRectangleLines",
+      "ImageDrawRectangleLinesEx",
+      "ImageDrawRectangleGradientEx",
+      "ImageDrawCircle",
+      "ImageDrawCircleV",
+      "ImageDrawCircleLines",
+      "ImageDrawCircleLinesV",
+      "ImageDrawCircleGradient",
+      "ImageDrawImage",
+      "ImageDrawImageEx",
+      "ImageDrawImageRec",
+      "ImageDrawImagePro",
+      "ImageDrawText",
+      "ImageDrawTextEx",
+      "ImageDrawTextPro",
+      "LoadTextureFromImage",
+      "LoadTextureCubemap",
+      "LoadFontFromImage",
+      "GenMeshHeightmap",
+      "GenMeshCubicmap"
+    ]
+  },
+  {
+    "gem": "Material",
+    "ours": "Material",
+    "read": [
+      "shader"
+    ],
+    "write": [],
+    "helpers": [],
+    "functions": [
+      "LoadMaterialDefault",
+      "IsMaterialValid",
+      "UnloadMaterial",
+      "SetMaterialTexture"
+    ]
+  },
+  {
+    "gem": "Matrix",
+    "ours": "Matrix",
+    "read": [
+      "m0",
+      "m4",
+      "m8",
+      "m12",
+      "m1",
+      "m5",
+      "m9",
+      "m13",
+      "m2",
+      "m6",
+      "m10",
+      "m14",
+      "m3",
+      "m7",
+      "m11",
+      "m15"
+    ],
+    "write": [
+      "m0",
+      "m4",
+      "m8",
+      "m12",
+      "m1",
+      "m5",
+      "m9",
+      "m13",
+      "m2",
+      "m6",
+      "m10",
+      "m14",
+      "m3",
+      "m7",
+      "m11",
+      "m15"
+    ],
+    "helpers": [],
+    "functions": [
+      "GetCameraMatrix"
+    ]
+  },
+  {
+    "gem": "Mesh",
+    "ours": "Mesh",
+    "read": [
+      "vertexCount",
+      "triangleCount",
+      "vertices",
+      "texcoords",
+      "texcoords2",
+      "normals",
+      "tangents",
+      "colors",
+      "indices"
+    ],
+    "write": [
+      "vertexCount",
+      "triangleCount"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadModelFromMesh",
+      "UploadMesh",
+      "UpdateMeshBuffer",
+      "UnloadMesh",
+      "DrawMesh",
+      "DrawMeshInstanced",
+      "GetMeshBoundingBox",
+      "GenMeshTangents",
+      "ExportMesh",
+      "ExportMeshAsCode",
+      "GenMeshPoly",
+      "GenMeshPlane",
+      "GenMeshCube",
+      "GenMeshSphere",
+      "GenMeshHemiSphere",
+      "GenMeshCylinder",
+      "GenMeshCone",
+      "GenMeshTorus",
+      "GenMeshKnot"
+    ]
+  },
+  {
+    "gem": "Model",
+    "ours": "Model",
+    "read": [
+      "transform",
+      "meshCount",
+      "materialCount"
+    ],
+    "write": [
+      "meshCount",
+      "materialCount"
+    ],
+    "helpers": [
+      [
+        "material",
+        false
+      ],
+      [
+        "material_count",
+        false
+      ],
+      [
+        "bone_info",
+        false
+      ]
+    ],
+    "functions": [
+      "LoadModel",
+      "IsModelValid",
+      "UnloadModel",
+      "GetModelBoundingBox",
+      "DrawModel",
+      "DrawModelEx",
+      "DrawModelWires",
+      "DrawModelWiresEx",
+      "SetModelMeshMaterial",
+      "UpdateModelAnimation",
+      "UpdateModelAnimationEx",
+      "IsModelAnimationValid"
+    ]
+  },
+  {
+    "gem": "ModelAnimation",
+    "ours": "ModelAnimation",
+    "read": [
+      "boneCount",
+      "keyframeCount"
+    ],
+    "write": [
+      "boneCount",
+      "keyframeCount"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadModelAnimations"
+    ]
+  },
+  {
+    "gem": "NPatchInfo",
+    "ours": "NPatchInfo",
+    "read": [
+      "left",
+      "top",
+      "right",
+      "bottom",
+      "layout"
+    ],
+    "write": [
+      "left",
+      "top",
+      "right",
+      "bottom",
+      "layout"
+    ],
+    "helpers": [],
+    "functions": [
+      "DrawTextureNPatch"
+    ]
+  },
+  {
+    "gem": "Ray",
+    "ours": "Ray",
+    "read": [],
+    "write": [],
+    "helpers": [],
+    "functions": [
+      "DrawRay",
+      "GetRayCollisionSphere",
+      "GetRayCollisionBox",
+      "GetRayCollisionMesh",
+      "GetRayCollisionTriangle",
+      "GetRayCollisionQuad"
+    ]
+  },
+  {
+    "gem": "RayCollision",
+    "ours": "RayCollision",
+    "read": [
+      "hit",
+      "distance"
+    ],
+    "write": [
+      "hit",
+      "distance"
+    ],
+    "helpers": [],
+    "functions": []
+  },
+  {
+    "gem": "Rectangle",
+    "ours": "Rectangle",
+    "read": [
+      "x",
+      "y",
+      "width",
+      "height"
+    ],
+    "write": [
+      "x",
+      "y",
+      "width",
+      "height"
+    ],
+    "helpers": [
+      [
+        "create",
+        true
+      ],
+      [
+        "set",
+        false
+      ]
+    ],
+    "functions": [
+      "SetShapesTexture",
+      "GetShapesTextureRectangle",
+      "DrawRectangleRec",
+      "DrawRectanglePro",
+      "DrawRectangleGradientEx",
+      "DrawRectangleLinesEx",
+      "DrawRectangleRounded",
+      "DrawRectangleRoundedLines",
+      "DrawRectangleRoundedLinesEx",
+      "CheckCollisionRecs",
+      "GetCollisionRec",
+      "UpdateTextureRec",
+      "DrawTextureRec",
+      "DrawTexturePro",
+      "GenImageFontAtlas",
+      "DrawBillboardRec",
+      "DrawBillboardPro"
+    ]
+  },
+  {
+    "gem": "RenderTexture",
+    "ours": "RenderTexture",
+    "read": [
+      "texture",
+      "depth"
+    ],
+    "write": [],
+    "helpers": [],
+    "functions": []
+  },
+  {
+    "gem": "Shader",
+    "ours": "Shader",
+    "read": [
+      "id"
+    ],
+    "write": [
+      "id"
+    ],
+    "helpers": [],
+    "functions": [
+      "BeginShaderMode",
+      "LoadShader",
+      "LoadShaderFromMemory",
+      "IsShaderValid",
+      "GetShaderLocation",
+      "GetShaderLocationAttrib",
+      "SetShaderValue",
+      "SetShaderValueV",
+      "SetShaderValueMatrix",
+      "SetShaderValueTexture",
+      "UnloadShader"
+    ]
+  },
+  {
+    "gem": "Texture",
+    "ours": "Texture2D",
+    "read": [
+      "id",
+      "width",
+      "height",
+      "mipmaps",
+      "format"
+    ],
+    "write": [
+      "id",
+      "width",
+      "height",
+      "mipmaps",
+      "format"
+    ],
+    "helpers": [],
+    "functions": []
+  },
+  {
+    "gem": "Transform",
+    "ours": "Transform",
+    "read": [
+      "translation",
+      "rotation",
+      "scale"
+    ],
+    "write": [],
+    "helpers": [
+      [
+        "t",
+        false
+      ],
+      [
+        "r",
+        false
+      ],
+      [
+        "s",
+        false
+      ]
+    ],
+    "functions": []
+  },
+  {
+    "gem": "Vector2",
+    "ours": "Vector2",
+    "read": [
+      "x",
+      "y"
+    ],
+    "write": [
+      "x",
+      "y"
+    ],
+    "helpers": [
+      [
+        "create",
+        true
+      ],
+      [
+        "copy_from",
+        true
+      ],
+      [
+        "set",
+        false
+      ],
+      [
+        "add",
+        false
+      ],
+      [
+        "add_vector",
+        false
+      ],
+      [
+        "to_a",
+        false
+      ]
+    ],
+    "functions": [
+      "GetMonitorPosition",
+      "GetWindowPosition",
+      "GetWindowScaleDPI",
+      "GetScreenToWorldRay",
+      "GetScreenToWorldRayEx",
+      "GetWorldToScreen2D",
+      "GetScreenToWorld2D",
+      "GetMousePosition",
+      "GetMouseDelta",
+      "GetMouseWheelMoveV",
+      "GetTouchPosition",
+      "GetGestureDragVector",
+      "GetGesturePinchVector",
+      "DrawPixelV",
+      "DrawLineV",
+      "DrawLineEx",
+      "DrawLineBezier",
+      "DrawLineDashed",
+      "DrawTriangle",
+      "DrawTriangleGradient",
+      "DrawTriangleLines",
+      "DrawTriangleLinesEx",
+      "DrawRectangleV",
+      "DrawPoly",
+      "DrawPolyLines",
+      "DrawPolyLinesEx",
+      "DrawCircleV",
+      "DrawCircleGradient",
+      "DrawCircleSector",
+      "DrawCircleSectorLines",
+      "DrawCircleSectorLinesEx",
+      "DrawCircleLinesV",
+      "DrawCircleLinesEx",
+      "DrawEllipseV",
+      "DrawEllipseLinesV",
+      "DrawEllipseLinesEx",
+      "DrawRing",
+      "DrawRingLines",
+      "DrawRingLinesEx",
+      "DrawSplineSegmentLinear",
+      "DrawSplineSegmentBasis",
+      "DrawSplineSegmentCatmullRom",
+      "DrawSplineSegmentBezierQuadratic",
+      "DrawSplineSegmentBezierCubic",
+      "GetSplinePointLinear",
+      "GetSplinePointBasis",
+      "GetSplinePointCatmullRom",
+      "GetSplinePointBezierQuadratic",
+      "GetSplinePointBezierCubic",
+      "CheckCollisionCircles",
+      "CheckCollisionCircleRec",
+      "CheckCollisionCircleLine",
+      "CheckCollisionPointRec",
+      "CheckCollisionPointCircle",
+      "CheckCollisionPointTriangle",
+      "CheckCollisionPointLine",
+      "CheckCollisionPointPoly",
+      "CheckCollisionLines",
+      "DrawTextureV",
+      "DrawTextureEx"
+    ]
+  },
+  {
+    "gem": "Vector3",
+    "ours": "Vector3",
+    "read": [
+      "x",
+      "y",
+      "z"
+    ],
+    "write": [
+      "x",
+      "y",
+      "z"
+    ],
+    "helpers": [
+      [
+        "create",
+        true
+      ],
+      [
+        "copy_from",
+        true
+      ],
+      [
+        "set",
+        false
+      ],
+      [
+        "to_a",
+        false
+      ]
+    ],
+    "functions": [
+      "GetWorldToScreen",
+      "GetWorldToScreenEx",
+      "UpdateCameraPro",
+      "DrawLine3D",
+      "DrawPoint3D",
+      "DrawCircle3D",
+      "DrawTriangle3D",
+      "DrawCube",
+      "DrawCubeV",
+      "DrawCubeWires",
+      "DrawCubeWiresV",
+      "DrawSphere",
+      "DrawSphereEx",
+      "DrawSphereWires",
+      "DrawCylinder",
+      "DrawCylinderEx",
+      "DrawCylinderWires",
+      "DrawCylinderWiresEx",
+      "DrawCapsule",
+      "DrawCapsuleWires",
+      "DrawPlane",
+      "DrawBillboard",
+      "CheckCollisionSpheres"
+    ]
+  },
+  {
+    "gem": "Vector4",
+    "ours": "Vector4",
+    "read": [
+      "x",
+      "y",
+      "z",
+      "w"
+    ],
+    "write": [
+      "x",
+      "y",
+      "z",
+      "w"
+    ],
+    "helpers": [
+      [
+        "create",
+        true
+      ],
+      [
+        "copy_from",
+        true
+      ],
+      [
+        "set",
+        false
+      ],
+      [
+        "to_a",
+        false
+      ]
+    ],
+    "functions": [
+      "ColorFromNormalized"
+    ]
+  },
+  {
+    "gem": "VrDeviceInfo",
+    "ours": "VrDeviceInfo",
+    "read": [
+      "hResolution",
+      "vResolution",
+      "hScreenSize",
+      "vScreenSize",
+      "eyeToScreenDistance",
+      "lensSeparationDistance",
+      "interpupillaryDistance"
+    ],
+    "write": [
+      "hResolution",
+      "vResolution",
+      "hScreenSize",
+      "vScreenSize",
+      "eyeToScreenDistance",
+      "lensSeparationDistance",
+      "interpupillaryDistance"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadVrStereoConfig"
+    ]
+  },
+  {
+    "gem": "VrStereoConfig",
+    "ours": "VrStereoConfig",
+    "read": [],
+    "write": [],
+    "helpers": [],
+    "functions": [
+      "BeginVrStereoMode",
+      "UnloadVrStereoConfig"
+    ]
+  }
+]

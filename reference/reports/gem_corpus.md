@@ -54,11 +54,6 @@ First bare-call blocker (same shape for all 1):
 
 | example | verdict | detail |
 | --- | --- | --- |
-| gui_controls.rb | skipped | builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby |
-| snake_case_api.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| snake_case_rlgl.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| template.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
-| utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 | basic_loop.rb | ran | mri shot=3 0.2636 1280x1024 | spinel shot=3 0.2636 1280x1024 |
 | bitmap_font.rb | ran | mri shot=5 0.0537 1280x1024 | spinel shot=5 0.0537 1280x1024 |
 | core_2d_camera.rb | ran | mri shot=16 0.1658 1280x1024 | spinel shot=16 0.1642 1280x1024 |
@@ -72,22 +67,27 @@ First bare-call blocker (same shape for all 1):
 | flocking_plain.rb | ran | mri shot=6 0.3039 1280x1024 | spinel shot=6 0.3042 1280x1024 |
 | game_of_life_simple.rb | ran | mri shot=3 0.0135 1280x1024 | spinel shot=3 0.0135 1280x1024 |
 | game_of_life_ui.rb | ran | mri shot=9 0.0727 1280x1024 | spinel shot=9 0.0727 1280x1024 |
+| gui_controls.rb | skipped | builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby |
 | lissajous_curve.rb | ran | mri shot=5 0.2209 1280x1024 | spinel shot=5 0.2209 1280x1024 |
 | models_box_collisions.rb | ran | mri shot=8 0.2520 1280x1024 | spinel shot=8 0.2520 1280x1024 |
 | models_geometric_shapes.rb | ran | mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2380 1280x1024 |
-| models_mesh_generation.rb | spinel-error | spinel rc=1 undefined method 'material' for an instance of Raylib::Model |
+| models_mesh_generation.rb | ran | mri shot=13 0.2571 1280x1024 | spinel shot=13 0.2571 1280x1024 |
 | models_rlgl_solar_system.rb | ran | mri shot=7 0.2625 1280x1024 | spinel shot=7 0.2625 1280x1024 |
-| models_waving_cubes.rb | ran | mri shot=25 0.2188 1280x1024 | spinel shot=25 0.2251 1280x1024 |
+| models_waving_cubes.rb | ran | mri shot=25 0.2179 1280x1024 | spinel shot=25 0.2265 1280x1024 |
 | particles_fireworks.rb | ran | mri shot=2 0.0019 1280x1024 | spinel shot=2 0.0019 1280x1024 |
 | physics_demo.rb | ran | mri shot=7 0.0021 1280x1024 | spinel shot=7 0.0021 1280x1024 |
 | procedural_texture.rb | ran | mri shot=715 0.0946 1280x1024 | spinel shot=715 0.0946 1280x1024 |
 | shapes_basic_shapes.rb | mri-error | mri rc=1 	from /tmp/tmprzucjddf/shapes_basic_shapes.rb:17:in '<main>' |
 | shapes_draw_circle_sector.rb | ran | mri shot=14 0.2500 1280x1024 | spinel shot=14 0.2500 1280x1024 |
 | shapes_lines_bezier.rb | ran | mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024 |
+| snake_case_api.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
+| snake_case_rlgl.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
+| template.rb | skipped | uses Gem::Specification (RubyGems API), not the raylib surface |
 | text_rectangle_bounds.rb | ran | mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024 |
-| textures_image_generation.rb | ran | mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024 |
 | textures_gif_player.rb | ran | mri shot=8 0.2600 1280x1024 | spinel shot=8 0.2598 1280x1024 |
+| textures_image_generation.rb | ran | mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024 |
 | textures_mouse_painting.rb | ran | mri shot=23 0.2558 1280x1024 | spinel shot=23 0.2558 1280x1024 |
-| toon_character_sprites.rb | ran | mri shot=5 0.5006 1280x1024 | spinel shot=5 0.5008 1280x1024 |
+| toon_character_sprites.rb | ran | mri shot=5 0.5006 1280x1024 | spinel shot=5 0.5004 1280x1024 |
+| utf8_font.rb | skipped | reads ./jpfont/jpfont.txt relative to cwd (asset not present) |
 
-28/35 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).
+29/35 ran identically enough to render content under both engines (screenshots kept in /tmp/opencode/corpus_shots).

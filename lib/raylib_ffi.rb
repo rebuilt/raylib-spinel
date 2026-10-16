@@ -2208,26 +2208,31 @@ module Raylib
       Raylib.rl_DrawRay(ray, color)
     end
     def self.LoadModel(fileName)
-      Model.new(Raylib.rl_LoadModel(fileName), nil)
+      ModelRef.new(Model.new(Raylib.rl_LoadModel(fileName), nil))
     end
     def self.LoadModelFromMesh(mesh)
-      Model.new(Raylib.rl_LoadModelFromMesh(mesh), nil)
+      ModelRef.new(Model.new(Raylib.rl_LoadModelFromMesh(mesh), nil))
     end
     def self.IsModelValid(model)
+      model = model.model
       Raylib.rl_IsModelValid(model)
     end
     def self.UnloadModel(model)
+      model = model.model
       Raylib.rl_UnloadModel(model)
     end
     def self.GetModelBoundingBox(model)
+      model = model.model
       _out = BoundingBox.new
       Raylib.rl_GetModelBoundingBox(model, _out)
       _out
     end
     def self.DrawModel(model, position, scale, tint)
+      model = model.model
       Raylib.rl_DrawModel(model, position, scale, tint)
     end
     def self.DrawModelEx(model, position, rotationAxis, rotationAngle, scale, tint)
+      model = model.model
       Raylib.rl_DrawModelEx(model, position, rotationAxis, rotationAngle, scale, tint)
     end
     def self.DrawModelWires(model, position, scale, tint)
@@ -2317,9 +2322,11 @@ module Raylib
       Raylib.rl_SetMaterialTexture(material, mapType, texture)
     end
     def self.UpdateModelAnimation(model, anim, frame)
+      model = model.model
       Raylib.rl_UpdateModelAnimation(model, anim, frame)
     end
     def self.UpdateModelAnimationEx(model, animA, frameA, animB, frameB, blend)
+      model = model.model
       Raylib.rl_UpdateModelAnimationEx(model, animA, (frameA || 0.0).to_f,
                                        animB, (frameB || 0.0).to_f,
                                        (blend || 0.0).to_f)

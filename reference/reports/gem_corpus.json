@@ -368,31 +368,6 @@
  ],
  "run": [
   {
-   "name": "gui_controls.rb",
-   "verdict": "skipped",
-   "detail": "builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby"
-  },
-  {
-   "name": "snake_case_api.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "snake_case_rlgl.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "template.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "utf8_font.rb",
-   "verdict": "skipped",
-   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
-  },
-  {
    "name": "basic_loop.rb",
    "mri": {
     "rc": 143,
@@ -614,6 +589,11 @@
    "detail": "mri shot=9 0.0727 1280x1024 | spinel shot=9 0.0727 1280x1024"
   },
   {
+   "name": "gui_controls.rb",
+   "verdict": "skipped",
+   "detail": "builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby"
+  },
+  {
    "name": "lissajous_curve.rb",
    "mri": {
     "rc": 143,
@@ -673,13 +653,13 @@
     "shot": "13 0.2571 1280x1024"
    },
    "spinel": {
-    "rc": 1,
+    "rc": 143,
     "stdout": "",
-    "stderr": "undefined method 'material' for an instance of Raylib::Model (NoMethodError)\n",
-    "shot": "1 0.0000 1280x1024"
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "13 0.2571 1280x1024"
    },
-   "verdict": "spinel-error",
-   "detail": "spinel rc=1 undefined method 'material' for an instance of Raylib::Model"
+   "verdict": "ran",
+   "detail": "mri shot=13 0.2571 1280x1024 | spinel shot=13 0.2571 1280x1024"
   },
   {
    "name": "models_rlgl_solar_system.rb",
@@ -704,16 +684,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "25 0.2188 1280x1024"
+    "shot": "25 0.2179 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "25 0.2251 1280x1024"
+    "shot": "25 0.2265 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=25 0.2188 1280x1024 | spinel shot=25 0.2251 1280x1024"
+   "detail": "mri shot=25 0.2179 1280x1024 | spinel shot=25 0.2265 1280x1024"
   },
   {
    "name": "particles_fireworks.rb",
@@ -818,6 +798,21 @@
    "detail": "mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024"
   },
   {
+   "name": "snake_case_api.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "snake_case_rlgl.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "template.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
    "name": "text_rectangle_bounds.rb",
    "mri": {
     "rc": 143,
@@ -835,23 +830,6 @@
    "detail": "mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024"
   },
   {
-   "name": "textures_image_generation.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "459 0.1247 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "459 0.1247 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024"
-  },
-  {
    "name": "textures_gif_player.rb",
    "mri": {
     "rc": 143,
@@ -867,6 +845,23 @@
    },
    "verdict": "ran",
    "detail": "mri shot=8 0.2600 1280x1024 | spinel shot=8 0.2598 1280x1024"
+  },
+  {
+   "name": "textures_image_generation.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "459 0.1247 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "459 0.1247 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024"
   },
   {
    "name": "textures_mouse_painting.rb",
@@ -897,10 +892,15 @@
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.5008 1280x1024"
+    "shot": "5 0.5004 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=5 0.5006 1280x1024 | spinel shot=5 0.5008 1280x1024"
+   "detail": "mri shot=5 0.5006 1280x1024 | spinel shot=5 0.5004 1280x1024"
+  },
+  {
+   "name": "utf8_font.rb",
+   "verdict": "skipped",
+   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
   }
  ]
 }
