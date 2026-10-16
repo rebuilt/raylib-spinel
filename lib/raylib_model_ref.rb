@@ -19,11 +19,32 @@ module Raylib
     # The underlying native view, for the helpers that hand it to C.
     def model = @model
 
-    # The delegating surface: Ruby methods the library defines on Model, which
-    # resolve here through the typed @model ivar. Add to this as code needs it.
+    # The delegating surface. Every method here calls a *Ruby* method the
+    # library defines on Model, reached through the typed @model ivar: that is
+    # the shape that resolves from a poly receiver. Delegating a native_method
+    # (@model.materialCount) does not compile, and a field write
+    # (@model.meshCount = 1) raises at run time.
     def material(index = 0) = @model.material(index)
     def mesh(index = 0) = @model.mesh(index)
-    def material_count = @model.material_count
     def transform = @model.transform
+    def material_count = @model.material_count
+    def mesh_count = @model.mesh_count
+    def bone_count = @model.bone_count
+    def bone_info(index = 0) = @model.bone_info(index)
+    def bind_pose_transform(index = 0) = @model.bind_pose_transform(index)
+    def pointer = @model.pointer
+
+    # the [] / [] = field index, reached through the typed ivar (a Ruby method on
+    # Model, so it resolves)
+    def [](key) = @model[key]
+
+    def []=(key, value)
+      @model[key] = value
+    end
+
+    # the gem's names for the same readers
+    def meshCount = @model.mesh_count
+    def materialCount = @model.material_count
+    def boneCount = @model.bone_count
   end
 end

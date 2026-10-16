@@ -38,8 +38,10 @@
 ROOT = File.expand_path("..", __dir__)
 
 FACTORIES = %w[LoadModel LoadModelFromMesh].freeze
-UNWRAP = %w[DrawModel DrawModelEx UnloadModel UpdateModelAnimation
-            UpdateModelAnimationEx IsModelValid GetModelBoundingBox].freeze
+UNWRAP = %w[DrawModel DrawModelEx DrawModelWires DrawModelWiresEx
+            UnloadModel UpdateModelAnimation UpdateModelAnimationEx
+            IsModelAnimationValid IsModelValid GetModelBoundingBox
+            SetModelMeshMaterial].freeze
 
 check_only = ARGV.include?("--check")
 path = ARGV.find { |a| !a.start_with?("--") } || File.join(ROOT, "lib/raylib_ffi.rb")

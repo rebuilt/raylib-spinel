@@ -51,6 +51,8 @@ module Raylib
     # gem helper name (raylib_helper.rb)
     def material_count = materialCount
 
+    def mesh_count = meshCount
+
     def transform
       m = Matrix.new
       Raylib.rl_Model_transform(self, m)
@@ -64,6 +66,12 @@ module Raylib
 
   class Model
     def bone_info(index = 0) = BoneInfo.new(Raylib.rl_Model_bone_ptr(self, index), self)
+
+    # gem helper names (raylib_helper.rb)
+    def bone_count = boneCount
+
+    def bind_pose_transform(index = 0) =
+      Transform.new(Raylib.rl_Model_bind_pose_ptr(self, index), self)
   end
 
   # The gem's ModelAnimations helper (raylib_helper.rb) over the raw

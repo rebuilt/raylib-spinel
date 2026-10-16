@@ -158,6 +158,7 @@ module Raylib
   native_method :id=, [:int], :int, "rl_m_Shader_set_id"
 
   ffi_func :rl_Model_bone_ptr, [:ptr, :int], :ptr
+  ffi_func :rl_Model_bind_pose_ptr, [:ptr, :int], :ptr
   ffi_func :rl_ModelAnimation_frame_pose_bone_ptr, [:ptr, :int, :int], :ptr
 
   native_struct "BoneInfo", "rl_BoneInfo"

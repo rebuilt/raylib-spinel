@@ -3521,6 +3521,9 @@ long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }
 void *rl_Material_shader_ptr(void *material) { return (void *)&RL_MAT(material)->shader; }
 
 /* ==== handle helpers, batch 3 (bones/poses) ==== */
+void *rl_Model_bind_pose_ptr(void *model, int index) {
+  return (void *)((RL_MODEL(model))->skeleton.bindPose + index);
+}
 void *rl_Model_bone_ptr(void *model, int index) {
   return (void *)&RL_MODEL(model)->skeleton.bones[index];
 }

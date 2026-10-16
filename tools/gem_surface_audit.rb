@@ -65,6 +65,8 @@ def blank
   Surface.new(methods: [], writers: [], indexed: [], indexed_fields: [], wrapper: nil, module_fns: [], present: false)
 end
 
+FFI_NAMES = []
+
 def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
   case node
   when Prism::SingletonClassNode
@@ -94,6 +96,12 @@ def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
     node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body) }
   when Prism::CallNode
     # DSL declarations inside a class body: native_method :name, ...
+    if node.name == :ffi_func || node.name == :native_method || node.name == :ffi_func_alias
+      arg = node.arguments&.arguments&.first
+      if node.name == :ffi_func && arg.is_a?(Prism::SymbolNode)
+        FFI_NAMES << arg.unescaped
+      end
+    end
     if node.name == :native_method
       arg = node.arguments&.arguments&.first
       if arg.is_a?(Prism::SymbolNode)
@@ -211,6 +219,7 @@ def covered_write?(surface, name)
 end
 
 raylib_module_fns = ours["Raylib"].module_fns
+ffi_names = FFI_NAMES.uniq
 report = []
 rows = []
 
@@ -229,7 +238,7 @@ gem_structs.sort.each do |gem_name, fields|
   helper_missing = helpers.reject { |h| helper_ok.include?(h) }
 
   fns = gem_functions[gem_name] || []
-  fn_ok = fns.select { |f| s.module_fns.include?(f.to_sym) || raylib_module_fns.include?(f.to_sym) }
+  fn_ok = fns.select { |f| s.module_fns.include?(f.to_sym) || raylib_module_fns.include?(f.to_sym) || ffi_names.include?(f) }
   fn_missing = fns - fn_ok
 
   total = read_ok.size + write_ok.size + helper_ok.size + fn_ok.size

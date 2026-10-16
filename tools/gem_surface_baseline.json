@@ -293,7 +293,8 @@
     ],
     "helpers": [],
     "functions": [
-      "LoadFontData"
+      "LoadFontData",
+      "UnloadFontData"
     ]
   },
   {
@@ -315,6 +316,7 @@
     "helpers": [],
     "functions": [
       "SetWindowIcon",
+      "SetWindowIcons",
       "GetClipboardImage",
       "LoadImage",
       "LoadImageRaw",
@@ -411,6 +413,7 @@
     "write": [],
     "helpers": [],
     "functions": [
+      "LoadMaterials",
       "LoadMaterialDefault",
       "IsMaterialValid",
       "UnloadMaterial",
@@ -556,7 +559,8 @@
     ],
     "helpers": [],
     "functions": [
-      "LoadModelAnimations"
+      "LoadModelAnimations",
+      "UnloadModelAnimations"
     ]
   },
   {

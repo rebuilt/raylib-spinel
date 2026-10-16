@@ -2236,9 +2236,11 @@ module Raylib
       Raylib.rl_DrawModelEx(model, position, rotationAxis, rotationAngle, scale, tint)
     end
     def self.DrawModelWires(model, position, scale, tint)
+      model = model.model
       Raylib.rl_DrawModelWires(model, position, scale, tint)
     end
     def self.DrawModelWiresEx(model, position, rotationAxis, rotationAngle, scale, tint)
+      model = model.model
       Raylib.rl_DrawModelWiresEx(model, position, rotationAxis, rotationAngle, scale, tint)
     end
     def self.DrawBoundingBox(box, color)
@@ -2332,6 +2334,7 @@ module Raylib
                                        (blend || 0.0).to_f)
     end
     def self.IsModelAnimationValid(model, anim)
+      model = model.model
       Raylib.rl_IsModelAnimationValid(model, anim)
     end
     def self.CheckCollisionSpheres(center1, radius1, center2, radius2)
@@ -3866,6 +3869,7 @@ module Raylib
       Raylib.rl_GenMeshTangents(mesh)
     end
     def self.SetModelMeshMaterial(model, meshId, materialId)
+      model = model.model
       Raylib.rl_SetModelMeshMaterial(model, meshId, materialId)
     end
   end
