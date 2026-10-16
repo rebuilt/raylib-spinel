@@ -539,6 +539,7 @@
       "meshes",
       "materials",
       "meshMaterial",
+      "skeleton",
       "currentPose",
       "boneMatrices"
     ],
@@ -549,6 +550,7 @@
       "meshes",
       "materials",
       "meshMaterial",
+      "skeleton",
       "currentPose",
       "boneMatrices"
     ],
@@ -605,6 +607,22 @@
       "LoadModelAnimations",
       "UnloadModelAnimations"
     ]
+  },
+  {
+    "gem": "ModelSkeleton",
+    "ours": "ModelSkeleton",
+    "read": [
+      "boneCount",
+      "bones",
+      "bindPose"
+    ],
+    "write": [
+      "boneCount",
+      "bones",
+      "bindPose"
+    ],
+    "helpers": [],
+    "functions": []
   },
   {
     "gem": "NPatchInfo",

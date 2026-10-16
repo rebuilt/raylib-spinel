@@ -3756,3 +3756,38 @@ void rl_PtrWriteFloat(long addr, long byte_offset, double v) {
 sp_int rl_m_Model_meshCount_v(void *self) { return (sp_int)RL_MODEL(self)->meshCount; }
 sp_int rl_m_Model_materialCount_v(void *self) { return (sp_int)RL_MODEL(self)->materialCount; }
 sp_int rl_m_Model_boneCount_v(void *self) { return (sp_int)RL_MODEL(self)->skeleton.boneCount; }
+/* rl_ModelSkeleton — a view over a Model's embedded skeleton. bones and
+ * bindPose point into raylib-owned arrays; the Model setter copies by value. */
+typedef struct rl_ModelSkeleton_s {
+  sp_int cls_id;
+  ModelSkeleton *p;
+  sp_RbVal owner;
+  ModelSkeleton v;
+} rl_ModelSkeleton;
+#define RL_MODELSKELETON(o) (((rl_ModelSkeleton *)(o))->p ? ((rl_ModelSkeleton *)(o))->p : &((rl_ModelSkeleton *)(o))->v)
+static void rl_ModelSkeleton_scan(void *p) {
+  rl_ModelSkeleton *s = (rl_ModelSkeleton *)p;
+  if (s->p) sp_mark_rbval(s->owner);
+}
+rl_ModelSkeleton *rl_ModelSkeleton_new(sp_int cls_id) {
+  rl_ModelSkeleton *self = (rl_ModelSkeleton *)sp_gc_alloc(sizeof(rl_ModelSkeleton), NULL, rl_ModelSkeleton_scan);
+  self->cls_id = cls_id;
+  self->p = NULL;
+  self->v = (ModelSkeleton){ 0 };
+  return self;
+}
+rl_ModelSkeleton *rl_ModelSkeleton_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal owner_val) {
+  rl_ModelSkeleton *s = (rl_ModelSkeleton *)sp_gc_alloc(sizeof(rl_ModelSkeleton), NULL, rl_ModelSkeleton_scan);
+  s->cls_id = cls_id;
+  s->p = (ModelSkeleton *)rl_h_unbox(pv);
+  s->owner = owner_val;
+  return s;
+}
+void *rl_Model_skeleton_ptr(void *model) { return (void *)&(RL_MODEL(model))->skeleton; }
+void rl_Model_set_skeleton(void *model, void *s) { RL_MODEL(model)->skeleton = *RL_MODELSKELETON(s); }
+sp_int rl_m_ModelSkeleton_boneCount(rl_ModelSkeleton *self) { return (sp_int)RL_MODELSKELETON(self)->boneCount; }
+sp_int rl_m_ModelSkeleton_set_boneCount(rl_ModelSkeleton *self, sp_int v) { RL_MODELSKELETON(self)->boneCount = (int)v; return v; }
+long rl_m_ModelSkeleton_bones(rl_ModelSkeleton *self) { return (long)(intptr_t)RL_MODELSKELETON(self)->bones; }
+void rl_ModelSkeleton_set_bones_ptr(void *self, void *p) { RL_MODELSKELETON(self)->bones = (BoneInfo *)p; }
+long rl_m_ModelSkeleton_bindPose(rl_ModelSkeleton *self) { return (long)(intptr_t)RL_MODELSKELETON(self)->bindPose; }
+void rl_ModelSkeleton_set_bindPose_ptr(void *self, void *p) { RL_MODELSKELETON(self)->bindPose = (Transform *)p; }

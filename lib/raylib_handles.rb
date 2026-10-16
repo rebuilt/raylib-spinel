@@ -105,6 +105,30 @@ module Raylib
     def transform=(matrix)
       Raylib.rl_Model_set_transform(self, matrix)
     end
+
+    # skeleton is stored by value too: the reader wraps the embedded struct, the
+    # writer copies a ModelSkeleton view back over it
+    def skeleton = ModelSkeleton.new(Raylib.rl_Model_skeleton_ptr(self), self)
+
+    def skeleton=(s)
+      Raylib.rl_Model_set_skeleton(self, s)
+    end
+  end
+
+  # ModelSkeleton: bones and bindPose are pointers into raylib-owned arrays.
+  class ModelSkeleton
+    def bone_count = boneCount
+    def bones = Ptr.new(Raylib.rl_m_ModelSkeleton_bones(self))
+    def bindPose = Ptr.new(Raylib.rl_m_ModelSkeleton_bindPose(self))
+    def pointer = self
+
+    def bones=(v)
+      Raylib.rl_ModelSkeleton_set_bones_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def bindPose=(v)
+      Raylib.rl_ModelSkeleton_set_bindPose_ptr(self, Raylib.ptr_addr(v))
+    end
   end
 
   # The gem's ModelAnimations helper (raylib_helper.rb) over the raw

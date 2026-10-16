@@ -118,12 +118,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Model
 
-    fields     read 8/9   write 8/9
-               missing read:  skeleton
-               missing write: skeleton
+    fields     read 9/9   write 9/9
     helpers    5/5
     functions  12/12
-    coverage   33/35
+    coverage   35/35
 
 ## ModelAnimation
 
@@ -133,6 +131,13 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
     helpers    0/0
     functions  2/2
     coverage   6/10
+
+## ModelSkeleton
+
+    fields     read 3/3   write 3/3
+    helpers    0/0
+    functions  0/0
+    coverage   6/6
 
 ## NPatchInfo
 
@@ -240,5 +245,5 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
     functions  2/2
     coverage   2/18
 
-Structs with any coverage: 29
-Gem structs with no class of ours: MaterialMap, ModelSkeleton, Wave, AudioStream, Sound, Music
+Structs with any coverage: 30
+Gem structs with no class of ours: MaterialMap, Wave, AudioStream, Sound, Music

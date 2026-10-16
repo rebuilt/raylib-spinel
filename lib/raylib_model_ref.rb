@@ -43,6 +43,12 @@ module Raylib
       Raylib.rl_Model_set_transform(@model, matrix)
     end
 
+    def skeleton = ModelSkeleton.new(Raylib.rl_Model_skeleton_ptr(@model), @model)
+
+    def skeleton=(s)
+      Raylib.rl_Model_set_skeleton(@model, s)
+    end
+
     # counts, gem names and snake names
     def meshCount = Raylib.rl_m_Model_meshCount_v(@model)
     def materialCount = Raylib.rl_m_Model_materialCount_v(@model)

@@ -133,6 +133,18 @@ module Raylib
   ffi_func :rl_m_Model_boneMatrices, [:ptr], :long
   ffi_func :rl_Model_set_boneMatrices_ptr, [:ptr, :ptr], :void
   ffi_func :rl_Model_set_transform, [:ptr, :ptr], :void
+ffi_func :rl_Model_skeleton_ptr, [:ptr], :ptr
+  ffi_func :rl_Model_set_skeleton, [:ptr, :ptr], :void
+
+  native_struct "ModelSkeleton", "rl_ModelSkeleton"
+  native_new [], "rl_ModelSkeleton_new"
+  native_new [:any, :any], "rl_ModelSkeleton_view_any"
+  native_method :boneCount, [], :int, "rl_m_ModelSkeleton_boneCount"
+  native_method :boneCount=, [:int], :int, "rl_m_ModelSkeleton_set_boneCount"
+  ffi_func :rl_m_ModelSkeleton_bones, [:ptr], :long
+  ffi_func :rl_ModelSkeleton_set_bones_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_ModelSkeleton_bindPose, [:ptr], :long
+  ffi_func :rl_ModelSkeleton_set_bindPose_ptr, [:ptr, :ptr], :void
   ffi_func :rl_m_Model_meshCount_v, [:ptr], :int
   ffi_func :rl_m_Model_materialCount_v, [:ptr], :int
   ffi_func :rl_m_Model_boneCount_v, [:ptr], :int
