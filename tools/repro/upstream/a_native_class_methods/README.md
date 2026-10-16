@@ -67,3 +67,37 @@ resolve, which is why our own scenes (typed locals, direct calls) are unaffected
 and `make check` stays green.
 
 Recorded in `../engine-limitations.md` (limitation A).
+
+## Follow-up experiments: what DOES work
+
+The conclusion above is that the *class's own* methods are unreachable from a
+poly receiver. Two follow-ups show a shape that is reachable, and both are built
+from documented constructs.
+
+| experiment | shape | poly (block) call |
+| --- | --- | --- |
+| literal seeding | `:direct` / `"direct"` mentioned as a literal in the program | no effect |
+| `native_subclass` | `class Sub < ThingLib::Thing` (+ `native_subclass "hdr", "scan"` in the package) | blocked twice, see below |
+| **wrapper, `:ptr` ivar** | user class holding `@ptr` from an `ffi_func :ptr` return; methods call `ffi_func`s with it | **works** (returns 7/14, correct per element) |
+| **wrapper, view ivar** | user class holding the native *view*; methods delegate to a Ruby method on it (`@m.value`, `@m.value * 2`) | **works** (returns 7/14) |
+| wrapper delegating a `native_method` | `@m.c_value` through the ivar | compiles Ruby, then **C codegen fails** (`invalid use of void expression`) |
+| wrapper writing a native field | `@m.c_tag = v` through the ivar | `NoMethodError` at run time (the setter shape has no arm) |
+
+So the usable pattern for a poly container is a **user-class wrapper whose
+methods reach the native object through a statically typed ivar**, delegating
+either to an `ffi_func` over a `:ptr` ivar or to a *Ruby* method on the native
+class — not to a `native_method`, and not for field writes.
+
+`native_subclass` is documented (`docs/limitations.md` names it as what makes a
+C-bound class subclassable) but cannot be used by a third-party package:
+
+1. `self` in a `:ptr` parameter is refused for a subclass method (the same shape
+   as limitations B/C), so accessors must be `native_method`s on the base — and
+2. the package's header is emitted as `#include "../<declared path>"` and
+   resolved through the compiler's own include directory (`packages/` sits
+   beside the runtime there), so a header outside the compiler's tree cannot be
+   found:
+   `fatal error: ../thing.h: No such file or directory`.
+
+That second one is the only finding in this whole area that sits in documented
+territory; it would need a drafted issue before anything is filed.
