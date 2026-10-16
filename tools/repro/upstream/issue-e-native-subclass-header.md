@@ -10,45 +10,30 @@ filed.**
 
 ## Summary
 
-`native_subclass "header", "scan"` — the declaration `docs/limitations.md` names
-as what makes "a class a package binds to C" subclassable, and what
-`packages/stringio/stringio.rb` uses — makes the compiler emit the package's
-header into the generated translation unit as
-
-```c
-#include "../<declared path>"
-```
-
-`src/codegen.c:18914-18921`:
-
-```c
-    /* a native class the program subclasses (#9269): its package's header
-       defines the struct the subclass embeds, named from the runtime's
-       directory on the include path, which packages/ sits beside */
-    for (int nci = 0; nci < cf->nclasses; nci++) {
-      if (!cf->classes[nci].is_native_class || !cf->classes[nci].native_sub_header) continue;
-      int used = 0;
-      for (int k = 0; k < cf->nclasses && !used; k++) used = cf->classes[k].nsub_root == nci + 1;
-      if (used) buf_printf(b, "#include \"../%s\"\n", cf->classes[nci].native_sub_header);
-    }
-```
-
-The path is package-relative and the `../` prefix is unconditional, so it
-resolves only through the compiler's own include directory — where the spinel
-tree's `packages/` sits beside the runtime, which is exactly where the bundled
-package's header is:
+A package can let a program subclass a class it binds to C. It declares that
+with the class's header and a scan hook:
 
 ```ruby
-# packages/stringio/stringio.rb
-  native_struct "StringIO", "sp_StringIO", "sp_StringIO_free"
-  native_subclass "packages/stringio/sp_stringio.h", "sp_StringIO_scan_gc"
-  native_new [],                 "sp_StringIO_new"
-  native_new [:string],          "sp_StringIO_new_s"
+native_subclass "thing.h", "sp_Thing_scan"
 ```
 
-A package anywhere else cannot satisfy it. The generated TU is written to the
-compiler's temporary directory, so the quoted include is resolved from *that*
-file's directory:
+When the program subclasses the class, the compiler adds that header to the
+generated C file and puts `../` in front of the path itself:
+
+```c
+#include "../thing.h"
+```
+
+`src/codegen.c:18921`:
+
+```c
+/* "named from the runtime's directory on the include path, which packages/
+   sits beside" */
+if (used) buf_printf(b, "#include \"../%s\"\n", cf->classes[nci].native_sub_header);
+```
+
+The generated C file is written to a temporary directory, so `../thing.h` points
+one directory above that, not at the package. The header is never found:
 
 ```
 $ cd native_subclass_header && spin build
@@ -59,6 +44,19 @@ spinel: C compilation failed
 spinel: the generated C is kept at /tmp/spinel_out_NNNNN_0.c
 spin: build failed
 ```
+
+The only layout that works is a header inside the compiler's own tree, which is
+where the compiler's bundled stringio package keeps its header:
+
+```ruby
+# packages/stringio/stringio.rb
+  native_struct "StringIO", "sp_StringIO", "sp_StringIO_free"
+  native_subclass "packages/stringio/sp_stringio.h", "sp_StringIO_scan_gc"
+  native_new [],                 "sp_StringIO_new"
+  native_new [:string],          "sp_StringIO_new_s"
+```
+
+Every path we tried fails the same way; the table below lists them.
 
 ## Reproduction
 
@@ -184,12 +182,11 @@ A package outside the compiler's tree should be able to declare
 
 ## Why it matters here
 
-We want the classes raylib-spinel binds to C to be subclassable so that a *user*
-subclass of them can carry Ruby methods: `docs/limitations.md` presents
-`native_subclass` as the way a package opts in, and a user subclass is the one
-shape that might make methods on those objects reachable from a polymorphic
-receiver (an array element, a block parameter), which today raises
-`NoMethodError` for the class's own methods:
+We want the classes raylib-spinel binds to C to be subclassable, so that a user
+subclass of one of them can carry Ruby methods. That is the only shape we have
+found that might make methods on those objects reachable from a polymorphic
+receiver (an array element, a block parameter). Today the class's own methods
+raise `NoMethodError` there:
 
 ```ruby
 models = [LoadModelFromMesh(GenMeshCube(2.0, 1.0, 2.0)), ...]
