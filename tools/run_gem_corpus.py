@@ -465,6 +465,17 @@ def main():
         except ValueError:
             old = {}
     result = {"synthetic": [], "examples": [], "run": []}
+    if "--check" in sys.argv:
+        # gate mode: run the section, report, and exit non-zero on any mismatch
+        # without touching the committed report
+        rows = section_synthetic(flags) if only in (None, "synthetic") else []
+        if only in (None, "examples"):
+            rows += section_examples(flags)
+        bad = [r for r in rows if r["verdict"] not in ("same", "analyzed")]
+        for r in bad:
+            print("  %-34s %-10s %s" % (r["name"], r["verdict"], (r.get("detail") or "")[:90]))
+        print("%d/%d identical (gate)" % (len(rows) - len(bad), len(rows)))
+        return 1 if bad else 0
     if only == "run":
         result["synthetic"] = old.get("synthetic", [])
         result["examples"] = old.get("examples", [])
@@ -537,4 +548,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
