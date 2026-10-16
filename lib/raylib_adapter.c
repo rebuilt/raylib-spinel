@@ -3730,3 +3730,29 @@ long rl_m_Mesh_indices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->in
 void rl_m_Mesh_set_indices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->indices = (unsigned short *)rl_h_unbox(pv); }
 long rl_m_Image_data(rl_Image *self) { return (long)(intptr_t)RL_IMG(self)->data; }
 void rl_m_Image_set_data(rl_Image *self, sp_RbVal pv) { RL_IMG(self)->data = (unsigned char *)rl_h_unbox(pv); }
+
+/* Model pointer fields (gem: Model#meshes, #materials, #meshMaterial,
+ * #currentPose, #boneMatrices). Readers hand the address to Ruby, which
+ * wraps it; the *_ptr setters take a plain pointer so a Ruby writer can
+ * delegate through a typed ivar. */
+long rl_m_Model_meshes(rl_Model *self) { return (long)(intptr_t)RL_MODEL(self)->meshes; }
+void rl_Model_set_meshes_ptr(void *model, void *p) { RL_MODEL(model)->meshes = (Mesh *)p; }
+long rl_m_Model_materials(rl_Model *self) { return (long)(intptr_t)RL_MODEL(self)->materials; }
+void rl_Model_set_materials_ptr(void *model, void *p) { RL_MODEL(model)->materials = (Material *)p; }
+long rl_m_Model_meshMaterial(rl_Model *self) { return (long)(intptr_t)RL_MODEL(self)->meshMaterial; }
+void rl_Model_set_meshMaterial_ptr(void *model, void *p) { RL_MODEL(model)->meshMaterial = (int *)p; }
+long rl_m_Model_currentPose(rl_Model *self) { return (long)(intptr_t)RL_MODEL(self)->currentPose; }
+void rl_Model_set_currentPose_ptr(void *model, void *p) { RL_MODEL(model)->currentPose = (Transform *)p; }
+long rl_m_Model_boneMatrices(rl_Model *self) { return (long)(intptr_t)RL_MODEL(self)->boneMatrices; }
+void rl_Model_set_boneMatrices_ptr(void *model, void *p) { RL_MODEL(model)->boneMatrices = (Matrix *)p; }
+
+/* Ptr#put_array_of_float32: write one float32 at an address */
+void rl_PtrWriteFloat(long addr, long byte_offset, double v) {
+  *((float *)(intptr_t)(addr + byte_offset)) = (float)v;
+}
+/* Pointer-taking aliases of the Model scalar accessors, for the wrapper's
+ * readers: a module ffi_func with the view as its argument is the shape that
+ * resolves, where delegating to the Ruby method through an ivar can go poly. */
+sp_int rl_m_Model_meshCount_v(void *self) { return (sp_int)RL_MODEL(self)->meshCount; }
+sp_int rl_m_Model_materialCount_v(void *self) { return (sp_int)RL_MODEL(self)->materialCount; }
+sp_int rl_m_Model_boneCount_v(void *self) { return (sp_int)RL_MODEL(self)->skeleton.boneCount; }

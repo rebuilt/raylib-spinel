@@ -72,6 +72,39 @@ module Raylib
 
     def bind_pose_transform(index = 0) =
       Transform.new(Raylib.rl_Model_bind_pose_ptr(self, index), self)
+
+    # Pointer fields, gem names. Readers hand back a pointer object; the writers
+    # go through the *_ptr shims so a wrapper can delegate to them.
+    def meshes = Ptr.new(Raylib.rl_m_Model_meshes(self))
+    def materials = Ptr.new(Raylib.rl_m_Model_materials(self))
+    def meshMaterial = Ptr.new(Raylib.rl_m_Model_meshMaterial(self))
+    def currentPose = Ptr.new(Raylib.rl_m_Model_currentPose(self))
+    def boneMatrices = Ptr.new(Raylib.rl_m_Model_boneMatrices(self))
+
+    def meshes=(v)
+      Raylib.rl_Model_set_meshes_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def materials=(v)
+      Raylib.rl_Model_set_materials_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def meshMaterial=(v)
+      Raylib.rl_Model_set_meshMaterial_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def currentPose=(v)
+      Raylib.rl_Model_set_currentPose_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    def boneMatrices=(v)
+      Raylib.rl_Model_set_boneMatrices_ptr(self, Raylib.ptr_addr(v))
+    end
+
+    # transform is stored by value: read above, write copies the Matrix view
+    def transform=(matrix)
+      Raylib.rl_Model_set_transform(self, matrix)
+    end
   end
 
   # The gem's ModelAnimations helper (raylib_helper.rb) over the raw

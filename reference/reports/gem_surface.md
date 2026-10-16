@@ -82,16 +82,16 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
     fields     read 5/5   write 4/5
                missing write: image
     helpers    0/0
-    functions  1/2   missing: UnloadFontData
-    coverage   10/12
+    functions  2/2
+    coverage   11/12
 
 ## Image
 
     fields     read 5/5   write 4/5
                missing write: data
     helpers    0/0
-    functions  86/87   missing: SetWindowIcons
-    coverage   95/97
+    functions  87/87
+    coverage   96/97
 
 ## Material
 
@@ -99,8 +99,8 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
                missing read:  maps, params
                missing write: shader, maps, params
     helpers    0/0
-    functions  4/5   missing: LoadMaterials
-    coverage   5/11
+    functions  5/5
+    coverage   6/11
 
 ## Matrix
 
@@ -120,12 +120,12 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Model
 
-    fields     read 3/9   write 2/9
-               missing read:  meshes, materials, meshMaterial, skeleton, currentPose, boneMatrices
-               missing write: transform, meshes, materials, meshMaterial, skeleton, currentPose, boneMatrices
-    helpers    3/5   missing: bone_count, bind_pose_transform
+    fields     read 8/9   write 8/9
+               missing read:  skeleton
+               missing write: skeleton
+    helpers    5/5
     functions  12/12
-    coverage   20/35
+    coverage   33/35
 
 ## ModelAnimation
 
@@ -133,8 +133,8 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
                missing read:  name, keyframePoses
                missing write: name, keyframePoses
     helpers    0/0
-    functions  1/2   missing: UnloadModelAnimations
-    coverage   5/10
+    functions  2/2
+    coverage   6/10
 
 ## NPatchInfo
 

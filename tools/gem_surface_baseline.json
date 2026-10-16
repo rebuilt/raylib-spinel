@@ -511,11 +511,22 @@
     "read": [
       "transform",
       "meshCount",
-      "materialCount"
+      "materialCount",
+      "meshes",
+      "materials",
+      "meshMaterial",
+      "currentPose",
+      "boneMatrices"
     ],
     "write": [
+      "transform",
       "meshCount",
-      "materialCount"
+      "materialCount",
+      "meshes",
+      "materials",
+      "meshMaterial",
+      "currentPose",
+      "boneMatrices"
     ],
     "helpers": [
       [
@@ -527,7 +538,15 @@
         false
       ],
       [
+        "bone_count",
+        false
+      ],
+      [
         "bone_info",
+        false
+      ],
+      [
+        "bind_pose_transform",
         false
       ]
     ],

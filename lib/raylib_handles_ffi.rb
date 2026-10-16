@@ -16,6 +16,7 @@ module Raylib
   # pointer <-> address (the gem's `ptr + index * Struct.size` idiom; Spinel
   # boxes poly arithmetic, so the address travels as an Integer)
   ffi_func :rl_ptr_addr, [:ptr], :long
+  ffi_func :rl_PtrWriteFloat, [:long, :long, :float], :void
 
   # Interior pointers into the payload of a handle (for sub-struct views).
   # ffi_funcs (not native_methods): only ffi :ptr returns feed an [:any] ctor.
@@ -121,6 +122,20 @@ module Raylib
   native_method :materialCount=, [:int], :int, "rl_m_Model_set_materialCount"
   native_method :boneCount, [], :int, "rl_m_Model_boneCount"
   native_method :boneCount=, [:int], :int, "rl_m_Model_set_boneCount"
+  ffi_func :rl_m_Model_meshes, [:ptr], :long
+  ffi_func :rl_Model_set_meshes_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_Model_materials, [:ptr], :long
+  ffi_func :rl_Model_set_materials_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_Model_meshMaterial, [:ptr], :long
+  ffi_func :rl_Model_set_meshMaterial_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_Model_currentPose, [:ptr], :long
+  ffi_func :rl_Model_set_currentPose_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_m_Model_boneMatrices, [:ptr], :long
+  ffi_func :rl_Model_set_boneMatrices_ptr, [:ptr, :ptr], :void
+  ffi_func :rl_Model_set_transform, [:ptr, :ptr], :void
+  ffi_func :rl_m_Model_meshCount_v, [:ptr], :int
+  ffi_func :rl_m_Model_materialCount_v, [:ptr], :int
+  ffi_func :rl_m_Model_boneCount_v, [:ptr], :int
 
   native_struct "Material", "rl_Material"
   native_new [], "rl_Material_new"

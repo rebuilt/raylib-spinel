@@ -12,11 +12,28 @@
 module Raylib
   # FFI::Pointer with the gem's scalar-array spellings. `self + offset` is a
   # byte-offset pointer in the package, which is what the gem's API expects.
-  class Ptr < FFI::Pointer
-    def put_array_of_float32(offset, values)
-      (self + offset).write_array_of_float(values.map { |v| v.to_f })
+# A pointer value over a raw address, with the gem's spellings. A plain class,
+# not an FFI::Pointer subclass: under AOT a subclass of the package class
+# inherits neither its constructor ("expected 0") nor its accessors
+# ("undefined method 'address'").
+class Ptr
+  def initialize(address)
+    @address = address
+  end
+
+  def address = @address
+  def to_i = @address
+  def +(offset) = @address + offset
+
+  # the gem's scalar-array write: byte offset, then each element
+  def put_array_of_float32(offset, values)
+    i = 0
+    while i < values.length
+      Raylib.rl_PtrWriteFloat(@address, offset + i * 4, values[i].to_f)
+      i += 1
     end
   end
+end
 
   class Image
     def data = Ptr.new(Raylib.rl_m_Image_data(self))
