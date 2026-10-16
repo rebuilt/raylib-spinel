@@ -67,16 +67,31 @@ end
 
 FFI_NAMES = []
 
-def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
+def visit(node, namespace, ours, in_singleton = false, in_class_body = nil, native_ctx = nil)
   case node
+  when Prism::StatementsNode
+    ctx = native_ctx
+    node.compact_child_nodes.each do |c|
+      if c.is_a?(Prism::CallNode) && c.name == :native_struct
+        arg = c.arguments&.arguments&.first
+        if arg.is_a?(Prism::SymbolNode) || arg.is_a?(Prism::StringNode)
+          ctx = arg.unescaped
+        end
+        if ctx
+          ours[ctx]              # the DSL declares the class: make the key exist
+          ours[ctx].present = true
+        end
+      end
+      visit(c, namespace, ours, in_singleton, in_class_body, ctx)
+    end
   when Prism::SingletonClassNode
-    node.compact_child_nodes.each { |c| visit(c, namespace, ours, true, in_class_body) }
+    node.compact_child_nodes.each { |c| visit(c, namespace, ours, true, in_class_body, native_ctx) }
   when Prism::ClassNode, Prism::ModuleNode
     name = node.constant_path.respond_to?(:slice) ? node.constant_path.slice : nil
     inner = name ? [namespace, name].compact.join("::") : namespace
     leaf = inner ? inner.split("::").last : nil
     ours[leaf].present = true if leaf && node.is_a?(Prism::ClassNode)
-    node.compact_child_nodes.each { |c| visit(c, inner, ours, false, leaf) }
+    node.compact_child_nodes.each { |c| visit(c, inner, ours, false, leaf, nil) }
   when Prism::DefNode
     leaf = namespace ? namespace.split("::").last : nil
     if leaf && ours.key?(leaf)
@@ -93,7 +108,7 @@ def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
         s.methods << node.name
       end
     end
-    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body) }
+    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body, native_ctx) }
   when Prism::CallNode
     # DSL declarations inside a class body: native_method :name, ...
     if node.name == :ffi_func || node.name == :native_method || node.name == :ffi_func_alias
@@ -105,7 +120,7 @@ def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
     if node.name == :native_method
       arg = node.arguments&.arguments&.first
       if arg.is_a?(Prism::SymbolNode)
-        leaf = namespace ? namespace.split("::").last : nil
+        leaf = native_ctx || (namespace ? namespace.split("::").last : nil)
         if leaf && ours.key?(leaf)
           n = arg.unescaped
           if n.end_with?("=")
@@ -116,9 +131,9 @@ def visit(node, namespace, ours, in_singleton = false, in_class_body = nil)
         end
       end
     end
-    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body) }
+    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body, native_ctx) }
   else
-    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body) }
+    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body, native_ctx) }
   end
 end
 

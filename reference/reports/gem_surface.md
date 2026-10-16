@@ -25,17 +25,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
     fields     read 0/2   write 0/2
                missing read:  name, parent
                missing write: name, parent
-    helpers    0/1   missing: parent_bone_index
+    helpers    1/1
     functions  0/0
-    coverage   0/5
+    coverage   1/5
 
 ## BoundingBox
 
     fields     read 2/2   write 0/2
                missing write: min, max
-    helpers    1/3   missing: with_min, with_max
+    helpers    3/3
     functions  3/3
-    coverage   6/10
+    coverage   8/10
 
 ## Camera2D
 
@@ -71,11 +71,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Font
 
-    fields     read 6/6   write 3/6
-               missing write: texture, recs, glyphs
+    fields     read 6/6   write 6/6
     helpers    0/0
     functions  17/17
-    coverage   26/29
+    coverage   29/29
 
 ## GlyphInfo
 
@@ -87,11 +86,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Image
 
-    fields     read 5/5   write 4/5
-               missing write: data
+    fields     read 5/5   write 5/5
     helpers    0/0
     functions  87/87
-    coverage   96/97
+    coverage   97/97
 
 ## Material
 
@@ -111,12 +109,12 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Mesh
 
-    fields     read 9/16   write 2/16
+    fields     read 9/16   write 9/16
                missing read:  boneCount, boneIndices, boneWeights, animVertices, animNormals, vaoId, vboId
-               missing write: vertices, texcoords, texcoords2, normals, tangents, colors, indices, boneCount, boneIndices, boneWeights, animVertices, animNormals, vaoId, vboId
+               missing write: boneCount, boneIndices, boneWeights, animVertices, animNormals, vaoId, vboId
     helpers    0/0
     functions  19/19
-    coverage   30/51
+    coverage   37/51
 
 ## Model
 

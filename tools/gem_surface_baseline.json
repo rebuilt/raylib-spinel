@@ -40,7 +40,12 @@
     "ours": "BoneInfo",
     "read": [],
     "write": [],
-    "helpers": [],
+    "helpers": [
+      [
+        "parent_bone_index",
+        false
+      ]
+    ],
     "functions": []
   },
   {
@@ -55,6 +60,14 @@
       [
         "create",
         true
+      ],
+      [
+        "with_min",
+        false
+      ],
+      [
+        "with_max",
+        false
       ]
     ],
     "functions": [
@@ -252,7 +265,10 @@
     "write": [
       "baseSize",
       "glyphCount",
-      "glyphPadding"
+      "glyphPadding",
+      "texture",
+      "recs",
+      "glyphs"
     ],
     "helpers": [],
     "functions": [
@@ -308,6 +324,7 @@
       "format"
     ],
     "write": [
+      "data",
       "width",
       "height",
       "mipmaps",
@@ -480,7 +497,14 @@
     ],
     "write": [
       "vertexCount",
-      "triangleCount"
+      "triangleCount",
+      "vertices",
+      "texcoords",
+      "texcoords2",
+      "normals",
+      "tangents",
+      "colors",
+      "indices"
     ],
     "helpers": [],
     "functions": [
