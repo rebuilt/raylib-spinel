@@ -86,6 +86,8 @@
       "zoom"
     ],
     "write": [
+      "offset",
+      "target",
       "rotation",
       "zoom"
     ],
@@ -123,6 +125,9 @@
       "projection"
     ],
     "write": [
+      "position",
+      "target",
+      "up",
       "fovy",
       "projection"
     ],

@@ -39,19 +39,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Camera2D
 
-    fields     read 4/4   write 2/4
-               missing write: offset, target
+    fields     read 4/4   write 4/4
     helpers    4/4
     functions  2/2
-    coverage   12/14
+    coverage   14/14
 
 ## Camera3D (our Camera)
 
-    fields     read 5/5   write 2/5
-               missing write: position, target, up
+    fields     read 5/5   write 5/5
     helpers    5/5
     functions  1/1
-    coverage   13/16
+    coverage   16/16
 
 ## Color
 

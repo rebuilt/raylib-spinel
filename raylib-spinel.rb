@@ -23,6 +23,7 @@ if $PROGRAM_NAME.end_with?(".rb")
 else
   require_relative "lib/raylib_ffi"
   require_relative "lib/raylib_handles_ffi"
+  require_relative "lib/raylib_camera_fields"
   require_relative "lib/raylib_handles"
   require_relative "lib/raylib_pointer_fields"
   require_relative "lib/raylib_model_ref"

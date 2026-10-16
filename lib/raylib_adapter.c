@@ -3834,3 +3834,10 @@ void rl_Material_set_params_ptr(void *self, void *p) { memcpy(RL_MAT(self)->para
 void rl_Transform_set_translation(void *self, void *v) { RL_TRANSFORM(self)->translation = *RL_V3(v); }
 void rl_Transform_set_rotation(void *self, void *v) { RL_TRANSFORM(self)->rotation = *RL_V4(v); }
 void rl_Transform_set_scale(void *self, void *v) { RL_TRANSFORM(self)->scale = *RL_V3(v); }
+/* Camera field writers for the struct-typed fields (the generators emit
+ * writers for scalars only). Camera3D payload: ->c; Camera2D: ->v. */
+void rl_Camera_set_position(void *self, void *v) { ((rl_Camera *)self)->c.position = *RL_V3(v); }
+void rl_Camera_set_target(void *self, void *v) { ((rl_Camera *)self)->c.target = *RL_V3(v); }
+void rl_Camera_set_up(void *self, void *v) { ((rl_Camera *)self)->c.up = *RL_V3(v); }
+void rl_Camera2D_set_offset(void *self, void *v) { ((rl_Camera2D *)self)->v.offset = *RL_V2(v); }
+void rl_Camera2D_set_target(void *self, void *v) { ((rl_Camera2D *)self)->v.target = *RL_V2(v); }
