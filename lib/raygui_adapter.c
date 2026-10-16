@@ -219,25 +219,22 @@ int rl_GuiScrollPanel(float x, float y, float w, float h, const char *text,
   if (view) *(Rectangle *)view = v;
   return r;
 }
-int rl_GuiToggleGroup(float x, float y, float w, float h, const char *text,
-                      int active) {
-  int a = active;
+int rl_GuiToggleGroup(float x, float y, float w, float h, const char *text, void *active) {
+  int a = active != NULL ? *(int *)active : 0;
   int r = GuiToggleGroup((Rectangle){ x, y, w, h }, text, &a);
-  sp_gui_int_result = a;
+  if (active != NULL) *(int *)active = a;
   return r;
 }
-int rl_GuiToggleSlider(float x, float y, float w, float h, const char *text,
-                       int active) {
-  int a = active;
+int rl_GuiToggleSlider(float x, float y, float w, float h, const char *text, void *active) {
+  int a = active != NULL ? *(int *)active : 0;
   int r = GuiToggleSlider((Rectangle){ x, y, w, h }, text, &a);
-  sp_gui_int_result = a;
+  if (active != NULL) *(int *)active = a;
   return r;
 }
-int rl_GuiColorBarAlpha(float x, float y, float w, float h, const char *text,
-                        float alpha) {
-  float a = alpha;
+int rl_GuiColorBarAlpha(float x, float y, float w, float h, const char *text, void *alpha) {
+  float a = alpha != NULL ? *(float *)alpha : 0.0f;
   int r = GuiColorBarAlpha((Rectangle){ x, y, w, h }, text, &a);
-  sp_gui_float_result = a;
+  if (alpha != NULL) *(float *)alpha = a;
   return r;
 }
 /* Color picker updating an embedded rl_Color via a value-returning int. */
@@ -317,46 +314,71 @@ void rl_GuiDrawIcon(int iconId, int posX, int posY, int pixelSize, void *color) 
 }
 
 /* ---- value-returning controls ---- */
-int rl_GuiToggle(float x, float y, float w, float h, const char *text,
-                 int active) {
-  bool b = active != 0;
-  int r = GuiToggle((Rectangle){ x, y, w, h }, text, &b);
-  sp_gui_int_result = b ? 1 : 0;
+int rl_GuiToggleGroupValue(float x, float y, float w, float h, const char *text, int active) {
+  int a = active;
+  int r = GuiToggleGroup((Rectangle){ x, y, w, h }, text, &a);
+  sp_gui_int_result = a;
+  return r;
+}
+int rl_GuiToggleSliderValue(float x, float y, float w, float h, const char *text, int active) {
+  int a = active;
+  int r = GuiToggleSlider((Rectangle){ x, y, w, h }, text, &a);
+  sp_gui_int_result = a;
+  return r;
+}
+int rl_GuiColorBarAlphaValue(float x, float y, float w, float h, const char *text, float alpha) {
+  float a = alpha;
+  int r = GuiColorBarAlpha((Rectangle){ x, y, w, h }, text, &a);
+  sp_gui_float_result = a;
+  return r;
+}
+int rl_GuiToggle(float x, float y, float w, float h, const char *text, void *active) {
+  bool a = active != NULL ? *(bool *)active : false;
+  int r = GuiToggle((Rectangle){ x, y, w, h }, text, &a);
+  if (active != NULL) *(bool *)active = a;
   return r;
 }
 int rl_GuiValueBoxFloat(float x, float y, float w, float h, const char *text,
-                        float value, int edit) {
-  char buf[64];
-  snprintf(buf, sizeof buf, "%g", value);
-  float v = value;
-  int r = GuiValueBoxFloat((Rectangle){ x, y, w, h }, text, buf, &v, edit != 0);
-  sp_gui_float_result = v;
+                        void *textValue, void *value, int editMode) {
+  char buf[1024];
+  int i = 0;
+  if (textValue != NULL) {
+    const char *t = (const char *)textValue;
+    while (t[i] != ' ' && i < 1023) { buf[i] = t[i]; i++; }
+  }
+  buf[i] = ' ';
+  float v = value != NULL ? *(float *)value : 0.0f;
+  int r = GuiValueBoxFloat((Rectangle){ x, y, w, h }, text, buf, &v, editMode != 0);
+  if (textValue != NULL) {
+    size_t n = 0;
+    while (buf[n] != ' ' && n < 1023) { ((char *)textValue)[n] = buf[n]; n++; }
+    ((char *)textValue)[n] = ' ';
+  }
+  if (value != NULL) *(float *)value = v;
   return r;
 }
-int rl_GuiColorBarHue(float x, float y, float w, float h, const char *text,
-                      float value) {
-  float v = value;
+int rl_GuiColorBarHue(float x, float y, float w, float h, const char *text, void *value) {
+  float v = value != NULL ? *(float *)value : 0.0f;
   int r = GuiColorBarHue((Rectangle){ x, y, w, h }, text, &v);
-  sp_gui_float_result = v;
+  if (value != NULL) *(float *)value = v;
   return r;
 }
-int rl_GuiColorPanel(float x, float y, float w, float h, const char *text) {
-  Color c = { sp_gui_color_r, sp_gui_color_g, sp_gui_color_b, sp_gui_color_a };
+int rl_GuiColorPanel(float x, float y, float w, float h, const char *text, void *color) {
+  Color c = color != NULL ? *(Color *)color : (Color){ 0, 0, 0, 255 };
   int r = GuiColorPanel((Rectangle){ x, y, w, h }, text, &c);
-  sp_gui_color_r = c.r; sp_gui_color_g = c.g;
-  sp_gui_color_b = c.b; sp_gui_color_a = c.a;
+  if (color != NULL) *(Color *)color = c;
   return r;
 }
-int rl_GuiColorPanelHSV(float x, float y, float w, float h, const char *text) {
-  Vector3 hsv = { sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v };
-  int r = GuiColorPanelHSV((Rectangle){ x, y, w, h }, text, &hsv);
-  sp_gui_hsv_h = hsv.x; sp_gui_hsv_s = hsv.y; sp_gui_hsv_v = hsv.z;
+int rl_GuiColorPanelHSV(float x, float y, float w, float h, const char *text, void *colorHsv) {
+  Vector3 v = colorHsv != NULL ? *(Vector3 *)colorHsv : (Vector3){ 0, 0, 0 };
+  int r = GuiColorPanelHSV((Rectangle){ x, y, w, h }, text, &v);
+  if (colorHsv != NULL) *(Vector3 *)colorHsv = v;
   return r;
 }
-int rl_GuiColorPickerHSV(float x, float y, float w, float h, const char *text) {
-  Vector3 hsv = { sp_gui_hsv_h, sp_gui_hsv_s, sp_gui_hsv_v };
-  int r = GuiColorPickerHSV((Rectangle){ x, y, w, h }, text, &hsv);
-  sp_gui_hsv_h = hsv.x; sp_gui_hsv_s = hsv.y; sp_gui_hsv_v = hsv.z;
+int rl_GuiColorPickerHSV(float x, float y, float w, float h, const char *text, void *colorHsv) {
+  Vector3 v = colorHsv != NULL ? *(Vector3 *)colorHsv : (Vector3){ 0, 0, 0 };
+  int r = GuiColorPickerHSV((Rectangle){ x, y, w, h }, text, &v);
+  if (colorHsv != NULL) *(Vector3 *)colorHsv = v;
   return r;
 }
 void rl_Gui_SetHsv(float h, float s, float v) {
@@ -437,36 +459,35 @@ static char **sp_gui_split_text(const char *text, int *count_out) {
   *count_out = n;
   return sp_gui_list_items;
 }
-int rl_GuiListViewEx(float x, float y, float w, float h, const char *text,
-                     int count, int scrollIndex, int active, int focus) {
-  (void)count;
-  int n = 0;
-  char **items = sp_gui_split_text(text, &n);
-  int s = scrollIndex, a = active, f = focus;
-  int r = GuiListViewEx((Rectangle){ x, y, w, h }, items, n, &s, &a, &f);
-  sp_gui_int_result = a;
-  sp_gui_int_result2 = s;
-  sp_gui_int_result3 = f;
+int rl_GuiListViewEx(float x, float y, float w, float h, void *text, int count,
+                       void *scrollIndex, void *active, void *focus) {
+  int si = scrollIndex != NULL ? *(int *)scrollIndex : -1;
+  int ac = active != NULL ? *(int *)active : -1;
+  int fo = focus != NULL ? *(int *)focus : -1;
+  int r = GuiListViewEx((Rectangle){ x, y, w, h }, (char **)text, count, &si, &ac, &fo);
+  if (scrollIndex != NULL) *(int *)scrollIndex = si;
+  if (active != NULL) *(int *)active = ac;
+  if (focus != NULL) *(int *)focus = fo;
   return r;
 }
 int rl_GuiTabBar(float x, float y, float w, float h, const char *text,
-                 int hscroll, int active) {
-  int hs = hscroll, a = active;
-  int r = GuiTabBar((Rectangle){ x, y, w, h }, text, &hs, &a);
-  sp_gui_int_result = a;
-  sp_gui_int_result2 = hs;
+                    void *hscroll, void *active) {
+  int hs = hscroll != NULL ? *(int *)hscroll : 0;
+  int ac = active != NULL ? *(int *)active : 0;
+  int r = GuiTabBar((Rectangle){ x, y, w, h }, text, &hs, &ac);
+  if (hscroll != NULL) *(int *)hscroll = hs;
+  if (active != NULL) *(int *)active = ac;
   return r;
 }
-int rl_GuiTabBarEx(float x, float y, float w, float h, const char *text,
-                   int count, int hscroll, int active, int focus) {
-  (void)count;
-  int n = 0;
-  char **items = sp_gui_split_text(text, &n);
-  int hs = hscroll, a = active, f = focus;
-  int r = GuiTabBarEx((Rectangle){ x, y, w, h }, items, n, &hs, &a, &f);
-  sp_gui_int_result = a;
-  sp_gui_int_result2 = hs;
-  sp_gui_int_result3 = f;
+int rl_GuiTabBarEx(float x, float y, float w, float h, void *text, int count,
+                      void *hscroll, void *active, void *focus) {
+  int hs = hscroll != NULL ? *(int *)hscroll : 0;
+  int ac = active != NULL ? *(int *)active : 0;
+  int fo = focus != NULL ? *(int *)focus : -1;
+  int r = GuiTabBarEx((Rectangle){ x, y, w, h }, (char **)text, count, &hs, &ac, &fo);
+  if (hscroll != NULL) *(int *)hscroll = hs;
+  if (active != NULL) *(int *)active = ac;
+  if (focus != NULL) *(int *)focus = fo;
   return r;
 }
 int rl_Gui_GetInt2(void) { return sp_gui_int_result2; }

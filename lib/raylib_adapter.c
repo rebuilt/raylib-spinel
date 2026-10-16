@@ -3672,6 +3672,7 @@ unsigned int rl_LoadShaderBuffer(unsigned int size, void * data, int usage) {
  * precedes them). Returned as long so the Ruby side can put the payload
  * address into a :ptr slot. */
 long rl_Vector2_payload(rl_Vector2 *self) { return (long)(intptr_t)RL_V2(self); }
+long rl_Vector3_payload(rl_Vector3 *self) { return (long)(intptr_t)RL_V3(self); }
 long rl_Color_payload(rl_Color *self) { return (long)(intptr_t)RL_COLOR(self); }
 long rl_Rectangle_payload(rl_Rectangle *self) { return (long)(intptr_t)RL_RECT(self); }
 
