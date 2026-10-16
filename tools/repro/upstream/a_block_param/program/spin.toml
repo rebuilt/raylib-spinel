@@ -1,0 +1,4 @@
+# Application manifest; the native class and its carried C live in the sibling
+# `thing` package.
+[dependencies]
+thing = { path = "../thing" }
