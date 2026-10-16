@@ -211,6 +211,13 @@ end
   class ModelAnimation
     # the gem's ModelAnimations helper reads keyframeCount as frame_count
     def frame_count = keyframeCount
+
+    def name = Raylib.rl_ModelAnimation_name(self)
+    def keyframePoses = Ptr.new(Raylib.rl_m_ModelAnimation_keyframePoses(self))
+
+    def name=(s)
+      Raylib.rl_ModelAnimation_set_name(self, s)
+    end
   end
 
   # The gem's FFI::Struct#pointer (hand the struct to a C function) is the

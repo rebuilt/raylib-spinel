@@ -47,5 +47,10 @@ end
     def tangents = Ptr.new(Raylib.rl_m_Mesh_tangents(self))
     def colors = Ptr.new(Raylib.rl_m_Mesh_colors(self))
     def indices = Ptr.new(Raylib.rl_m_Mesh_indices(self))
+    def animVertices = Ptr.new(Raylib.rl_m_Mesh_animVertices(self))
+    def animNormals = Ptr.new(Raylib.rl_m_Mesh_animNormals(self))
+    def boneIndices = Ptr.new(Raylib.rl_m_Mesh_boneIndices(self))
+    def boneWeights = Ptr.new(Raylib.rl_m_Mesh_boneWeights(self))
+    def vboId = Ptr.new(Raylib.rl_m_Mesh_vboId(self))
   end
 end

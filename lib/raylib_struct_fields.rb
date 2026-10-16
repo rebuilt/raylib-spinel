@@ -30,4 +30,25 @@ module Raylib
   native_method :id=, [:int], :int, "rl_m_RenderTexture_set_id"
   native_method :texture=, [:ptr], :void, "rl_RenderTexture_set_texture"
   native_method :depth=, [:ptr], :void, "rl_RenderTexture_set_depth"
+  native_struct "Mesh", "rl_Mesh"
+  ffi_func :rl_m_Mesh_animVertices, [:ptr], :long
+  native_method :animVertices=, [:any], :void, "rl_Mesh_set_animVertices"
+  ffi_func :rl_m_Mesh_animNormals, [:ptr], :long
+  native_method :animNormals=, [:any], :void, "rl_Mesh_set_animNormals"
+  ffi_func :rl_m_Mesh_boneIndices, [:ptr], :long
+  native_method :boneIndices=, [:any], :void, "rl_Mesh_set_boneIndices"
+  ffi_func :rl_m_Mesh_boneWeights, [:ptr], :long
+  native_method :boneWeights=, [:any], :void, "rl_Mesh_set_boneWeights"
+  native_method :boneCount, [], :int, "rl_m_Mesh_boneCount"
+  native_method :boneCount=, [:int], :int, "rl_m_Mesh_set_boneCount"
+  native_method :vaoId, [], :int, "rl_m_Mesh_vaoId"
+  native_method :vaoId=, [:int], :int, "rl_m_Mesh_set_vaoId"
+  ffi_func :rl_m_Mesh_vboId, [:ptr], :long
+  native_method :vboId=, [:any], :void, "rl_Mesh_set_vboId"
+
+  native_struct "ModelAnimation", "rl_ModelAnimation"
+  ffi_func :rl_ModelAnimation_name, [:ptr], :str
+  ffi_func :rl_ModelAnimation_set_name, [:ptr, :str], :void
+  ffi_func :rl_m_ModelAnimation_keyframePoses, [:ptr], :long
+  native_method :keyframePoses=, [:any], :void, "rl_ModelAnimation_set_keyframePoses"
 end

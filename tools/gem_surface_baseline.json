@@ -526,7 +526,14 @@
       "normals",
       "tangents",
       "colors",
-      "indices"
+      "indices",
+      "boneCount",
+      "boneIndices",
+      "boneWeights",
+      "animVertices",
+      "animNormals",
+      "vaoId",
+      "vboId"
     ],
     "write": [
       "vertexCount",
@@ -537,7 +544,14 @@
       "normals",
       "tangents",
       "colors",
-      "indices"
+      "indices",
+      "boneCount",
+      "boneIndices",
+      "boneWeights",
+      "animVertices",
+      "animNormals",
+      "vaoId",
+      "vboId"
     ],
     "helpers": [],
     "functions": [
@@ -628,12 +642,16 @@
     "gem": "ModelAnimation",
     "ours": "ModelAnimation",
     "read": [
+      "name",
       "boneCount",
-      "keyframeCount"
+      "keyframeCount",
+      "keyframePoses"
     ],
     "write": [
+      "name",
       "boneCount",
-      "keyframeCount"
+      "keyframeCount",
+      "keyframePoses"
     ],
     "helpers": [],
     "functions": [

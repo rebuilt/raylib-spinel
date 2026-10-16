@@ -110,12 +110,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Mesh
 
-    fields     read 9/16   write 9/16
-               missing read:  boneCount, boneIndices, boneWeights, animVertices, animNormals, vaoId, vboId
-               missing write: boneCount, boneIndices, boneWeights, animVertices, animNormals, vaoId, vboId
+    fields     read 16/16   write 16/16
     helpers    0/0
     functions  19/19
-    coverage   37/51
+    coverage   51/51
 
 ## Model
 
@@ -126,12 +124,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## ModelAnimation
 
-    fields     read 2/4   write 2/4
-               missing read:  name, keyframePoses
-               missing write: name, keyframePoses
+    fields     read 4/4   write 4/4
     helpers    0/0
     functions  2/2
-    coverage   6/10
+    coverage   10/10
 
 ## ModelSkeleton
 

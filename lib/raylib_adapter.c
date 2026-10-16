@@ -3862,3 +3862,25 @@ sp_int rl_m_RenderTexture_id(void *o) { return (sp_int)RL_RT(o)->id; }
 sp_int rl_m_RenderTexture_set_id(void *o, sp_int v) { RL_RT(o)->id = (unsigned int)v; return v; }
 void rl_RenderTexture_set_texture(void *o, void *t) { RL_RT(o)->texture = *RL_TEX(t); }
 void rl_RenderTexture_set_depth(void *o, void *t) { RL_RT(o)->depth = *RL_TEX(t); }
+
+/* Mesh: the animation/skinning arrays, boneCount, vaoId and vboId. */
+long rl_m_Mesh_animVertices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->animVertices; }
+void rl_Mesh_set_animVertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animVertices = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_animNormals(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->animNormals; }
+void rl_Mesh_set_animNormals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animNormals = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_boneIndices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->boneIndices; }
+void rl_Mesh_set_boneIndices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneIndices = (unsigned char *)rl_h_unbox(pv); }
+long rl_m_Mesh_boneWeights(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->boneWeights; }
+void rl_Mesh_set_boneWeights(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneWeights = (float *)rl_h_unbox(pv); }
+sp_int rl_m_Mesh_boneCount(rl_Mesh *self) { return (sp_int)RL_MESH(self)->boneCount; }
+sp_int rl_m_Mesh_set_boneCount(rl_Mesh *self, sp_int v) { RL_MESH(self)->boneCount = (int)v; return v; }
+sp_int rl_m_Mesh_vaoId(rl_Mesh *self) { return (sp_int)RL_MESH(self)->vaoId; }
+sp_int rl_m_Mesh_set_vaoId(rl_Mesh *self, sp_int v) { RL_MESH(self)->vaoId = (unsigned int)v; return v; }
+long rl_m_Mesh_vboId(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->vboId; }
+void rl_Mesh_set_vboId(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vboId = (unsigned int *)rl_h_unbox(pv); }
+
+/* ModelAnimation: name is char[32], keyframePoses a Transform**. */
+const char *rl_ModelAnimation_name(void *o) { return RL_ANIM(o)->name; }
+void rl_ModelAnimation_set_name(void *o, const char *s) { snprintf(RL_ANIM(o)->name, sizeof(RL_ANIM(o)->name), "%s", s); }
+long rl_m_ModelAnimation_keyframePoses(void *o) { return (long)(intptr_t)RL_ANIM(o)->keyframePoses; }
+void rl_ModelAnimation_set_keyframePoses(void *o, sp_RbVal pv) { RL_ANIM(o)->keyframePoses = (Transform **)rl_h_unbox(pv); }
