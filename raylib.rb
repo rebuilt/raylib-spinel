@@ -27,5 +27,6 @@ else
   require_relative "lib/raylib_include"
   require_relative "lib/raylib_compat"
   require_relative "lib/raylib_structs"
+  require_relative "lib/raylib_pointer_fields"
   require_relative "lib/raygui_compat"
 end

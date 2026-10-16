@@ -107,6 +107,12 @@ module Raylib
   native_method :meshCount, [], :int, "rl_m_Model_meshCount"
   native_method :meshCount=, [:int], :int, "rl_m_Model_set_meshCount"
   native_method :materialCount, [], :int, "rl_m_Model_materialCount"
+  # payload accessors the AOT must see next to the class declaration, so a
+  # polymorphic send (an Array element) finds the native-class arm
+  class Model
+    def material(index = 0) = Material.new(Raylib.rl_Model_material_ptr(self, index), self)
+    def mesh(index = 0) = Mesh.new(Raylib.rl_Model_mesh_ptr(self, index), self)
+  end
   native_method :materialCount=, [:int], :int, "rl_m_Model_set_materialCount"
   native_method :boneCount, [], :int, "rl_m_Model_boneCount"
   native_method :boneCount=, [:int], :int, "rl_m_Model_set_boneCount"
@@ -123,6 +129,20 @@ module Raylib
   native_method :vertexCount, [], :int, "rl_m_Mesh_vertexCount"
   native_method :vertexCount=, [:int], :int, "rl_m_Mesh_set_vertexCount"
   native_method :triangleCount, [], :int, "rl_m_Mesh_triangleCount"
+  ffi_func :rl_m_Mesh_vertices, [:ptr], :long
+  native_method :vertices=, [:any], :void, "rl_m_Mesh_set_vertices"
+  ffi_func :rl_m_Mesh_texcoords, [:ptr], :long
+  native_method :texcoords=, [:any], :void, "rl_m_Mesh_set_texcoords"
+  ffi_func :rl_m_Mesh_texcoords2, [:ptr], :long
+  native_method :texcoords2=, [:any], :void, "rl_m_Mesh_set_texcoords2"
+  ffi_func :rl_m_Mesh_normals, [:ptr], :long
+  native_method :normals=, [:any], :void, "rl_m_Mesh_set_normals"
+  ffi_func :rl_m_Mesh_tangents, [:ptr], :long
+  native_method :tangents=, [:any], :void, "rl_m_Mesh_set_tangents"
+  ffi_func :rl_m_Mesh_colors, [:ptr], :long
+  native_method :colors=, [:any], :void, "rl_m_Mesh_set_colors"
+  ffi_func :rl_m_Mesh_indices, [:ptr], :long
+  native_method :indices=, [:any], :void, "rl_m_Mesh_set_indices"
   native_method :triangleCount=, [:int], :int, "rl_m_Mesh_set_triangleCount"
 
   native_struct "Shader", "rl_Shader"

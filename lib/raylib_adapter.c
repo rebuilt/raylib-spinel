@@ -3703,3 +3703,22 @@ sp_int rl_m_Shader_set_id(rl_Shader *self, sp_int v) { RL_SHDR(self)->id = (unsi
 sp_int rl_m_ModelAnimation_set_keyframeCount(rl_ModelAnimation *self, sp_int v) { RL_ANIM(self)->keyframeCount = (int)v; return v; }
 sp_int rl_m_ModelAnimation_set_boneCount(rl_ModelAnimation *self, sp_int v) { RL_ANIM(self)->boneCount = (int)v; return v; }
 sp_int rl_m_BoneInfo_set_parent_bone_index(rl_BoneInfo *self, sp_int v) { RL_BONE(self)->parent = (int)v; return v; }
+
+/* Mesh pointer fields: the gem's FFI structs expose them as pointers
+ * (mesh.vertices = MemAlloc(...); mesh.vertices.put_array_of_float32(...)).
+ * Readers hand the address to the Ruby side, which wraps it in an
+ * FFI::Pointer-compatible object; setters unbox what MemAlloc returned. */
+long rl_m_Mesh_vertices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->vertices; }
+void rl_m_Mesh_set_vertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vertices = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_texcoords(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->texcoords; }
+void rl_m_Mesh_set_texcoords(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_texcoords2(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->texcoords2; }
+void rl_m_Mesh_set_texcoords2(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords2 = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_normals(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->normals; }
+void rl_m_Mesh_set_normals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->normals = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_tangents(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->tangents; }
+void rl_m_Mesh_set_tangents(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->tangents = (float *)rl_h_unbox(pv); }
+long rl_m_Mesh_colors(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->colors; }
+void rl_m_Mesh_set_colors(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->colors = (unsigned char *)rl_h_unbox(pv); }
+long rl_m_Mesh_indices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->indices; }
+void rl_m_Mesh_set_indices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->indices = (unsigned short *)rl_h_unbox(pv); }

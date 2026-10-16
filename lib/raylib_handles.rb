@@ -46,8 +46,6 @@ module Raylib
   end
 
   class Model
-    def material(index = 0) = Material.new(Raylib.rl_Model_material_ptr(self, index), self)
-    def mesh(index = 0) = Mesh.new(Raylib.rl_Model_mesh_ptr(self, index), self)
 
     # gem helper name (raylib_helper.rb)
     def material_count = materialCount
