@@ -3884,3 +3884,14 @@ const char *rl_ModelAnimation_name(void *o) { return RL_ANIM(o)->name; }
 void rl_ModelAnimation_set_name(void *o, const char *s) { snprintf(RL_ANIM(o)->name, sizeof(RL_ANIM(o)->name), "%s", s); }
 long rl_m_ModelAnimation_keyframePoses(void *o) { return (long)(intptr_t)RL_ANIM(o)->keyframePoses; }
 void rl_ModelAnimation_set_keyframePoses(void *o, sp_RbVal pv) { RL_ANIM(o)->keyframePoses = (Transform **)rl_h_unbox(pv); }
+
+/* Shader.locs, BoundingBox min/max writers, NPatchInfo.source, FilePathList.paths
+ * (BoundingBox, NPatchInfo and FilePathList are GC-embedded: payload is ->v.) */
+long rl_m_Shader_locs(void *self) { return (long)(intptr_t)RL_SHDR(self)->locs; }
+void rl_Shader_set_locs(void *self, sp_RbVal pv) { RL_SHDR(self)->locs = (int *)rl_h_unbox(pv); }
+void rl_BoundingBox_set_min(void *self, void *v) { ((rl_BoundingBox *)self)->v.min = *RL_V3(v); }
+void rl_BoundingBox_set_max(void *self, void *v) { ((rl_BoundingBox *)self)->v.max = *RL_V3(v); }
+void rl_NPatchInfo_source(void *self, void *out) { ((rl_Rectangle *)out)->v = ((rl_NPatchInfo *)self)->v.source; }
+void rl_NPatchInfo_set_source(void *self, void *r) { ((rl_NPatchInfo *)self)->v.source = *RL_RECT(r); }
+long rl_m_FilePathList_paths(void *self) { return (long)(intptr_t)((rl_FilePathList *)self)->v.paths; }
+void rl_FilePathList_set_paths(void *self, sp_RbVal pv) { ((rl_FilePathList *)self)->v.paths = (char **)rl_h_unbox(pv); }

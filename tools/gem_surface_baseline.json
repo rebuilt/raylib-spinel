@@ -61,7 +61,10 @@
       "min",
       "max"
     ],
-    "write": [],
+    "write": [
+      "min",
+      "max"
+    ],
     "helpers": [
       [
         "create",
@@ -248,10 +251,12 @@
     "gem": "FilePathList",
     "ours": "FilePathList",
     "read": [
-      "count"
+      "count",
+      "paths"
     ],
     "write": [
-      "count"
+      "count",
+      "paths"
     ],
     "helpers": [],
     "functions": [
@@ -679,6 +684,7 @@
     "gem": "NPatchInfo",
     "ours": "NPatchInfo",
     "read": [
+      "source",
       "left",
       "top",
       "right",
@@ -686,6 +692,7 @@
       "layout"
     ],
     "write": [
+      "source",
       "left",
       "top",
       "right",
@@ -801,10 +808,12 @@
     "gem": "Shader",
     "ours": "Shader",
     "read": [
-      "id"
+      "id",
+      "locs"
     ],
     "write": [
-      "id"
+      "id",
+      "locs"
     ],
     "helpers": [],
     "functions": [

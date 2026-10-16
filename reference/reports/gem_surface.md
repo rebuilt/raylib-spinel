@@ -29,11 +29,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## BoundingBox
 
-    fields     read 2/2   write 0/2
-               missing write: min, max
+    fields     read 2/2   write 2/2
     helpers    3/3
     functions  3/3
-    coverage   8/10
+    coverage   10/10
 
 ## Camera2D
 
@@ -58,12 +57,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## FilePathList
 
-    fields     read 1/2   write 1/2
-               missing read:  paths
-               missing write: paths
+    fields     read 2/2   write 2/2
     helpers    0/0
     functions  5/5
-    coverage   7/9
+    coverage   9/9
 
 ## Font
 
@@ -138,12 +135,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## NPatchInfo
 
-    fields     read 5/6   write 5/6
-               missing read:  source
-               missing write: source
+    fields     read 6/6   write 6/6
     helpers    0/0
     functions  1/1
-    coverage   11/13
+    coverage   13/13
 
 ## Ray
 
@@ -175,12 +170,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## Shader
 
-    fields     read 1/2   write 1/2
-               missing read:  locs
-               missing write: locs
+    fields     read 2/2   write 2/2
     helpers    0/0
     functions  11/11
-    coverage   13/15
+    coverage   15/15
 
 ## Texture (our Texture2D)
 

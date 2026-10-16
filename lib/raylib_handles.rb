@@ -250,6 +250,19 @@ end
   class BoundingBox
     def pointer = self
   end
+  class Shader
+    def locs = Ptr.new(Raylib.rl_m_Shader_locs(self))
+  end
+  class NPatchInfo
+    def source
+      r = Rectangle(0.0, 0.0, 0.0, 0.0)
+      Raylib.rl_NPatchInfo_source(self, r)
+      r
+    end
+  end
+  class FilePathList
+    def paths = Ptr.new(Raylib.rl_m_FilePathList_paths(self))
+  end
   class Ray
     def pointer = self
     def position

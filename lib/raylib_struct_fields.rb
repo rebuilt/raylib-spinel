@@ -51,4 +51,19 @@ module Raylib
   ffi_func :rl_ModelAnimation_set_name, [:ptr, :str], :void
   ffi_func :rl_m_ModelAnimation_keyframePoses, [:ptr], :long
   native_method :keyframePoses=, [:any], :void, "rl_ModelAnimation_set_keyframePoses"
+  native_struct "Shader", "rl_Shader"
+  ffi_func :rl_m_Shader_locs, [:ptr], :long
+  native_method :locs=, [:any], :void, "rl_Shader_set_locs"
+
+  native_struct "BoundingBox", "rl_BoundingBox"
+  native_method :min=, [:ptr], :void, "rl_BoundingBox_set_min"
+  native_method :max=, [:ptr], :void, "rl_BoundingBox_set_max"
+
+  native_struct "NPatchInfo", "rl_NPatchInfo"
+  ffi_func :rl_NPatchInfo_source, [:ptr, :ptr], :void
+  native_method :source=, [:ptr], :void, "rl_NPatchInfo_set_source"
+
+  native_struct "FilePathList", "rl_FilePathList"
+  ffi_func :rl_m_FilePathList_paths, [:ptr], :long
+  native_method :paths=, [:any], :void, "rl_FilePathList_set_paths"
 end
