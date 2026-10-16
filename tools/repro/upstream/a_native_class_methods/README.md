@@ -101,3 +101,49 @@ C-bound class subclassable) but cannot be used by a third-party package:
 
 That second one is the only finding in this whole area that sits in documented
 territory; it would need a drafted issue before anything is filed.
+
+## The wrapper pattern, proven against the real library
+
+A `ModelRef` user class holding the `Raylib::Model` view and delegating to the
+Ruby methods the library already defines on it makes the exact failing shape
+work, with no library change:
+
+```ruby
+class ModelRef
+  def initialize(m) = @m = m
+  def material(i = 0) = @m.material(i)
+  def mesh(i = 0) = @m.mesh(i)
+end
+
+models = [ModelRef.new(LoadModelFromMesh(GenMeshPlane(2.0, 2.0, 5, 5))),
+          ModelRef.new(LoadModelFromMesh(GenMeshCube(2.0, 1.0, 2.0))),
+          ModelRef.new(LoadModelFromMesh(GenMeshSphere(2.0, 32, 32)))]
+
+models.each do |model|
+  SetMaterialTexture(model.material(0), MATERIAL_MAP_ALBEDO, texture)
+end
+```
+
+```
+each completed (3 models)
+typed delegation: material=Raylib::Material mesh=Raylib::Mesh
+typed SetMaterialTexture ok
+done
+```
+
+That is `models_mesh_generation.rb` line 62, over wrappers instead of raw
+views. The delegate must be a **Ruby** method on the native class (or an
+`ffi_func` over a `:ptr` ivar); a `native_method` delegate fails C codegen and a
+field write through the ivar raises at run time (table above).
+
+## Warm-up attempts that do NOT seed the arm
+
+| warm-up before the block call | result |
+| --- | --- |
+| `typed.respond_to?(:direct)` | still NoMethodError |
+| `case typed when ThingLib::Thing` | still NoMethodError |
+| `ThingLib::Thing === typed` | still NoMethodError |
+| `typed.method(:direct)` then `.call` | still NoMethodError |
+
+Still to read: `--emit-types` (see `docs/emit-types.md` for where the JSON
+lands; a plain `--emit-types -c` run wrote the C only).
