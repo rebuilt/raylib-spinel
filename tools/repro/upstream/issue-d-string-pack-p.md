@@ -3,7 +3,8 @@
 **Toolchain:** `spinel 2026.09.12+10301 (f90da21b9)` (also reproduces on
 `+10159 (a632e3b18)`).
 
-**Status: verified, dependency-free, no native code involved.**
+**Filed:** https://github.com/matz/spinel/issues/9349 (2026-10-16).
+Verified, dependency-free, no native code involved.
 
 ## Summary
 
