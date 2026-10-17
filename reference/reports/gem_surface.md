@@ -5,20 +5,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## AutomationEvent
 
-    fields     read 2/3   write 2/3
-               missing read:  params
-               missing write: params
+    fields     read 3/3   write 3/3
     helpers    0/0
     functions  1/1
-    coverage   5/7
+    coverage   7/7
 
 ## AutomationEventList
 
-    fields     read 3/3   write 2/3
-               missing write: events
+    fields     read 3/3   write 3/3
     helpers    0/0
     functions  4/4
-    coverage   9/10
+    coverage   10/10
 
 ## BoneInfo
 
@@ -51,9 +48,9 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 ## Color
 
     fields     read 4/4   write 4/4
-    helpers    4/5   missing: self.set
+    helpers    5/5
     functions  45/45
-    coverage   57/58
+    coverage   58/58
 
 ## FilePathList
 
@@ -71,11 +68,10 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## GlyphInfo
 
-    fields     read 5/5   write 4/5
-               missing write: image
+    fields     read 5/5   write 5/5
     helpers    0/0
     functions  2/2
-    coverage   11/12
+    coverage   12/12
 
 ## Image
 
@@ -212,21 +208,17 @@ lib/raylib_main.rb and lib/raylib_helper.rb.
 
 ## VrDeviceInfo
 
-    fields     read 7/9   write 7/9
-               missing read:  lensDistortionValues, chromaAbCorrection
-               missing write: lensDistortionValues, chromaAbCorrection
+    fields     read 9/9   write 9/9
     helpers    0/0
     functions  1/1
-    coverage   15/19
+    coverage   19/19
 
 ## VrStereoConfig
 
-    fields     read 0/8   write 0/8
-               missing read:  projection, viewOffset, leftLensCenter, rightLensCenter, leftScreenCenter, rightScreenCenter, scale, scaleIn
-               missing write: projection, viewOffset, leftLensCenter, rightLensCenter, leftScreenCenter, rightScreenCenter, scale, scaleIn
+    fields     read 8/8   write 8/8
     helpers    0/0
     functions  2/2
-    coverage   2/18
+    coverage   18/18
 
 Structs with any coverage: 31
 Gem structs with no class of ours: Wave, AudioStream, Sound, Music
