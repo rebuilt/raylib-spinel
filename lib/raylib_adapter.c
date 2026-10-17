@@ -3201,6 +3201,48 @@ static void *rl_h_unbox(sp_RbVal v) {
   return NULL;
 }
 
+/* Raw-pointer *field* writers (mesh.vertices = MemAlloc(n), wave.data = ...,
+ * and the x.field = x.field round trip the gem's readers invite) receive one of
+ * three shapes:
+ *
+ *   - a foreign-pointer box: what `ffi_func ..., :ptr` returns, so every
+ *     `mesh.vertices = Raylib.MemAlloc(n)`. Its v.p already IS the address.
+ *   - a Raylib::Ptr value object: what every Ptr-valued reader hands back
+ *     (`wave.data`, `stream.buffer`, `shader.locs`, ...).
+ *   - a bare Integer address -- the other spell FFI accepts for :pointer.
+ *
+ * rl_h_unbox() above serves the first and handle views (whose object pointer the
+ * RL_X macros resolve), so a Ptr stored *the wrapper itself* into the raylib
+ * struct. Probe, before the fix: `stream.buffer = Ptr.new(0x1234_0000)` read back
+ * 0x72d77242c030, and audio_api_coverage's teardown died in UnloadAudioBuffer
+ * freeing that Ruby heap address.
+ *
+ * from C. A plain Spinel object lays its ivars out after the class id, so the
+ * contract is: the @address ivar box sits at object offset 8 (the cls_id word),
+ * its tag at +8 and its payload at +16 -- always INT-tagged. Raylib::Ptr forces
+ * that shape in initialize (see the class comment in lib/raylib_pointer_fields.rb:
+ * a polymorphic `address` send -- the ffi package's Pointer family shares the
+ * name -- makes the analyzer widen the ivar whenever a method returns it, so
+ * narrowing can't be enforced from the program; boxing it deterministically
+ * instead makes the read below valid in every program). The package's own
+ * FFI::Pointer/MemoryPointer objects put the same INT-boxed @address in the same
+ * slot, so `field = FFI::Pointer.new(addr)` works too. (Measured layout note:
+ * the box starts at +8, not +16 -- ((sp_RbVal *)obj)[1] reads past it; the
+ * corpus catches that instantly, as `false` instead of `true`.)
+ * reference/gem_corpus/13_pointer_fields.rb round-trips fields through their
+ * readers, a bare address, and an FFI::Pointer in the differential corpus, so a
+ * layout or inference change fails loudly there instead of leaving a bogus
+ * pointer for the next UnloadModel to free.
+ */
+static void *rl_p_unbox(sp_RbVal v) {
+  if (v.tag == SP_TAG_INT) return (void *)(intptr_t)v.v.i;
+  if (v.tag != SP_TAG_OBJ || !v.v.p) return NULL;
+  if (v.cls_id == SP_BUILTIN_FOREIGN_PTR) return v.v.p;
+  sp_RbVal iv; /* the wrapper's @address box: first ivar, at offset 8 */
+  memcpy(&iv, (const char *)v.v.p + 8, sizeof iv);
+  return (iv.tag == SP_TAG_INT) ? (void *)(intptr_t)iv.v.i : NULL;
+}
+
 static void rl_Image_scan(void *p) {
   rl_Image *s = (rl_Image *)p;
   if (s->p) sp_mark_rbval(s->owner);
@@ -3610,8 +3652,8 @@ sp_int rl_FilePathList_sizeof(void) { return (sp_int)sizeof(FilePathList); }
 void *rl_Font_texture_ptr(void *font) { return (void *)&RL_FONT(font)->texture; }
 long rl_Font_recs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->recs; }
 long rl_Font_glyphs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->glyphs; }
-void rl_m_Font_set_glyphs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->glyphs = (GlyphInfo *)rl_h_unbox(pv); }
-void rl_m_Font_set_recs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->recs = (Rectangle *)rl_h_unbox(pv); }
+void rl_m_Font_set_glyphs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->glyphs = (GlyphInfo *)rl_p_unbox(pv); }
+void rl_m_Font_set_recs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->recs = (Rectangle *)rl_p_unbox(pv); }
 void rl_m_Font_set_texture(rl_Font *self, sp_RbVal tex) { RL_FONT(self)->texture = *RL_TEX(rl_h_unbox(tex)); }
 void *rl_GlyphInfo_image_ptr(void *g) { return (void *)&RL_GLYPH(g)->image; }
 long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }
@@ -3814,21 +3856,21 @@ sp_int rl_m_BoneInfo_set_parent_bone_index(rl_BoneInfo *self, sp_int v) { RL_BON
  * Readers hand the address to the Ruby side, which wraps it in an
  * FFI::Pointer-compatible object; setters unbox what MemAlloc returned. */
 long rl_m_Mesh_vertices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->vertices; }
-void rl_m_Mesh_set_vertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vertices = (float *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_vertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vertices = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_texcoords(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->texcoords; }
-void rl_m_Mesh_set_texcoords(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords = (float *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_texcoords(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_texcoords2(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->texcoords2; }
-void rl_m_Mesh_set_texcoords2(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords2 = (float *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_texcoords2(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->texcoords2 = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_normals(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->normals; }
-void rl_m_Mesh_set_normals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->normals = (float *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_normals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->normals = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_tangents(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->tangents; }
-void rl_m_Mesh_set_tangents(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->tangents = (float *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_tangents(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->tangents = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_colors(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->colors; }
-void rl_m_Mesh_set_colors(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->colors = (unsigned char *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_colors(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->colors = (unsigned char *)rl_p_unbox(pv); }
 long rl_m_Mesh_indices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->indices; }
-void rl_m_Mesh_set_indices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->indices = (unsigned short *)rl_h_unbox(pv); }
+void rl_m_Mesh_set_indices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->indices = (unsigned short *)rl_p_unbox(pv); }
 long rl_m_Image_data(rl_Image *self) { return (long)(intptr_t)RL_IMG(self)->data; }
-void rl_m_Image_set_data(rl_Image *self, sp_RbVal pv) { RL_IMG(self)->data = (unsigned char *)rl_h_unbox(pv); }
+void rl_m_Image_set_data(rl_Image *self, sp_RbVal pv) { RL_IMG(self)->data = (unsigned char *)rl_p_unbox(pv); }
 
 /* Model pointer fields (gem: Model#meshes, #materials, #meshMaterial,
  * #currentPose, #boneMatrices). Readers hand the address to Ruby, which
@@ -3969,65 +4011,65 @@ void rl_RenderTexture_set_depth(void *o, sp_RbVal t) { RL_RT(o)->depth = *RL_TEX
 
 /* Mesh: the animation/skinning arrays, boneCount, vaoId and vboId. */
 long rl_m_Mesh_animVertices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->animVertices; }
-void rl_Mesh_set_animVertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animVertices = (float *)rl_h_unbox(pv); }
+void rl_Mesh_set_animVertices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animVertices = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_animNormals(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->animNormals; }
-void rl_Mesh_set_animNormals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animNormals = (float *)rl_h_unbox(pv); }
+void rl_Mesh_set_animNormals(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->animNormals = (float *)rl_p_unbox(pv); }
 long rl_m_Mesh_boneIndices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->boneIndices; }
-void rl_Mesh_set_boneIndices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneIndices = (unsigned char *)rl_h_unbox(pv); }
+void rl_Mesh_set_boneIndices(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneIndices = (unsigned char *)rl_p_unbox(pv); }
 long rl_m_Mesh_boneWeights(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->boneWeights; }
-void rl_Mesh_set_boneWeights(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneWeights = (float *)rl_h_unbox(pv); }
+void rl_Mesh_set_boneWeights(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->boneWeights = (float *)rl_p_unbox(pv); }
 sp_int rl_m_Mesh_boneCount(rl_Mesh *self) { return (sp_int)RL_MESH(self)->boneCount; }
 sp_int rl_m_Mesh_set_boneCount(rl_Mesh *self, sp_int v) { RL_MESH(self)->boneCount = (int)v; return v; }
 sp_int rl_m_Mesh_vaoId(rl_Mesh *self) { return (sp_int)RL_MESH(self)->vaoId; }
 sp_int rl_m_Mesh_set_vaoId(rl_Mesh *self, sp_int v) { RL_MESH(self)->vaoId = (unsigned int)v; return v; }
 long rl_m_Mesh_vboId(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->vboId; }
-void rl_Mesh_set_vboId(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vboId = (unsigned int *)rl_h_unbox(pv); }
+void rl_Mesh_set_vboId(rl_Mesh *self, sp_RbVal pv) { RL_MESH(self)->vboId = (unsigned int *)rl_p_unbox(pv); }
 
 /* ModelAnimation: name is char[32], keyframePoses a Transform**. */
 const char *rl_ModelAnimation_name(void *o) { return RL_ANIM(o)->name; }
 void rl_ModelAnimation_set_name(void *o, const char *s) { snprintf(RL_ANIM(o)->name, sizeof(RL_ANIM(o)->name), "%s", s); }
 long rl_m_ModelAnimation_keyframePoses(void *o) { return (long)(intptr_t)RL_ANIM(o)->keyframePoses; }
-void rl_ModelAnimation_set_keyframePoses(void *o, sp_RbVal pv) { RL_ANIM(o)->keyframePoses = (Transform **)rl_h_unbox(pv); }
+void rl_ModelAnimation_set_keyframePoses(void *o, sp_RbVal pv) { RL_ANIM(o)->keyframePoses = (Transform **)rl_p_unbox(pv); }
 
 /* Shader.locs, BoundingBox min/max writers, NPatchInfo.source, FilePathList.paths
  * (BoundingBox, NPatchInfo and FilePathList are GC-embedded: payload is ->v.) */
 long rl_m_Shader_locs(void *self) { return (long)(intptr_t)RL_SHDR(self)->locs; }
-void rl_Shader_set_locs(void *self, sp_RbVal pv) { RL_SHDR(self)->locs = (int *)rl_h_unbox(pv); }
+void rl_Shader_set_locs(void *self, sp_RbVal pv) { RL_SHDR(self)->locs = (int *)rl_p_unbox(pv); }
 void rl_BoundingBox_set_min(void *self, sp_RbVal v) { ((rl_BoundingBox *)self)->v.min = *RL_V3(rl_h_unbox(v)); }
 void rl_BoundingBox_set_max(void *self, sp_RbVal v) { ((rl_BoundingBox *)self)->v.max = *RL_V3(rl_h_unbox(v)); }
 void rl_NPatchInfo_source(void *self, void *out) { ((rl_Rectangle *)out)->v = ((rl_NPatchInfo *)self)->v.source; }
 void rl_NPatchInfo_set_source(void *self, sp_RbVal r) { ((rl_NPatchInfo *)self)->v.source = *RL_RECT(rl_h_unbox(r)); }
 long rl_m_FilePathList_paths(void *self) { return (long)(intptr_t)((rl_FilePathList *)self)->v.paths; }
-void rl_FilePathList_set_paths(void *self, sp_RbVal pv) { ((rl_FilePathList *)self)->v.paths = (char **)rl_h_unbox(pv); }
+void rl_FilePathList_set_paths(void *self, sp_RbVal pv) { ((rl_FilePathList *)self)->v.paths = (char **)rl_p_unbox(pv); }
 
 /* VrDeviceInfo/VrStereoConfig/AutomationEvent array fields. Readers hand the
  * array's address over (the gem's inline arrays read as value arrays; ours are
  * address-based); writers copy from a boxed source pointer, like the Mesh field
  * writers. */
 long rl_m_VrDeviceInfo_lensDistortionValues(rl_VrDeviceInfo *self) { return (long)(intptr_t)((rl_VrDeviceInfo *)self)->v.lensDistortionValues; }
-void rl_VrDeviceInfo_set_lensDistortionValues(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.lensDistortionValues, rl_h_unbox(pv), 4 * sizeof(float)); }
+void rl_VrDeviceInfo_set_lensDistortionValues(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.lensDistortionValues, rl_p_unbox(pv), 4 * sizeof(float)); }
 long rl_m_VrDeviceInfo_chromaAbCorrection(rl_VrDeviceInfo *self) { return (long)(intptr_t)((rl_VrDeviceInfo *)self)->v.chromaAbCorrection; }
-void rl_VrDeviceInfo_set_chromaAbCorrection(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.chromaAbCorrection, rl_h_unbox(pv), 4 * sizeof(float)); }
+void rl_VrDeviceInfo_set_chromaAbCorrection(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.chromaAbCorrection, rl_p_unbox(pv), 4 * sizeof(float)); }
 long rl_m_VrStereoConfig_projection(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.projection; }
-void rl_VrStereoConfig_set_projection(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.projection, rl_h_unbox(pv), sizeof(Matrix) * 2); }
+void rl_VrStereoConfig_set_projection(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.projection, rl_p_unbox(pv), sizeof(Matrix) * 2); }
 long rl_m_VrStereoConfig_viewOffset(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.viewOffset; }
-void rl_VrStereoConfig_set_viewOffset(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.viewOffset, rl_h_unbox(pv), sizeof(Matrix) * 2); }
+void rl_VrStereoConfig_set_viewOffset(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.viewOffset, rl_p_unbox(pv), sizeof(Matrix) * 2); }
 long rl_m_VrStereoConfig_leftLensCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.leftLensCenter; }
-void rl_VrStereoConfig_set_leftLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftLensCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_leftLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftLensCenter, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_VrStereoConfig_rightLensCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.rightLensCenter; }
-void rl_VrStereoConfig_set_rightLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightLensCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_rightLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightLensCenter, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_VrStereoConfig_leftScreenCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.leftScreenCenter; }
-void rl_VrStereoConfig_set_leftScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftScreenCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_leftScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftScreenCenter, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_VrStereoConfig_rightScreenCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.rightScreenCenter; }
-void rl_VrStereoConfig_set_rightScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightScreenCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_rightScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightScreenCenter, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_VrStereoConfig_scale(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.scale; }
-void rl_VrStereoConfig_set_scale(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scale, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_scale(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scale, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_VrStereoConfig_scaleIn(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.scaleIn; }
-void rl_VrStereoConfig_set_scaleIn(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scaleIn, rl_h_unbox(pv), 2 * sizeof(float)); }
+void rl_VrStereoConfig_set_scaleIn(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scaleIn, rl_p_unbox(pv), 2 * sizeof(float)); }
 long rl_m_AutomationEvent_params(rl_AutomationEvent *self) { return (long)(intptr_t)RL_AEVENT(self)->params; }
-void rl_AutomationEvent_set_params(void *self, sp_RbVal pv) { memcpy(RL_AEVENT(self)->params, rl_h_unbox(pv), 4 * sizeof(int)); }
+void rl_AutomationEvent_set_params(void *self, sp_RbVal pv) { memcpy(RL_AEVENT(self)->params, rl_p_unbox(pv), 4 * sizeof(int)); }
 void rl_GlyphInfo_set_image(void *self, sp_RbVal img) { RL_GLYPH(self)->image = *RL_IMG(rl_h_unbox(img)); }
-void rl_AutomationEventList_set_events(void *self, sp_RbVal pv) { RL_AEVLIST(self)->events = (AutomationEvent *)rl_h_unbox(pv); }
+void rl_AutomationEventList_set_events(void *self, sp_RbVal pv) { RL_AEVLIST(self)->events = (AutomationEvent *)rl_p_unbox(pv); }
 
 /* ---- Audio structs: Wave, AudioStream, Sound, Music (view classes, like
  * Texture2D: the shims below malloc the payload raylib returns by value). ---- */
@@ -4043,15 +4085,15 @@ sp_int rl_m_Wave_set_sampleSize(rl_Wave *self, sp_int v) { RL_WAVE(self)->sample
 sp_int rl_m_Wave_channels(rl_Wave *self) { return (sp_int)RL_WAVE(self)->channels; }
 sp_int rl_m_Wave_set_channels(rl_Wave *self, sp_int v) { RL_WAVE(self)->channels = (unsigned int)v; return v; }
 long rl_m_Wave_data(rl_Wave *self) { return (long)(intptr_t)RL_WAVE(self)->data; }
-void rl_Wave_set_data(rl_Wave *self, sp_RbVal pv) { RL_WAVE(self)->data = rl_h_unbox(pv); }
+void rl_Wave_set_data(rl_Wave *self, sp_RbVal pv) { RL_WAVE(self)->data = rl_p_unbox(pv); }
 
 static void rl_AudioStream_scan(void *p) { rl_AudioStream *s = (rl_AudioStream *)p; if (s->p) sp_mark_rbval(s->owner); }
 rl_AudioStream *rl_AudioStream_new(sp_int cls_id) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = NULL; s->v = (AudioStream){ 0 }; return s; }
 rl_AudioStream *rl_AudioStream_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = (AudioStream *)rl_h_unbox(pv); s->owner = owner; return s; }
 long rl_m_AudioStream_buffer(rl_AudioStream *self) { return (long)(intptr_t)RL_ASTREAM(self)->buffer; }
-void rl_AudioStream_set_buffer(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->buffer = rl_h_unbox(pv); }
+void rl_AudioStream_set_buffer(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->buffer = rl_p_unbox(pv); }
 long rl_m_AudioStream_processor(rl_AudioStream *self) { return (long)(intptr_t)RL_ASTREAM(self)->processor; }
-void rl_AudioStream_set_processor(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->processor = rl_h_unbox(pv); }
+void rl_AudioStream_set_processor(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->processor = rl_p_unbox(pv); }
 sp_int rl_m_AudioStream_sampleRate(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->sampleRate; }
 sp_int rl_m_AudioStream_set_sampleRate(rl_AudioStream *self, sp_int v) { RL_ASTREAM(self)->sampleRate = (unsigned int)v; return v; }
 sp_int rl_m_AudioStream_sampleSize(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->sampleSize; }
@@ -4077,7 +4119,7 @@ sp_int rl_m_Music_set_looping(rl_Music *self, sp_int v) { RL_MUSIC(self)->loopin
 sp_int rl_m_Music_ctxType(rl_Music *self) { return (sp_int)RL_MUSIC(self)->ctxType; }
 sp_int rl_m_Music_set_ctxType(rl_Music *self, sp_int v) { RL_MUSIC(self)->ctxType = (int)v; return v; }
 long rl_m_Music_ctxData(rl_Music *self) { return (long)(intptr_t)RL_MUSIC(self)->ctxData; }
-void rl_Music_set_ctxData(rl_Music *self, sp_RbVal pv) { RL_MUSIC(self)->ctxData = rl_h_unbox(pv); }
+void rl_Music_set_ctxData(rl_Music *self, sp_RbVal pv) { RL_MUSIC(self)->ctxData = rl_p_unbox(pv); }
 void rl_Music_stream(rl_Music *self, void *out) { ((rl_AudioStream *)out)->v = RL_MUSIC(self)->stream; }
 void rl_Music_set_stream(rl_Music *self, sp_RbVal s) { RL_MUSIC(self)->stream = ((rl_AudioStream *)rl_h_unbox(s))->v; }
 
