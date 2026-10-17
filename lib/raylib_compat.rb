@@ -43,3 +43,30 @@ class String
   # with read_string; ours are already Ruby Strings, so the call is identity.
   def read_string = self
 end
+
+# Gem::Specification — the preamble of every raylib-bindings example
+# (examples/template.rb) locates the gem's bundled library before use:
+#
+#   shared_lib_path = Gem::Specification.find_by_name('raylib-bindings').full_gem_path + '/lib/'
+#   Raylib.load_lib(shared_lib_path + "libraylib.so", raygui_libpath: ..., physac_libpath: ...)
+#
+# Under Spinel there is no RubyGems runtime to answer that: `Gem` exists as a
+# module, `Gem::Specification` does not, and --require-gate refuses
+# `require "rubygems"` (see tools/repro/upstream/issue-f-require-gate-builtin.md).
+# The path it computes is only ever passed to Raylib.load_lib, which is a no-op
+# here, so an answer that locates nothing keeps unmodified example code
+# running. A stub rather than a shim: every name answers, where MRI raises
+# Gem::LoadError for a gem that is not installed. Safe because this package
+# reads the path back to nothing; a program that asks RubyGems something real
+# (specs, activation) is asking for MRI, where this file is not loaded.
+module Gem
+  class Specification
+    def self.find_by_name(name)
+      new
+    end
+
+    def full_gem_path = ""
+
+    def full_require_paths = [""]
+  end
+end
