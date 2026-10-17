@@ -9,12 +9,15 @@ Two kinds of file live here:
   undocumented `native_struct` layer. Those are constraints we design around,
   not upstream bugs -- the reasoning and the doc quotes are in that file.
 
-Toolchain for every observation: `spinel 2026.09.12+10301 (f90da21b9)`
-(installed 2026-10-16; earlier runs used `+10159 (a632e3b18)`).
+Toolchain for every observation: `spinel 2026.09.12+10525 (8a51e2822)`
+(re-verified 2026-10-17; the drafts were first written against
+`+10301 (f90da21b9)`, installed 2026-10-16).
 
 | file | subject | status |
 | --- | --- | --- |
 | `issue-d-string-pack-p.md` | `Array#pack("p*")` emits a single pointer regardless of the array size | **filed**: https://github.com/matz/spinel/issues/9349 |
+| `issue-e-native-subclass-header.md` | a package outside the compiler's tree cannot use `native_subclass` (emitted `#include "../<header>"` is not searchable) | draft, **not filed** (verified 2026-10-17) |
+| `native_subclass_header/` | repro for issue-e: a standalone spin project with its own carried C | evidence; build fails at the C compile step |
 | `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | draft, **not filed** (undocumented layer; mechanism is documented design) |
 | `a_native_class_methods/` | experiment: monkey-patched Ruby accessors on a `native_struct` class, 16 variants | evidence; **does not work** — see its README |
 | `../engine-limitations.md` | a Ruby writer on a native class breaks `self` in `:ptr` parameters; a union return poisons `:ptr` acceptance program-wide | internal notes, no filing |
@@ -38,6 +41,13 @@ The `pack("p*")` repro is one file, no native code:
 
 ```bash
 spinel pack_repro.rb -o pack_repro && ./pack_repro    # compare with: ruby pack_repro.rb
+```
+
+The `native_subclass` repro (issue-e) is one self-contained spin project; it is
+expected to *fail*, at the C compile step:
+
+```bash
+cd native_subclass_header && spin build   # ../thing.h: No such file or directory
 ```
 
 `b_writer_ptr_self/` is evidence for the internal note B (the shape that does
