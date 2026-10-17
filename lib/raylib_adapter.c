@@ -1340,8 +1340,47 @@ void rl_DrawTriangleLines(void * v1, void * v2, void * v3, void * color) {
   DrawTriangleLines(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3), *RL_COLOR(color));
 }
 /** DrawTriangleLinesEx(params: void * v1, void * v2, void * v3, float thick, void * color -> void) */
+
+/* ---- optional raylib 6.1+ outline helpers --------------------------------
+ * The `*LinesEx` family appeared after raylib 6.0. A *hard* reference makes the
+ * whole binary die at load time with
+ *   symbol lookup error: ... undefined symbol: DrawRingLinesEx
+ * whenever the loader picks an older libraylib.so.600 (the binary's
+ * DT_RUNPATH $ORIGIN/../raylib is *weaker* than LD_LIBRARY_PATH, so a stale
+ * copy earlier on that path wins). Declare them weak and fall back to thick
+ * strokes built from primitives that exist in every raylib, so the binary runs
+ * against whatever 6.x shared object is loaded. */
+#pragma weak DrawTriangleLinesEx
+#pragma weak DrawCircleSectorLinesEx
+#pragma weak DrawRingLinesEx
+#pragma weak DrawEllipseLinesEx
+#pragma weak LoadRenderTextureEx
+
+/** Thick polyline along an arc, for the fallbacks below. */
+static void rl_arc_stroke(Vector2 center, float radius, float startAngle, float endAngle,
+                          int segments, float thick, Color color) {
+  if (segments < 1) segments = 1;
+  float step = (endAngle - startAngle)/(float)segments;
+  Vector2 prev = { center.x + cosf(DEG2RAD*startAngle)*radius,
+                   center.y + sinf(DEG2RAD*startAngle)*radius };
+  for (int i = 1; i <= segments; i++) {
+    float a = startAngle + step*(float)i;
+    Vector2 next = { center.x + cosf(DEG2RAD*a)*radius, center.y + sinf(DEG2RAD*a)*radius };
+    DrawLineEx(prev, next, thick, color);
+    prev = next;
+  }
+}
+
 void rl_DrawTriangleLinesEx(void * v1, void * v2, void * v3, float thick, void * color) {
-  DrawTriangleLinesEx(*RL_V2(v1), *RL_V2(v2), *RL_V2(v3), thick, *RL_COLOR(color));
+  Vector2 a = *RL_V2(v1), b = *RL_V2(v2), c = *RL_V2(v3);
+  Color col = *RL_COLOR(color);
+  if (DrawTriangleLinesEx != NULL) { DrawTriangleLinesEx(a, b, c, thick, col); return; }
+  DrawLineEx(a, b, thick, col);
+  DrawLineEx(b, c, thick, col);
+  DrawLineEx(c, a, thick, col);
+  DrawCircleV(a, thick/2.0f, col);   /* round the joins, like the mitred original */
+  DrawCircleV(b, thick/2.0f, col);
+  DrawCircleV(c, thick/2.0f, col);
 }
 /** DrawTriangleFan(params: void * points, int pointCount, void * color -> void) */
 void rl_DrawTriangleFan(void * points, int pointCount, void * color) {
@@ -1421,7 +1460,16 @@ void rl_DrawCircleSectorLines(void * center, float radius, float startAngle, flo
 }
 /** DrawCircleSectorLinesEx(params: void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void rl_DrawCircleSectorLinesEx(void * center, float radius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawCircleSectorLinesEx(*RL_V2(center), radius, startAngle, endAngle, segments, thick, *RL_COLOR(color));
+  Vector2 c = *RL_V2(center);
+  Color col = *RL_COLOR(color);
+  if (DrawCircleSectorLinesEx != NULL) { DrawCircleSectorLinesEx(c, radius, startAngle, endAngle, segments, thick, col); return; }
+  float a0 = (startAngle < endAngle)? startAngle : endAngle;
+  float a1 = (startAngle < endAngle)? endAngle : startAngle;
+  rl_arc_stroke(c, radius, a0, a1, segments, thick, col);
+  Vector2 p0 = { c.x + cosf(DEG2RAD*a0)*radius, c.y + sinf(DEG2RAD*a0)*radius };
+  Vector2 p1 = { c.x + cosf(DEG2RAD*a1)*radius, c.y + sinf(DEG2RAD*a1)*radius };
+  DrawLineEx(c, p0, thick, col);
+  DrawLineEx(c, p1, thick, col);
 }
 /** DrawCircleLines(params: int centerX, int centerY, float radius, void * color -> void) */
 void rl_DrawCircleLines(int centerX, int centerY, float radius, void * color) {
@@ -1453,7 +1501,19 @@ void rl_DrawEllipseLinesV(void * center, float radiusH, float radiusV, void * co
 }
 /** DrawEllipseLinesEx(params: void * center, float radiusH, float radiusV, float thick, void * color -> void) */
 void rl_DrawEllipseLinesEx(void * center, float radiusH, float radiusV, float thick, void * color) {
-  DrawEllipseLinesEx(*RL_V2(center), radiusH, radiusV, thick, *RL_COLOR(color));
+  Vector2 c = *RL_V2(center);
+  Color col = *RL_COLOR(color);
+  if (DrawEllipseLinesEx != NULL) { DrawEllipseLinesEx(c, radiusH, radiusV, thick, col); return; }
+  /* Fallback (same reason as the other *LinesEx helpers below): a thick
+   * polyline around the ellipse. */
+  const int segments = 64;
+  Vector2 prev = { c.x + radiusH, c.y };
+  for (int i = 1; i <= segments; i++) {
+    float t = (float)i*(2.0f*PI/(float)segments);
+    Vector2 next = { c.x + cosf(t)*radiusH, c.y + sinf(t)*radiusV };
+    DrawLineEx(prev, next, thick, col);
+    prev = next;
+  }
 }
 /** DrawRing(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color -> void) */
 void rl_DrawRing(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, void * color) {
@@ -1465,7 +1525,13 @@ void rl_DrawRingLines(void * center, float innerRadius, float outerRadius, float
 }
 /** DrawRingLinesEx(params: void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color -> void) */
 void rl_DrawRingLinesEx(void * center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, void * color) {
-  DrawRingLinesEx(*RL_V2(center), innerRadius, outerRadius, startAngle, endAngle, segments, thick, *RL_COLOR(color));
+  Vector2 c = *RL_V2(center);
+  Color col = *RL_COLOR(color);
+  if (DrawRingLinesEx != NULL) { DrawRingLinesEx(c, innerRadius, outerRadius, startAngle, endAngle, segments, thick, col); return; }
+  float a0 = (startAngle < endAngle)? startAngle : endAngle;
+  float a1 = (startAngle < endAngle)? endAngle : startAngle;
+  rl_arc_stroke(c, outerRadius, a0, a1, segments, thick, col);
+  rl_arc_stroke(c, innerRadius, a0, a1, segments, thick, col);
 }
 /** DrawSplineLinear(params: void * points, int pointCount, float thick, void * color -> void) */
 void rl_DrawSplineLinear(void * points, int pointCount, float thick, void * color) {
@@ -1935,7 +2001,8 @@ void * rl_LoadRenderTexture(int width, int height) {
 /** LoadRenderTextureEx(params: int width, int height, int format -> void *) */
 void * rl_LoadRenderTextureEx(int width, int height, int format) {
   RenderTexture2D *r = (RenderTexture2D *)malloc(sizeof(RenderTexture2D));
-  *r = LoadRenderTextureEx(width, height, format);
+  if (LoadRenderTextureEx != NULL) *r = LoadRenderTextureEx(width, height, format);
+  else *r = LoadRenderTexture(width, height); /* pre-6.1 lib: drop the format */
   return r;
 }
 /** IsTextureValid(params: void * texture -> _Bool) */
