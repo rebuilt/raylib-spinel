@@ -3991,34 +3991,34 @@ void *rl_audio_LoadWaveFromMemory(const char *fileType, const char *fileData, in
   *w = LoadWaveFromMemory(fileType, (const unsigned char *)fileData, dataSize);
   return w;
 }
-sp_int rl_audio_IsWaveValid(void *wave) { return IsWaveValid(((rl_Wave *)wave)->v) ? 1 : 0; }
-void rl_audio_UnloadWave(void *wave) { UnloadWave(((rl_Wave *)wave)->v); free(wave); }
+sp_int rl_audio_IsWaveValid(void *wave) { return IsWaveValid(*RL_WAVE(wave)) ? 1 : 0; }
+void rl_audio_UnloadWave(void *wave) { Wave *w = RL_WAVE(wave); UnloadWave(*w); free(w); }
 void *rl_audio_LoadSoundFromWave(void *wave) {
   Sound *s = (Sound *)malloc(sizeof(Sound));
-  *s = LoadSoundFromWave(((rl_Wave *)wave)->v);
+  *s = LoadSoundFromWave(*RL_WAVE(wave));
   return s;
 }
-sp_int rl_audio_IsSoundValid(void *snd) { return IsSoundValid(((rl_Sound *)snd)->v) ? 1 : 0; }
-void rl_audio_PlaySound(void *snd) { PlaySound(((rl_Sound *)snd)->v); }
-void rl_audio_StopSound(void *snd) { StopSound(((rl_Sound *)snd)->v); }
-sp_int rl_audio_IsSoundPlaying(void *snd) { return IsSoundPlaying(((rl_Sound *)snd)->v) ? 1 : 0; }
-void rl_audio_SetSoundVolume(void *snd, double v) { SetSoundVolume(((rl_Sound *)snd)->v, (float)v); }
-void rl_audio_SetSoundPitch(void *snd, double v) { SetSoundPitch(((rl_Sound *)snd)->v, (float)v); }
-void rl_audio_UnloadSound(void *snd) { UnloadSound(((rl_Sound *)snd)->v); free(snd); }
+sp_int rl_audio_IsSoundValid(void *snd) { return IsSoundValid(*RL_SOUND(snd)) ? 1 : 0; }
+void rl_audio_PlaySound(void *snd) { PlaySound(*RL_SOUND(snd)); }
+void rl_audio_StopSound(void *snd) { StopSound(*RL_SOUND(snd)); }
+sp_int rl_audio_IsSoundPlaying(void *snd) { return IsSoundPlaying(*RL_SOUND(snd)) ? 1 : 0; }
+void rl_audio_SetSoundVolume(void *snd, double v) { SetSoundVolume(*RL_SOUND(snd), (float)v); }
+void rl_audio_SetSoundPitch(void *snd, double v) { SetSoundPitch(*RL_SOUND(snd), (float)v); }
+void rl_audio_UnloadSound(void *snd) { Sound *s = RL_SOUND(snd); UnloadSound(*s); free(s); }
 void *rl_audio_LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels) {
   AudioStream *a = (AudioStream *)malloc(sizeof(AudioStream));
   *a = LoadAudioStream(sampleRate, sampleSize, channels);
   return a;
 }
-sp_int rl_audio_IsAudioStreamValid(void *s) { return IsAudioStreamValid(((rl_AudioStream *)s)->v) ? 1 : 0; }
-sp_int rl_audio_IsAudioStreamPlaying(void *s) { return IsAudioStreamPlaying(((rl_AudioStream *)s)->v) ? 1 : 0; }
-void rl_audio_PlayAudioStream(void *s) { PlayAudioStream(((rl_AudioStream *)s)->v); }
-void rl_audio_StopAudioStream(void *s) { StopAudioStream(((rl_AudioStream *)s)->v); }
+sp_int rl_audio_IsAudioStreamValid(void *s) { return IsAudioStreamValid(*RL_ASTREAM(s)) ? 1 : 0; }
+sp_int rl_audio_IsAudioStreamPlaying(void *s) { return IsAudioStreamPlaying(*RL_ASTREAM(s)) ? 1 : 0; }
+void rl_audio_PlayAudioStream(void *s) { PlayAudioStream(*RL_ASTREAM(s)); }
+void rl_audio_StopAudioStream(void *s) { StopAudioStream(*RL_ASTREAM(s)); }
 void rl_audio_UpdateAudioStream(void *s, long data_addr, int frames) {
-  UpdateAudioStream(((rl_AudioStream *)s)->v, (const void *)(intptr_t)data_addr, frames);
+  UpdateAudioStream(*RL_ASTREAM(s), (const void *)(intptr_t)data_addr, frames);
 }
-void rl_audio_UnloadAudioStream(void *s) { UnloadAudioStream(((rl_AudioStream *)s)->v); free(s); }
-sp_int rl_audio_IsMusicValid(void *m) { return IsMusicValid(((rl_Music *)m)->v) ? 1 : 0; }
+void rl_audio_UnloadAudioStream(void *s) { AudioStream *a = RL_ASTREAM(s); UnloadAudioStream(*a); free(a); }
+sp_int rl_audio_IsMusicValid(void *m) { return IsMusicValid(*RL_MUSIC(m)) ? 1 : 0; }
 
 /* Scratch buffers for the Ruby side: an address (for a Ptr) rather than a box. */
 long rl_MemAllocAddr(int bytes) { return (long)(intptr_t)malloc((size_t)bytes); }
