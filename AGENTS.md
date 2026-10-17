@@ -4,6 +4,23 @@ The canonical conventions live in `../hello_raylib/AGENTS.md` (scene protocol,
 the three registries, the Spinel AOT constraints, the verification commands).
 Read those first; this file covers the package itself.
 
+## Packaging
+
+`PACKAGING.md` records what a consumer actually gets from each channel — spin
+clones the repository and compiles `spin.toml`'s carried C; rubygems ships
+`raylib_spinel.gemspec`'s `s.files` — and what is still open before a release.
+Two rules follow from it:
+
+- `s.files` and `spin.toml`'s `sources`/`exclude` describe the same package to
+  two different tools. Change one with the other: an entry point in the README
+  that `s.files` does not ship, or C that `exclude` hides from a consumer's
+  build, is invisible until somebody else installs the package.
+- Nothing is published without Nelson's go (`AGENTS.md` §0 upstream rule, and
+  `spin publish` writes to matz/spin-index while `gem push` writes to
+  rubygems). Note also that neither this repository nor `hello_raylib` has a
+  git remote, so `spin publish` and `spin add --git` both need a repo of ours
+  first.
+
 ## Tooling: write new tools in Ruby
 
 This is a Ruby codebase. New tools under `tools/` are Ruby.

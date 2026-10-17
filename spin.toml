@@ -2,3 +2,10 @@
 name = "raylib"
 version = "0.1.0"
 sources = ["lib/raylib_adapter.c", "lib/raymath_adapter.c", "lib/rlgl_adapter.c", "lib/raygui_adapter.c", "lib/raygui_impl.c", "lib/physac_adapter.c", "lib/physac_impl.c", "lib/rcamera_adapter.c"]
+# Development tree, not carried C. spin sweeps the package for .c files and
+# warns about every one that sources does not name, so without this a consumer
+# build prints five warnings for the repro programs under tools/repro (and
+# those nested projects' own thing.c would be compiled into every binary that
+# depends on us). Globs are relative to the package root; naming a directory
+# prunes its subtree (spinel tools/spin.rb, native_excludes).
+exclude = ["tools", "reference"]
