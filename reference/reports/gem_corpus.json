@@ -138,7 +138,8 @@
   },
   {
    "name": "generate_heightmap_obj.rb",
-   "verdict": "analyzed"
+   "verdict": "refusal",
+   "detail": "cannot load such file -- rbconfig (require \"rbconfig\")"
   },
   {
    "name": "gui_controls.rb",
@@ -238,7 +239,7 @@
   {
    "name": "raylib_with_imgui.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpsg3cu2f8/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
+   "detail": "/tmp/tmpzgn7t3de/raylib_with_imgui.rb: cannot load such file -- /tmp/lib/imgui.rb (require_relative \"../lib/imgui\")"
   },
   {
    "name": "raylib_with_tileson.rb",
@@ -253,7 +254,7 @@
   {
    "name": "reversi_board.rb",
    "verdict": "refusal",
-   "detail": "/tmp/tmpda7ko5v3/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
+   "detail": "/tmp/tmpqv5acp9o/reversi_board.rb:251: warning: uninitialized constant Messages::ID::GAME_FINISHED_WINNER: defined nowhere in the program (raises NameError when reached)"
   },
   {
    "name": "rlgl_compute_shader.rb",
@@ -266,7 +267,8 @@
   },
   {
    "name": "shaders_basic_pbr.rb",
-   "verdict": "analyzed"
+   "verdict": "refusal",
+   "detail": "/tmp/tmppfp8denz/shaders_basic_pbr.rb:376: unsupported MaterialMap.new with 1 argument (no native binding takes that many): node 77782 (CallNode `new`) recv=ConstantReadNode/ty49 argc=1 arg0ty50"
   },
   {
    "name": "shaders_raymarching.rb",
@@ -335,7 +337,7 @@
   {
    "name": "textures_bunnymark_plain.rb",
    "verdict": "bare-call",
-   "detail": "/tmp/tmp084mmvtj/textures_bunnymark_plain.rb:48: unsupported call operator write (unsupported receiver/attr): node 94283 (CallOperatorWriteNode)"
+   "detail": "/tmp/tmpd5_zxrzk/textures_bunnymark_plain.rb:48: unsupported call operator write (unsupported receiver/attr): node 76501 (CallOperatorWriteNode)"
   },
   {
    "name": "textures_gif_player.rb",
@@ -367,6 +369,31 @@
   }
  ],
  "run": [
+  {
+   "name": "gui_controls.rb",
+   "verdict": "skipped",
+   "detail": "builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby"
+  },
+  {
+   "name": "snake_case_api.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "snake_case_rlgl.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "template.rb",
+   "verdict": "skipped",
+   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
+  },
+  {
+   "name": "utf8_font.rb",
+   "verdict": "skipped",
+   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
+  },
   {
    "name": "basic_loop.rb",
    "mri": {
@@ -407,16 +434,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "16 0.1658 1280x1024"
+    "shot": "15 0.1663 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "16 0.1642 1280x1024"
+    "shot": "14 0.1649 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=16 0.1658 1280x1024 | spinel shot=16 0.1642 1280x1024"
+   "detail": "mri shot=15 0.1663 1280x1024 | spinel shot=14 0.1649 1280x1024"
   },
   {
    "name": "core_3d_camera_first_person.rb",
@@ -424,16 +451,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "9 0.1796 1280x1024"
+    "shot": "8 0.1368 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "11 0.1913 1280x1024"
+    "shot": "12 0.1779 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=9 0.1796 1280x1024 | spinel shot=11 0.1913 1280x1024"
+   "detail": "mri shot=8 0.1368 1280x1024 | spinel shot=12 0.1779 1280x1024"
   },
   {
    "name": "core_3d_split_screen.rb",
@@ -526,16 +553,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "6 0.3040 1280x1024"
+    "shot": "6 0.3044 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "6 0.3040 1280x1024"
+    "shot": "6 0.3039 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=6 0.3040 1280x1024 | spinel shot=6 0.3040 1280x1024"
+   "detail": "mri shot=6 0.3044 1280x1024 | spinel shot=6 0.3039 1280x1024"
   },
   {
    "name": "flocking_plain.rb",
@@ -543,16 +570,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "6 0.3039 1280x1024"
+    "shot": "6 0.3040 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "6 0.3042 1280x1024"
+    "shot": "6 0.3041 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=6 0.3039 1280x1024 | spinel shot=6 0.3042 1280x1024"
+   "detail": "mri shot=6 0.3040 1280x1024 | spinel shot=6 0.3041 1280x1024"
   },
   {
    "name": "game_of_life_simple.rb",
@@ -587,11 +614,6 @@
    },
    "verdict": "ran",
    "detail": "mri shot=9 0.0727 1280x1024 | spinel shot=9 0.0727 1280x1024"
-  },
-  {
-   "name": "gui_controls.rb",
-   "verdict": "skipped",
-   "detail": "builds its list view with Array#pack('p*'); Spinel's pack('p*') emits a single pointer whatever the element count, so the char** is unusable (see tools/repro/upstream/issue-d). The program runs (the shim clamps the item count), but it renders differently from CRuby"
   },
   {
    "name": "lissajous_curve.rb",
@@ -639,10 +661,10 @@
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "15 0.2380 1280x1024"
+    "shot": "15 0.2378 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2380 1280x1024"
+   "detail": "mri shot=15 0.2380 1280x1024 | spinel shot=15 0.2378 1280x1024"
   },
   {
    "name": "models_mesh_generation.rb",
@@ -684,16 +706,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "25 0.2179 1280x1024"
+    "shot": "25 0.2204 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "25 0.2265 1280x1024"
+    "shot": "25 0.2268 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=25 0.2179 1280x1024 | spinel shot=25 0.2265 1280x1024"
+   "detail": "mri shot=25 0.2204 1280x1024 | spinel shot=25 0.2268 1280x1024"
   },
   {
    "name": "particles_fireworks.rb",
@@ -751,7 +773,7 @@
    "mri": {
     "rc": 1,
     "stdout": "",
-    "stderr": "/tmp/tmprzucjddf/shapes_basic_shapes.rb:17:in 'Raylib#DrawCircleGradient': wrong number of arguments (5 for 4) (ArgumentError)\n\n    caller: /tmp/tmprzucjddf/shapes_basic_shapes.rb:17\n    |     DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE)\n          ^^^^^^^^^^^^^^^^^^\n\tfrom /tmp/tmprzucjddf/shapes_basic_shapes.rb:17:in '<main>'\n",
+    "stderr": "/tmp/tmp8sdo4xzv/shapes_basic_shapes.rb:17:in 'Raylib#DrawCircleGradient': wrong number of arguments (5 for 4) (ArgumentError)\n\n    caller: /tmp/tmp8sdo4xzv/shapes_basic_shapes.rb:17\n    |     DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE)\n          ^^^^^^^^^^^^^^^^^^\n\tfrom /tmp/tmp8sdo4xzv/shapes_basic_shapes.rb:17:in '<main>'\n",
     "shot": "1 0.0000 1280x1024"
    },
    "spinel": {
@@ -761,7 +783,7 @@
     "shot": "1 0.0000 1280x1024"
    },
    "verdict": "mri-error",
-   "detail": "mri rc=1 \tfrom /tmp/tmprzucjddf/shapes_basic_shapes.rb:17:in '<main>'"
+   "detail": "mri rc=1 \tfrom /tmp/tmp8sdo4xzv/shapes_basic_shapes.rb:17:in '<main>'"
   },
   {
    "name": "shapes_draw_circle_sector.rb",
@@ -798,21 +820,6 @@
    "detail": "mri shot=10 0.2619 1280x1024 | spinel shot=10 0.2619 1280x1024"
   },
   {
-   "name": "snake_case_api.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "snake_case_rlgl.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
-   "name": "template.rb",
-   "verdict": "skipped",
-   "detail": "uses Gem::Specification (RubyGems API), not the raylib surface"
-  },
-  {
    "name": "text_rectangle_bounds.rb",
    "mri": {
     "rc": 143,
@@ -830,23 +837,6 @@
    "detail": "mri shot=5 0.2415 1280x1024 | spinel shot=5 0.2415 1280x1024"
   },
   {
-   "name": "textures_gif_player.rb",
-   "mri": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "",
-    "shot": "8 0.2600 1280x1024"
-   },
-   "spinel": {
-    "rc": 143,
-    "stdout": "",
-    "stderr": "SIGTERM (SignalException)\n",
-    "shot": "8 0.2598 1280x1024"
-   },
-   "verdict": "ran",
-   "detail": "mri shot=8 0.2600 1280x1024 | spinel shot=8 0.2598 1280x1024"
-  },
-  {
    "name": "textures_image_generation.rb",
    "mri": {
     "rc": 143,
@@ -862,6 +852,23 @@
    },
    "verdict": "ran",
    "detail": "mri shot=459 0.1247 1280x1024 | spinel shot=459 0.1247 1280x1024"
+  },
+  {
+   "name": "textures_gif_player.rb",
+   "mri": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "",
+    "shot": "8 0.2597 1280x1024"
+   },
+   "spinel": {
+    "rc": 143,
+    "stdout": "",
+    "stderr": "SIGTERM (SignalException)\n",
+    "shot": "8 0.2598 1280x1024"
+   },
+   "verdict": "ran",
+   "detail": "mri shot=8 0.2597 1280x1024 | spinel shot=8 0.2598 1280x1024"
   },
   {
    "name": "textures_mouse_painting.rb",
@@ -886,21 +893,16 @@
     "rc": 143,
     "stdout": "",
     "stderr": "",
-    "shot": "5 0.5006 1280x1024"
+    "shot": "5 0.5005 1280x1024"
    },
    "spinel": {
     "rc": 143,
     "stdout": "",
     "stderr": "SIGTERM (SignalException)\n",
-    "shot": "5 0.5004 1280x1024"
+    "shot": "5 0.5006 1280x1024"
    },
    "verdict": "ran",
-   "detail": "mri shot=5 0.5006 1280x1024 | spinel shot=5 0.5004 1280x1024"
-  },
-  {
-   "name": "utf8_font.rb",
-   "verdict": "skipped",
-   "detail": "reads ./jpfont/jpfont.txt relative to cwd (asset not present)"
+   "detail": "mri shot=5 0.5005 1280x1024 | spinel shot=5 0.5006 1280x1024"
   }
  ]
 }
