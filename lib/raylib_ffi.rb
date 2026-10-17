@@ -2372,7 +2372,7 @@ module Raylib
       _out
     end
     def self.LoadWave(fileName)
-      Raylib.rl_LoadWave(fileName)
+      Wave.new(Raylib.rl_LoadWave(fileName), nil)
     end
     def self.LoadWaveFromMemory(fileType, fileData, dataSize)
       Wave.new(Raylib.rl_audio_LoadWaveFromMemory(fileType, fileData, dataSize), nil)
@@ -2381,13 +2381,13 @@ module Raylib
       Raylib.rl_audio_IsWaveValid(wave) != 0
     end
     def self.LoadSound(fileName)
-      Raylib.rl_LoadSound(fileName)
+      Sound.new(Raylib.rl_audio_LoadSound(fileName), nil)
     end
     def self.LoadSoundFromWave(wave)
       Sound.new(Raylib.rl_audio_LoadSoundFromWave(wave), nil)
     end
     def self.LoadSoundAlias(source)
-      Raylib.rl_LoadSoundAlias(source)
+      Sound.new(Raylib.rl_LoadSoundAlias(source), nil)
     end
     def self.IsSoundValid(sound)
       Raylib.rl_audio_IsSoundValid(sound) != 0
@@ -2435,16 +2435,16 @@ module Raylib
       Raylib.rl_SetSoundPan(sound, pan)
     end
     def self.WaveCopy(wave)
-      Raylib.rl_WaveCopy(wave)
+      Wave.new(Raylib.rl_WaveCopy(wave), nil)
     end
     def self.LoadWaveSamples(wave)
       Raylib.rl_LoadWaveSamples(wave)
     end
     def self.LoadMusicStream(fileName)
-      Raylib.rl_LoadMusicStream(fileName)
+      Music.new(Raylib.rl_LoadMusicStream(fileName), nil)
     end
     def self.LoadMusicStreamFromMemory(fileType, data, dataSize)
-      Raylib.rl_LoadMusicStreamFromMemory(fileType, data, dataSize)
+      Music.new(Raylib.rl_LoadMusicStreamFromMemory(fileType, data, dataSize), nil)
     end
     def self.IsMusicValid(music)
       Raylib.rl_audio_IsMusicValid(music) != 0

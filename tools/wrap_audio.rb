@@ -19,9 +19,15 @@ PATH = File.join(ROOT, "lib/raylib_ffi.rb")
 # function name -> body template ({0}, {1}, ... are the existing parameters)
 TARGETS = {
   "LoadWaveFromMemory" => "Wave.new(Raylib.rl_audio_LoadWaveFromMemory({0}, {1}, {2}), nil)",
+  "LoadSound" => "Sound.new(Raylib.rl_audio_LoadSound({0}), nil)",
   "IsWaveValid" => "Raylib.rl_audio_IsWaveValid({0}) != 0",
   "UnloadWave" => "Raylib.rl_audio_UnloadWave({0})",
   "LoadSoundFromWave" => "Sound.new(Raylib.rl_audio_LoadSoundFromWave({0}), nil)",
+  "LoadSoundAlias" => "Sound.new(Raylib.rl_LoadSoundAlias({0}), nil)",
+  "LoadWave" => "Wave.new(Raylib.rl_LoadWave({0}), nil)",
+  "WaveCopy" => "Wave.new(Raylib.rl_WaveCopy({0}), nil)",
+  "LoadMusicStream" => "Music.new(Raylib.rl_LoadMusicStream({0}), nil)",
+  "LoadMusicStreamFromMemory" => "Music.new(Raylib.rl_LoadMusicStreamFromMemory({0}, {1}, {2}), nil)",
   "IsSoundValid" => "Raylib.rl_audio_IsSoundValid({0}) != 0",
   "PlaySound" => "Raylib.rl_audio_PlaySound({0})",
   "StopSound" => "Raylib.rl_audio_StopSound({0})",

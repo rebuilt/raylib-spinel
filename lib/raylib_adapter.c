@@ -23,6 +23,18 @@
 #define RL_RECT(o) (((rl_Rectangle *)(o))->p ? ((rl_Rectangle *)(o))->p : &((rl_Rectangle *)(o))->v)
 
 
+/* Audio struct views: the payload is owned (p == NULL, inline v) or
+ * borrowed from an owner (p set). Hoisted above the generated shims, which
+ * unwrap their parameters with these macros. */
+#define RL_WAVE(o) (((rl_Wave *)(o))->p ? ((rl_Wave *)(o))->p : &((rl_Wave *)(o))->v)
+typedef struct rl_Wave_s { sp_int cls_id; Wave *p; sp_RbVal owner; Wave v; } rl_Wave;
+#define RL_ASTREAM(o) (((rl_AudioStream *)(o))->p ? ((rl_AudioStream *)(o))->p : &((rl_AudioStream *)(o))->v)
+typedef struct rl_AudioStream_s { sp_int cls_id; AudioStream *p; sp_RbVal owner; AudioStream v; } rl_AudioStream;
+#define RL_SOUND(o) (((rl_Sound *)(o))->p ? ((rl_Sound *)(o))->p : &((rl_Sound *)(o))->v)
+typedef struct rl_Sound_s { sp_int cls_id; Sound *p; sp_RbVal owner; Sound v; } rl_Sound;
+#define RL_MUSIC(o) (((rl_Music *)(o))->p ? ((rl_Music *)(o))->p : &((rl_Music *)(o))->v)
+typedef struct rl_Music_s { sp_int cls_id; Music *p; sp_RbVal owner; Music v; } rl_Music;
+
 
 /* --- P2 views: read the Vector2/Vector3 payload through the view pointer.
  * `p == NULL` for owned objects (payload in `v`); `p != NULL` for views built
@@ -2416,7 +2428,7 @@ void * rl_LoadWaveFromMemory(const char * fileType, void * fileData, int dataSiz
 }
 /** IsWaveValid(params: void * wave -> _Bool) */
 _Bool rl_IsWaveValid(void * wave) {
-  return IsWaveValid(*(Wave *)wave);
+  return IsWaveValid(*RL_WAVE(wave));
 }
 /** LoadSound(params: const char * fileName -> void *) */
 void * rl_LoadSound(const char * fileName) {
@@ -2427,22 +2439,22 @@ void * rl_LoadSound(const char * fileName) {
 /** LoadSoundFromWave(params: void * wave -> void *) */
 void * rl_LoadSoundFromWave(void * wave) {
   Sound *r = (Sound *)malloc(sizeof(Sound));
-  *r = LoadSoundFromWave(*(Wave *)wave);
+  *r = LoadSoundFromWave(*RL_WAVE(wave));
   return r;
 }
 /** LoadSoundAlias(params: void * source -> void *) */
 void * rl_LoadSoundAlias(void * source) {
   Sound *r = (Sound *)malloc(sizeof(Sound));
-  *r = LoadSoundAlias(*(Sound *)source);
+  *r = LoadSoundAlias(*RL_SOUND(source));
   return r;
 }
 /** IsSoundValid(params: void * sound -> _Bool) */
 _Bool rl_IsSoundValid(void * sound) {
-  return IsSoundValid(*(Sound *)sound);
+  return IsSoundValid(*RL_SOUND(sound));
 }
 /** UpdateSound(params: void * sound, void * data, int frameCount -> void) */
 void rl_UpdateSound(void * sound, void * data, int frameCount) {
-  UpdateSound(*(Sound *)sound, data, frameCount);
+  UpdateSound(*RL_SOUND(sound), data, frameCount);
 }
 /** UnloadWave(params: void * wave -> void) */
 void rl_UnloadWave(void * wave) {
@@ -2458,57 +2470,57 @@ void rl_UnloadSound(void * sound) {
 }
 /** UnloadSoundAlias(params: void * alias -> void) */
 void rl_UnloadSoundAlias(void * alias) {
-  UnloadSoundAlias(*(Sound *)alias);
+  UnloadSoundAlias(*RL_SOUND(alias));
 }
 /** ExportWave(params: void * wave, const char * fileName -> _Bool) */
 _Bool rl_ExportWave(void * wave, const char * fileName) {
-  return ExportWave(*(Wave *)wave, fileName);
+  return ExportWave(*RL_WAVE(wave), fileName);
 }
 /** ExportWaveAsCode(params: void * wave, const char * fileName -> _Bool) */
 _Bool rl_ExportWaveAsCode(void * wave, const char * fileName) {
-  return ExportWaveAsCode(*(Wave *)wave, fileName);
+  return ExportWaveAsCode(*RL_WAVE(wave), fileName);
 }
 /** PlaySound(params: void * sound -> void) */
 void rl_PlaySound(void * sound) {
-  PlaySound(*(Sound *)sound);
+  PlaySound(*RL_SOUND(sound));
 }
 /** StopSound(params: void * sound -> void) */
 void rl_StopSound(void * sound) {
-  StopSound(*(Sound *)sound);
+  StopSound(*RL_SOUND(sound));
 }
 /** PauseSound(params: void * sound -> void) */
 void rl_PauseSound(void * sound) {
-  PauseSound(*(Sound *)sound);
+  PauseSound(*RL_SOUND(sound));
 }
 /** ResumeSound(params: void * sound -> void) */
 void rl_ResumeSound(void * sound) {
-  ResumeSound(*(Sound *)sound);
+  ResumeSound(*RL_SOUND(sound));
 }
 /** IsSoundPlaying(params: void * sound -> _Bool) */
 _Bool rl_IsSoundPlaying(void * sound) {
-  return IsSoundPlaying(*(Sound *)sound);
+  return IsSoundPlaying(*RL_SOUND(sound));
 }
 /** SetSoundVolume(params: void * sound, float volume -> void) */
 void rl_SetSoundVolume(void * sound, float volume) {
-  SetSoundVolume(*(Sound *)sound, volume);
+  SetSoundVolume(*RL_SOUND(sound), volume);
 }
 /** SetSoundPitch(params: void * sound, float pitch -> void) */
 void rl_SetSoundPitch(void * sound, float pitch) {
-  SetSoundPitch(*(Sound *)sound, pitch);
+  SetSoundPitch(*RL_SOUND(sound), pitch);
 }
 /** SetSoundPan(params: void * sound, float pan -> void) */
 void rl_SetSoundPan(void * sound, float pan) {
-  SetSoundPan(*(Sound *)sound, pan);
+  SetSoundPan(*RL_SOUND(sound), pan);
 }
 /** WaveCopy(params: void * wave -> void *) */
 void * rl_WaveCopy(void * wave) {
   Wave *r = (Wave *)malloc(sizeof(Wave));
-  *r = WaveCopy(*(Wave *)wave);
+  *r = WaveCopy(*RL_WAVE(wave));
   return r;
 }
 /** LoadWaveSamples(params: void * wave -> void *) */
 void * rl_LoadWaveSamples(void * wave) {
-  return LoadWaveSamples(*(Wave *)wave);
+  return LoadWaveSamples(*RL_WAVE(wave));
 }
 /** LoadMusicStream(params: const char * fileName -> void *) */
 void * rl_LoadMusicStream(const char * fileName) {
@@ -2524,59 +2536,59 @@ void * rl_LoadMusicStreamFromMemory(const char * fileType, void * data, int data
 }
 /** IsMusicValid(params: void * music -> _Bool) */
 _Bool rl_IsMusicValid(void * music) {
-  return IsMusicValid(*(Music *)music);
+  return IsMusicValid(*RL_MUSIC(music));
 }
 /** UnloadMusicStream(params: void * music -> void) */
 void rl_UnloadMusicStream(void * music) {
-  UnloadMusicStream(*(Music *)music);
+  UnloadMusicStream(*RL_MUSIC(music));
 }
 /** PlayMusicStream(params: void * music -> void) */
 void rl_PlayMusicStream(void * music) {
-  PlayMusicStream(*(Music *)music);
+  PlayMusicStream(*RL_MUSIC(music));
 }
 /** IsMusicStreamPlaying(params: void * music -> _Bool) */
 _Bool rl_IsMusicStreamPlaying(void * music) {
-  return IsMusicStreamPlaying(*(Music *)music);
+  return IsMusicStreamPlaying(*RL_MUSIC(music));
 }
 /** UpdateMusicStream(params: void * music -> void) */
 void rl_UpdateMusicStream(void * music) {
-  UpdateMusicStream(*(Music *)music);
+  UpdateMusicStream(*RL_MUSIC(music));
 }
 /** StopMusicStream(params: void * music -> void) */
 void rl_StopMusicStream(void * music) {
-  StopMusicStream(*(Music *)music);
+  StopMusicStream(*RL_MUSIC(music));
 }
 /** PauseMusicStream(params: void * music -> void) */
 void rl_PauseMusicStream(void * music) {
-  PauseMusicStream(*(Music *)music);
+  PauseMusicStream(*RL_MUSIC(music));
 }
 /** ResumeMusicStream(params: void * music -> void) */
 void rl_ResumeMusicStream(void * music) {
-  ResumeMusicStream(*(Music *)music);
+  ResumeMusicStream(*RL_MUSIC(music));
 }
 /** SeekMusicStream(params: void * music, float position -> void) */
 void rl_SeekMusicStream(void * music, float position) {
-  SeekMusicStream(*(Music *)music, position);
+  SeekMusicStream(*RL_MUSIC(music), position);
 }
 /** SetMusicVolume(params: void * music, float volume -> void) */
 void rl_SetMusicVolume(void * music, float volume) {
-  SetMusicVolume(*(Music *)music, volume);
+  SetMusicVolume(*RL_MUSIC(music), volume);
 }
 /** SetMusicPitch(params: void * music, float pitch -> void) */
 void rl_SetMusicPitch(void * music, float pitch) {
-  SetMusicPitch(*(Music *)music, pitch);
+  SetMusicPitch(*RL_MUSIC(music), pitch);
 }
 /** SetMusicPan(params: void * music, float pan -> void) */
 void rl_SetMusicPan(void * music, float pan) {
-  SetMusicPan(*(Music *)music, pan);
+  SetMusicPan(*RL_MUSIC(music), pan);
 }
 /** GetMusicTimeLength(params: void * music -> float) */
 float rl_GetMusicTimeLength(void * music) {
-  return GetMusicTimeLength(*(Music *)music);
+  return GetMusicTimeLength(*RL_MUSIC(music));
 }
 /** GetMusicTimePlayed(params: void * music -> float) */
 float rl_GetMusicTimePlayed(void * music) {
-  return GetMusicTimePlayed(*(Music *)music);
+  return GetMusicTimePlayed(*RL_MUSIC(music));
 }
 /** LoadAudioStream(params: uint32_t sampleRate, uint32_t sampleSize, uint32_t channels -> void *) */
 void * rl_LoadAudioStream(uint32_t sampleRate, uint32_t sampleSize, uint32_t channels) {
@@ -2586,7 +2598,7 @@ void * rl_LoadAudioStream(uint32_t sampleRate, uint32_t sampleSize, uint32_t cha
 }
 /** IsAudioStreamValid(params: void * stream -> _Bool) */
 _Bool rl_IsAudioStreamValid(void * stream) {
-  return IsAudioStreamValid(*(AudioStream *)stream);
+  return IsAudioStreamValid(*RL_ASTREAM(stream));
 }
 /** UnloadAudioStream(params: void * stream -> void) */
 void rl_UnloadAudioStream(void * stream) {
@@ -2596,55 +2608,55 @@ void rl_UnloadAudioStream(void * stream) {
 }
 /** UpdateAudioStream(params: void * stream, void * data, int frameCount -> void) */
 void rl_UpdateAudioStream(void * stream, void * data, int frameCount) {
-  UpdateAudioStream(*(AudioStream *)stream, data, frameCount);
+  UpdateAudioStream(*RL_ASTREAM(stream), data, frameCount);
 }
 /** IsAudioStreamProcessed(params: void * stream -> _Bool) */
 _Bool rl_IsAudioStreamProcessed(void * stream) {
-  return IsAudioStreamProcessed(*(AudioStream *)stream);
+  return IsAudioStreamProcessed(*RL_ASTREAM(stream));
 }
 /** PlayAudioStream(params: void * stream -> void) */
 void rl_PlayAudioStream(void * stream) {
-  PlayAudioStream(*(AudioStream *)stream);
+  PlayAudioStream(*RL_ASTREAM(stream));
 }
 /** PauseAudioStream(params: void * stream -> void) */
 void rl_PauseAudioStream(void * stream) {
-  PauseAudioStream(*(AudioStream *)stream);
+  PauseAudioStream(*RL_ASTREAM(stream));
 }
 /** ResumeAudioStream(params: void * stream -> void) */
 void rl_ResumeAudioStream(void * stream) {
-  ResumeAudioStream(*(AudioStream *)stream);
+  ResumeAudioStream(*RL_ASTREAM(stream));
 }
 /** IsAudioStreamPlaying(params: void * stream -> _Bool) */
 _Bool rl_IsAudioStreamPlaying(void * stream) {
-  return IsAudioStreamPlaying(*(AudioStream *)stream);
+  return IsAudioStreamPlaying(*RL_ASTREAM(stream));
 }
 /** StopAudioStream(params: void * stream -> void) */
 void rl_StopAudioStream(void * stream) {
-  StopAudioStream(*(AudioStream *)stream);
+  StopAudioStream(*RL_ASTREAM(stream));
 }
 /** SetAudioStreamVolume(params: void * stream, float volume -> void) */
 void rl_SetAudioStreamVolume(void * stream, float volume) {
-  SetAudioStreamVolume(*(AudioStream *)stream, volume);
+  SetAudioStreamVolume(*RL_ASTREAM(stream), volume);
 }
 /** SetAudioStreamPitch(params: void * stream, float pitch -> void) */
 void rl_SetAudioStreamPitch(void * stream, float pitch) {
-  SetAudioStreamPitch(*(AudioStream *)stream, pitch);
+  SetAudioStreamPitch(*RL_ASTREAM(stream), pitch);
 }
 /** SetAudioStreamPan(params: void * stream, float pan -> void) */
 void rl_SetAudioStreamPan(void * stream, float pan) {
-  SetAudioStreamPan(*(AudioStream *)stream, pan);
+  SetAudioStreamPan(*RL_ASTREAM(stream), pan);
 }
 /** SetAudioStreamCallback(params: void * stream, void * callback -> void) */
 void rl_SetAudioStreamCallback(void * stream, void * callback) {
-  SetAudioStreamCallback(*(AudioStream *)stream, (AudioCallback)callback);
+  SetAudioStreamCallback(*RL_ASTREAM(stream), (AudioCallback)callback);
 }
 /** AttachAudioStreamProcessor(params: void * stream, void * processor -> void) */
 void rl_AttachAudioStreamProcessor(void * stream, void * processor) {
-  AttachAudioStreamProcessor(*(AudioStream *)stream, (AudioCallback)processor);
+  AttachAudioStreamProcessor(*RL_ASTREAM(stream), (AudioCallback)processor);
 }
 /** DetachAudioStreamProcessor(params: void * stream, void * processor -> void) */
 void rl_DetachAudioStreamProcessor(void * stream, void * processor) {
-  DetachAudioStreamProcessor(*(AudioStream *)stream, (AudioCallback)processor);
+  DetachAudioStreamProcessor(*RL_ASTREAM(stream), (AudioCallback)processor);
 }
 /** AttachAudioMixedProcessor(params: void * processor -> void) */
 void rl_AttachAudioMixedProcessor(void * processor) {
@@ -3032,7 +3044,7 @@ void rl_UpdateAudioStreamSine(void *stream, int frames, float gain,
     buffer[i] = gain * (float)sinf(2.0f * (float)PI * frequency * sp_sine_time);
     sp_sine_time += 1.0 / (double)sampleRate;
   }
-  if (frames > 0) UpdateAudioStream(*(AudioStream *)stream, buffer, frames);
+  if (frames > 0) UpdateAudioStream(*RL_ASTREAM(stream), buffer, frames);
 }
 
 /* ================================================================
@@ -3943,8 +3955,6 @@ sp_int rl_m_Wave_set_channels(rl_Wave *self, sp_int v) { RL_WAVE(self)->channels
 long rl_m_Wave_data(rl_Wave *self) { return (long)(intptr_t)RL_WAVE(self)->data; }
 void rl_Wave_set_data(rl_Wave *self, sp_RbVal pv) { RL_WAVE(self)->data = rl_h_unbox(pv); }
 
-#define RL_ASTREAM(o) (((rl_AudioStream *)(o))->p ? ((rl_AudioStream *)(o))->p : &((rl_AudioStream *)(o))->v)
-typedef struct rl_AudioStream_s { sp_int cls_id; AudioStream *p; sp_RbVal owner; AudioStream v; } rl_AudioStream;
 static void rl_AudioStream_scan(void *p) { rl_AudioStream *s = (rl_AudioStream *)p; if (s->p) sp_mark_rbval(s->owner); }
 rl_AudioStream *rl_AudioStream_new(sp_int cls_id) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = NULL; s->v = (AudioStream){ 0 }; return s; }
 rl_AudioStream *rl_AudioStream_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = (AudioStream *)rl_h_unbox(pv); s->owner = owner; return s; }
@@ -3959,18 +3969,14 @@ sp_int rl_m_AudioStream_set_sampleSize(rl_AudioStream *self, sp_int v) { RL_ASTR
 sp_int rl_m_AudioStream_channels(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->channels; }
 sp_int rl_m_AudioStream_set_channels(rl_AudioStream *self, sp_int v) { RL_ASTREAM(self)->channels = (unsigned int)v; return v; }
 
-#define RL_SOUND(o) (((rl_Sound *)(o))->p ? ((rl_Sound *)(o))->p : &((rl_Sound *)(o))->v)
-typedef struct rl_Sound_s { sp_int cls_id; Sound *p; sp_RbVal owner; Sound v; } rl_Sound;
 static void rl_Sound_scan(void *p) { rl_Sound *s = (rl_Sound *)p; if (s->p) sp_mark_rbval(s->owner); }
 rl_Sound *rl_Sound_new(sp_int cls_id) { rl_Sound *s = (rl_Sound *)sp_gc_alloc(sizeof(rl_Sound), NULL, rl_Sound_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Sound){ 0 }; return s; }
 rl_Sound *rl_Sound_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Sound *s = (rl_Sound *)sp_gc_alloc(sizeof(rl_Sound), NULL, rl_Sound_scan); s->cls_id = cls_id; s->p = (Sound *)rl_h_unbox(pv); s->owner = owner; return s; }
 sp_int rl_m_Sound_frameCount(rl_Sound *self) { return (sp_int)RL_SOUND(self)->frameCount; }
 sp_int rl_m_Sound_set_frameCount(rl_Sound *self, sp_int v) { RL_SOUND(self)->frameCount = (unsigned int)v; return v; }
 void rl_Sound_stream(rl_Sound *self, void *out) { ((rl_AudioStream *)out)->v = RL_SOUND(self)->stream; }
-void rl_Sound_set_stream(rl_Sound *self, void *s) { RL_SOUND(self)->stream = ((rl_AudioStream *)s)->v; }
+void rl_Sound_set_stream(rl_Sound *self, sp_RbVal s) { RL_SOUND(self)->stream = ((rl_AudioStream *)rl_h_unbox(s))->v; }
 
-#define RL_MUSIC(o) (((rl_Music *)(o))->p ? ((rl_Music *)(o))->p : &((rl_Music *)(o))->v)
-typedef struct rl_Music_s { sp_int cls_id; Music *p; sp_RbVal owner; Music v; } rl_Music;
 static void rl_Music_scan(void *p) { rl_Music *s = (rl_Music *)p; if (s->p) sp_mark_rbval(s->owner); }
 rl_Music *rl_Music_new(sp_int cls_id) { rl_Music *s = (rl_Music *)sp_gc_alloc(sizeof(rl_Music), NULL, rl_Music_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Music){ 0 }; return s; }
 rl_Music *rl_Music_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Music *s = (rl_Music *)sp_gc_alloc(sizeof(rl_Music), NULL, rl_Music_scan); s->cls_id = cls_id; s->p = (Music *)rl_h_unbox(pv); s->owner = owner; return s; }
@@ -3983,13 +3989,18 @@ sp_int rl_m_Music_set_ctxType(rl_Music *self, sp_int v) { RL_MUSIC(self)->ctxTyp
 long rl_m_Music_ctxData(rl_Music *self) { return (long)(intptr_t)RL_MUSIC(self)->ctxData; }
 void rl_Music_set_ctxData(rl_Music *self, sp_RbVal pv) { RL_MUSIC(self)->ctxData = rl_h_unbox(pv); }
 void rl_Music_stream(rl_Music *self, void *out) { ((rl_AudioStream *)out)->v = RL_MUSIC(self)->stream; }
-void rl_Music_set_stream(rl_Music *self, void *s) { RL_MUSIC(self)->stream = ((rl_AudioStream *)s)->v; }
+void rl_Music_set_stream(rl_Music *self, sp_RbVal s) { RL_MUSIC(self)->stream = ((rl_AudioStream *)rl_h_unbox(s))->v; }
 
 /* ---- Audio function shims (raylib takes/returns these structs by value) ---- */
 void *rl_audio_LoadWaveFromMemory(const char *fileType, const char *fileData, int dataSize) {
   Wave *w = (Wave *)malloc(sizeof(Wave));
   *w = LoadWaveFromMemory(fileType, (const unsigned char *)fileData, dataSize);
   return w;
+}
+void *rl_audio_LoadSound(const char *fileName) {
+  Sound *s = (Sound *)malloc(sizeof(Sound));
+  *s = LoadSound(fileName);
+  return s;
 }
 sp_int rl_audio_IsWaveValid(void *wave) { return IsWaveValid(*RL_WAVE(wave)) ? 1 : 0; }
 void rl_audio_UnloadWave(void *wave) { Wave *w = RL_WAVE(wave); UnloadWave(*w); free(w); }

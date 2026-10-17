@@ -39,7 +39,7 @@ module Raylib
   native_method :frameCount, [], :int, "rl_m_Sound_frameCount"
   native_method :frameCount=, [:int], :int, "rl_m_Sound_set_frameCount"
   ffi_func :rl_Sound_stream, [:ptr, :ptr], :void
-  native_method :stream=, [:ptr], :void, "rl_Sound_set_stream"
+  native_method :stream=, [:any], :void, "rl_Sound_set_stream"
 
   native_struct "Music", "rl_Music"
   native_new [], "rl_Music_new"
@@ -53,13 +53,14 @@ module Raylib
   ffi_func :rl_m_Music_ctxData, [:ptr], :long
   native_method :ctxData=, [:any], :void, "rl_Music_set_ctxData"
   ffi_func :rl_Music_stream, [:ptr, :ptr], :void
-  native_method :stream=, [:ptr], :void, "rl_Music_set_stream"
+  native_method :stream=, [:any], :void, "rl_Music_set_stream"
 
   # function shims (raylib takes/returns these structs by value)
   ffi_func :rl_audio_LoadWaveFromMemory, [:str, :str, :int], :ptr
   ffi_func :rl_audio_IsWaveValid, [:ptr], :int
   ffi_func :rl_audio_UnloadWave, [:ptr], :void
   ffi_func :rl_audio_LoadSoundFromWave, [:ptr], :ptr
+  ffi_func :rl_audio_LoadSound, [:str], :ptr
   ffi_func :rl_audio_IsSoundValid, [:ptr], :int
   ffi_func :rl_audio_PlaySound, [:ptr], :void
   ffi_func :rl_audio_StopSound, [:ptr], :void
