@@ -26,8 +26,8 @@
 # not a duplicate.
 #
 # raylib_ruby.rb is skipped on purpose: it is the CRuby branch's parallel
-# surface (`if $PROGRAM_NAME.end_with?(".rb")`), never compiled together with
-# the Spinel files.
+# surface (`RUBY_ENGINE != "spinel"`), never compiled together with the
+# Spinel files.
 #
 # Usage: ruby tools/check_duplicate_methods.rb [lib_dir]
 # Exit status: 0 when every method has one definition, 1 otherwise.

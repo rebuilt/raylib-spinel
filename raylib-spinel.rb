@@ -8,9 +8,9 @@
 # raylib_ruby.rb loads the system gem by its full path and adds the few helpers
 # that mirror our spinel-side additions.
 #
-# The CRuby branch uses a computed require arg (File.join) so Spinel's textual
-# require-splicing skips it; the Spinel branch's require_relative is a literal
-# that gets spliced in. $PROGRAM_NAME is the runtime discriminator.
+# RUBY_ENGINE is the discriminator: a compile-time constant under AOT
+# ("spinel", so this branch is the one that runs and the CRuby branch's
+# require is blanked before the textual splice), "ruby" under CRuby.
 #
 # Spinel supports compiling to multiple raylib libraries: raylib, physac,
 # raymath, rcamera, and rlgl. The FFI declarations for each library are
@@ -18,9 +18,7 @@
 #
 # Under MRI, ffi_func/ffi_lib/ffi_cflags are no-ops defined in main.rb.
 
-if $PROGRAM_NAME.end_with?(".rb")
-  require_relative File.join("lib","raylib_ruby")
-else
+if RUBY_ENGINE == "spinel"
   require_relative "lib/raylib_ffi"
   require_relative "lib/raylib_handles_ffi"
   require_relative "lib/raylib_camera_fields"
@@ -31,6 +29,13 @@ else
   require_relative "lib/raylib_sizes"
   require_relative "lib/raylib_field_index"
   require_relative "lib/rlgl_constants"
+else
+  # Kept as a computed argument on purpose: the dead branch still compiles as
+  # a runtime call under Spinel's fold, and dropping the call entirely (a
+  # literal require blanks before analysis) changes TU shape enough to tip
+  # over the context-sensitive struct-setter boxization (issues/0002 class) in
+  # struct-heavy programs like the gem corpus' 01_structs.rb.
+  require_relative File.join("lib","raylib_ruby")
 end
 
 # Load additional library FFI if available (for multi-library support)

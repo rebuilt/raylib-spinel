@@ -12,11 +12,10 @@
 #           ffi package, and the include-able instance methods from
 #           lib/raylib_include.rb — so `include Raylib` and bare calls work.
 #
-# The `$PROGRAM_NAME` discriminator mirrors the rest of the package; both
-# branches are parsed, only the active one runs.
-if $PROGRAM_NAME.end_with?(".rb")
-  require_relative "raylib-spinel"
-else
+# RUBY_ENGINE is the discriminator ("spinel" under AOT, "ruby" under CRuby);
+# it is a compile-time constant under Spinel, so both branches are parsed and
+# only the live one survives the fold.
+if RUBY_ENGINE == "spinel"
   require "ffi"
   require_relative "raylib-spinel"
   require_relative "raylib-spinel/raymath"
@@ -32,4 +31,6 @@ else
   require_relative "lib/raylib_camera_fields"
   require_relative "lib/raylib_struct_fields"
   require_relative "lib/raygui_compat"
+else
+  require_relative "raylib-spinel"
 end

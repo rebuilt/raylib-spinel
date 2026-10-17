@@ -66,4 +66,37 @@ module Raylib
   native_struct "FilePathList", "rl_FilePathList"
   ffi_func :rl_m_FilePathList_paths, [:ptr], :long
   native_method :paths=, [:any], :void, "rl_FilePathList_set_paths"
+  native_struct "VrDeviceInfo", "rl_VrDeviceInfo"
+  ffi_func :rl_m_VrDeviceInfo_lensDistortionValues, [:ptr], :long
+  native_method :lensDistortionValues=, [:any], :void, "rl_VrDeviceInfo_set_lensDistortionValues"
+  ffi_func :rl_m_VrDeviceInfo_chromaAbCorrection, [:ptr], :long
+  native_method :chromaAbCorrection=, [:any], :void, "rl_VrDeviceInfo_set_chromaAbCorrection"
+
+  native_struct "VrStereoConfig", "rl_VrStereoConfig"
+  ffi_func :rl_m_VrStereoConfig_projection, [:ptr], :long
+  native_method :projection=, [:any], :void, "rl_VrStereoConfig_set_projection"
+  ffi_func :rl_m_VrStereoConfig_viewOffset, [:ptr], :long
+  native_method :viewOffset=, [:any], :void, "rl_VrStereoConfig_set_viewOffset"
+  ffi_func :rl_m_VrStereoConfig_leftLensCenter, [:ptr], :long
+  native_method :leftLensCenter=, [:any], :void, "rl_VrStereoConfig_set_leftLensCenter"
+  ffi_func :rl_m_VrStereoConfig_rightLensCenter, [:ptr], :long
+  native_method :rightLensCenter=, [:any], :void, "rl_VrStereoConfig_set_rightLensCenter"
+  ffi_func :rl_m_VrStereoConfig_leftScreenCenter, [:ptr], :long
+  native_method :leftScreenCenter=, [:any], :void, "rl_VrStereoConfig_set_leftScreenCenter"
+  ffi_func :rl_m_VrStereoConfig_rightScreenCenter, [:ptr], :long
+  native_method :rightScreenCenter=, [:any], :void, "rl_VrStereoConfig_set_rightScreenCenter"
+  ffi_func :rl_m_VrStereoConfig_scale, [:ptr], :long
+  native_method :scale=, [:any], :void, "rl_VrStereoConfig_set_scale"
+  ffi_func :rl_m_VrStereoConfig_scaleIn, [:ptr], :long
+  native_method :scaleIn=, [:any], :void, "rl_VrStereoConfig_set_scaleIn"
+
+  native_struct "AutomationEvent", "rl_AutomationEvent"
+  ffi_func :rl_m_AutomationEvent_params, [:ptr], :long
+  native_method :params=, [:any], :void, "rl_AutomationEvent_set_params"
+
+  native_struct "GlyphInfo", "rl_GlyphInfo"
+  native_method :image=, [:ptr], :void, "rl_GlyphInfo_set_image"
+
+  native_struct "AutomationEventList", "rl_AutomationEventList"
+  native_method :events=, [:any], :void, "rl_AutomationEventList_set_events"
 end

@@ -800,7 +800,7 @@ if wrappers_out or constants_out:
                     + wrappers_out + constants_out)
     ffi_text = ffi_text[: -len("  end\nend\n")] + guard_insert + "  end\nend\n"
 # The alias block goes at module level (before the module's final end), NOT
-# inside the hand-written `unless $PROGRAM_NAME...` constants guard: Spinel's
+# inside the hand-written `if RUBY_ENGINE == "spinel"` constants guard: Spinel's
 # static alias collection does not see class << self inside a conditional.
 if alias_block:
     assert ffi_text.endswith("end\n")

@@ -8,8 +8,8 @@
 #     drags in lib/rcamera_ffi.rb, whose module Raylib block declares the same
 #     PascalCase surface (the rl_* pointer shims live in rcamera_adapter.c;
 #     link it with --link lib/rcamera_adapter.o).
-if $PROGRAM_NAME.end_with?(".rb")
-  # no-op under CRuby
-else
+if RUBY_ENGINE == "spinel"
   require_relative "../lib/rcamera_ffi"
+else
+  # no-op under CRuby
 end

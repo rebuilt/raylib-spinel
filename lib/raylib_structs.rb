@@ -141,7 +141,13 @@ module Raylib
       self.b = b.to_i
       self.a = a.to_i
       self
+  
+    # The gem's Color.set(rgba) reads instance accessors from a class method and
+    # so raises; this is the intended behaviour, the same value as from_u32.
+    def self.set(rgba)
+      Color.from_u32(rgba)
     end
+  end
 
     def copy(other)
       self.r = other.r

@@ -1,6 +1,6 @@
 # raylib_ruby.rb — MRI/CRuby FFI layer using raylib-bindings gem
 # Provides PascalCase API matching Spinel's raylib_adapter.o
-# Loaded conditionally in main.rb via $PROGRAM_NAME check
+# Loaded conditionally via the RUBY_ENGINE branch in raylib-spinel.rb
 #
 # With method_naming: :original, the gem defines PascalCase methods
 # (BeginDrawing, ClearBackground, etc.) that match our adapter's signatures.

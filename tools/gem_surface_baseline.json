@@ -4,11 +4,13 @@
     "ours": "AutomationEvent",
     "read": [
       "frame",
-      "type"
+      "type",
+      "params"
     ],
     "write": [
       "frame",
-      "type"
+      "type",
+      "params"
     ],
     "helpers": [],
     "functions": [
@@ -25,7 +27,8 @@
     ],
     "write": [
       "capacity",
-      "count"
+      "count",
+      "events"
     ],
     "helpers": [],
     "functions": [
@@ -195,6 +198,10 @@
         false
       ],
       [
+        "set",
+        true
+      ],
+      [
         "copy",
         false
       ]
@@ -321,7 +328,8 @@
       "value",
       "offsetX",
       "offsetY",
-      "advanceX"
+      "advanceX",
+      "image"
     ],
     "helpers": [],
     "functions": [
@@ -1083,7 +1091,9 @@
       "vScreenSize",
       "eyeToScreenDistance",
       "lensSeparationDistance",
-      "interpupillaryDistance"
+      "interpupillaryDistance",
+      "lensDistortionValues",
+      "chromaAbCorrection"
     ],
     "write": [
       "hResolution",
@@ -1092,7 +1102,9 @@
       "vScreenSize",
       "eyeToScreenDistance",
       "lensSeparationDistance",
-      "interpupillaryDistance"
+      "interpupillaryDistance",
+      "lensDistortionValues",
+      "chromaAbCorrection"
     ],
     "helpers": [],
     "functions": [
@@ -1102,8 +1114,26 @@
   {
     "gem": "VrStereoConfig",
     "ours": "VrStereoConfig",
-    "read": [],
-    "write": [],
+    "read": [
+      "projection",
+      "viewOffset",
+      "leftLensCenter",
+      "rightLensCenter",
+      "leftScreenCenter",
+      "rightScreenCenter",
+      "scale",
+      "scaleIn"
+    ],
+    "write": [
+      "projection",
+      "viewOffset",
+      "leftLensCenter",
+      "rightLensCenter",
+      "leftScreenCenter",
+      "rightScreenCenter",
+      "scale",
+      "scaleIn"
+    ],
     "helpers": [],
     "functions": [
       "BeginVrStereoMode",

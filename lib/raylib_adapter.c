@@ -3895,3 +3895,32 @@ void rl_NPatchInfo_source(void *self, void *out) { ((rl_Rectangle *)out)->v = ((
 void rl_NPatchInfo_set_source(void *self, void *r) { ((rl_NPatchInfo *)self)->v.source = *RL_RECT(r); }
 long rl_m_FilePathList_paths(void *self) { return (long)(intptr_t)((rl_FilePathList *)self)->v.paths; }
 void rl_FilePathList_set_paths(void *self, sp_RbVal pv) { ((rl_FilePathList *)self)->v.paths = (char **)rl_h_unbox(pv); }
+
+/* VrDeviceInfo/VrStereoConfig/AutomationEvent array fields. Readers hand the
+ * array's address over (the gem's inline arrays read as value arrays; ours are
+ * address-based); writers copy from a boxed source pointer, like the Mesh field
+ * writers. */
+long rl_m_VrDeviceInfo_lensDistortionValues(rl_VrDeviceInfo *self) { return (long)(intptr_t)((rl_VrDeviceInfo *)self)->v.lensDistortionValues; }
+void rl_VrDeviceInfo_set_lensDistortionValues(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.lensDistortionValues, rl_h_unbox(pv), 4 * sizeof(float)); }
+long rl_m_VrDeviceInfo_chromaAbCorrection(rl_VrDeviceInfo *self) { return (long)(intptr_t)((rl_VrDeviceInfo *)self)->v.chromaAbCorrection; }
+void rl_VrDeviceInfo_set_chromaAbCorrection(void *self, sp_RbVal pv) { memcpy(((rl_VrDeviceInfo *)self)->v.chromaAbCorrection, rl_h_unbox(pv), 4 * sizeof(float)); }
+long rl_m_VrStereoConfig_projection(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.projection; }
+void rl_VrStereoConfig_set_projection(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.projection, rl_h_unbox(pv), sizeof(Matrix) * 2); }
+long rl_m_VrStereoConfig_viewOffset(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.viewOffset; }
+void rl_VrStereoConfig_set_viewOffset(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.viewOffset, rl_h_unbox(pv), sizeof(Matrix) * 2); }
+long rl_m_VrStereoConfig_leftLensCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.leftLensCenter; }
+void rl_VrStereoConfig_set_leftLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftLensCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_VrStereoConfig_rightLensCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.rightLensCenter; }
+void rl_VrStereoConfig_set_rightLensCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightLensCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_VrStereoConfig_leftScreenCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.leftScreenCenter; }
+void rl_VrStereoConfig_set_leftScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.leftScreenCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_VrStereoConfig_rightScreenCenter(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.rightScreenCenter; }
+void rl_VrStereoConfig_set_rightScreenCenter(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.rightScreenCenter, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_VrStereoConfig_scale(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.scale; }
+void rl_VrStereoConfig_set_scale(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scale, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_VrStereoConfig_scaleIn(rl_VrStereoConfig *self) { return (long)(intptr_t)((rl_VrStereoConfig *)self)->v.scaleIn; }
+void rl_VrStereoConfig_set_scaleIn(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scaleIn, rl_h_unbox(pv), 2 * sizeof(float)); }
+long rl_m_AutomationEvent_params(rl_AutomationEvent *self) { return (long)(intptr_t)RL_AEVENT(self)->params; }
+void rl_AutomationEvent_set_params(void *self, sp_RbVal pv) { memcpy(RL_AEVENT(self)->params, rl_h_unbox(pv), 4 * sizeof(int)); }
+void rl_GlyphInfo_set_image(void *self, void *img) { RL_GLYPH(self)->image = *RL_IMG(img); }
+void rl_AutomationEventList_set_events(void *self, sp_RbVal pv) { RL_AEVLIST(self)->events = (AutomationEvent *)rl_h_unbox(pv); }

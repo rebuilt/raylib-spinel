@@ -8,8 +8,8 @@
 #   - Spinel: the literal require_relative below is spliced at compile time and
 #     drags in lib/raymath_ffi.rb, whose module Raylib blocks declare the same
 #     PascalCase surface (the rl_* pointer shims live in raylib_adapter.c).
-if $PROGRAM_NAME.end_with?(".rb")
-  # no-op under CRuby
-else
+if RUBY_ENGINE == "spinel"
   require_relative "../lib/raymath_ffi"
+else
+  # no-op under CRuby
 end
