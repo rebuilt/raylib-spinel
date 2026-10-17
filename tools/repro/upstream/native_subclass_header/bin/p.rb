@@ -5,15 +5,7 @@ class Sub < ThingLib::Thing
 end
 
 things = [Sub.new(7), Sub.new(8)]
-
-things.each do |t|
-  begin
-    x = t.direct
-    puts "subclass block: direct -> #{x.inspect} (expected 7)"
-  rescue NoMethodError
-    puts "subclass block: direct -> NoMethodError"
-  end
-end
+things.each { |t| puts "block receiver: direct -> #{t.direct}" }
 
 typed = Sub.new(9)
-puts "subclass typed: direct -> #{typed.direct} (expected 9)"
+puts "typed receiver: direct -> #{typed.direct}"
