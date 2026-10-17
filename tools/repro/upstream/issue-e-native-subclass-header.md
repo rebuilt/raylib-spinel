@@ -228,6 +228,26 @@ So the feature works; a package outside the install tree just has to know the
 include-directory trick and the `_init` convention from somewhere other than the
 source or the docs, and the diagnostics teach it neither.
 
+And the same holds for the package *consumed as a dependency*, which is the
+state it would be in when published: installed from a git URL into spin's own
+package cache, with nothing of the development layout beside it.
+
+```
+$ cd /tmp/consumer_thing_pristine && spin build
+/tmp/spinel_out_1591991_0.c:5: fatal error: ../thing.h: No such file or directory
+spinel: C compilation failed
+
+$ cd /tmp/consumer_thing_workaround && spin build && ./build/bin/app
+methods from a block param -> [7, 8]
+sub.is_a?(Thing)  -> true
+sub.class         -> Sub
+case/when Thing   -> Thing arm
+```
+
+`~/.cache/spin/packages/thing-0.1.0/` is no more reachable through `..` than any
+other directory outside the compiler's install tree; the include-directory trick
+is what carries it, for a program that never sees the package's source tree.
+
 ## Expected
 
 - Emit a path that resolves, rather than one that happens to. Either name the

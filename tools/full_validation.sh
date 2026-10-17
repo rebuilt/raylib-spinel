@@ -41,6 +41,9 @@ make -C "$ROOT/../hello_raylib" check || rc=1
 step "hello_raylib ring lap (every scene through the real F6 handoff)"
 make -C "$ROOT/../hello_raylib" ring || rc=1
 
+step "publish readiness (consumer matrix: git-URL clone, vendor/, MRI gem)"
+ruby "$ROOT/tools/publish_readiness.rb" || rc=1
+
 echo
 if [ "$rc" = 0 ]; then echo "full validation: OK"; else echo "full validation: FAILURES above"; fi
 exit "$rc"

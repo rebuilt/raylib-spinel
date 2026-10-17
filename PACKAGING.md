@@ -54,6 +54,92 @@ Results:
   `raylib.rb` in the gem changes nothing for MRI users; that file matters where
   name-based loading has no RubyGems competition (a checkout on the load path,
   or spin's package dir), and there the delegation is the point.
+* Re-run against the committed state (`afbeec4`), from a clone with no build
+  output: the clone carries **zero `lib/*.o`** (so the carried C demonstrably
+  compiles from `.c` alone), the build prints **zero** "not named by [package]
+  sources" warnings, the app runs, and after `spin vendor` a rebuild from
+  `vendor/packages/raylib-0.1.0/` builds and runs identically. All three
+  consumption modes — git URL, spin's cache, `vendor/` — are green.
+* `tools/repro/upstream/native_subclass_header_workaround/` was likewise
+  re-verified *as an installed dependency* (see "Does this touch draft E?"
+  below): pristine fails, workaround works, from `~/.cache/spin/packages/`.
+
+## Run it again: `tools/publish_readiness.rb`
+
+Every measurement above is scripted, so "does the package work for someone
+else" is a command, not a memory:
+
+```bash
+ruby tools/publish_readiness.rb          # static checks + consumer matrix (~4 min)
+ruby tools/publish_readiness.rb --fast   # static checks only (seconds)
+ruby tools/publish_readiness.rb --keep   # leave the scratch tree for poking
+```
+
+Static gates: the two channels agree on the version; `s.files` ships both
+entry points and no build output or dev tree; every `.c` in the tree is
+declared carried C or excluded (the invariant behind the consumer-build
+warnings). Matrix gates: fresh clone over a git URL builds and runs the
+gem-preamble game, `spin vendor` builds and runs from `vendor/`, and the
+installed gem answers `require "raylib-spinel"` under MRI while `require
+"raylib"` still resolves to `raylib-bindings`. Notes, never failures: no
+`origin`, a dirty tree, no xvfb. Wired into
+`tools/full_validation.sh` as its last section.
+
+## Publishing runbook (planned, NOT executed)
+
+Nothing below has been run. Every step is an external write and needs Nelson's
+explicit go (`AGENTS.md` §0). As of 2026-10-17 neither `raylib-spinel` nor
+`hello_raylib` has a git remote, which gates all three routes; that is why the
+spin cache test above used `file://` URLs, which only `publish` refuses.
+
+**Step 0 — prerequisites (local, safe, run whenever):**
+
+```bash
+ruby tools/publish_readiness.rb   # must be all-PASS
+spin test                         # the package's own gate, also spin publish's
+git status --porcelain            # must be empty; spin publish refuses a dirty tree
+```
+
+**Route 1 — own GitHub repo (the first real step; the other two sit on it):**
+
+```bash
+gh repo create rebuilt/raylib-spinel --public --source . --push   # Nelson's account
+# verify the published channel from a third directory:
+mkdir -p /tmp/v/bin && cd /tmp/v && spin init
+spin add raylib --git https://github.com/rebuilt/raylib-spinel
+spin build && xvfb-run -a ./build/bin/<app>
+```
+
+Cost: a public repo of WIP material (`tools/repro/` is in it; it is
+dependency-free C, but it is development scaffolding). Mitigation if that
+stays: a publish branch or subtree with only `lib/`, the entry points,
+`spin.toml`, README, LICENSE.
+
+**Route 2 — rubygems (the MRI channel):**
+
+```bash
+gem build raylib_spinel.gemspec
+gem push raylib-spinel-0.1.0.gem       # claims the name raylib-spinel; needs rubygems session/OTP
+# verify, clean GEM_HOME:
+GEM_PATH=/tmp/gh:$(gem env path) ruby -e 'gem "raylib-spinel"; require "raylib-spinel"; p Raylib.respond_to?(:InitWindow)'
+```
+
+`gem push` does not need the GitHub repo, but a gem without a homepage/repo to
+file against is a bad citizen; route 1 first. Retraction exists (`gem yank
+raylib-spinel -v 0.1.0`) but treat a pushed version as burned.
+
+**Route 3 — spin index (claims the name `raylib` in matz's index):**
+
+Needs route 1 (origin + HEAD pushed), `version` in `spin.toml` matching what
+publish expects, `spin test` green, clean tree. Then `spin publish`. The name
+`raylib` was free in the index when checked — claiming it for an unofficial
+binding is a naming decision matz's policy governs and Nelson's call, not
+ours by default; opening a `raylib`-named entry is functionally an upstream
+interaction (`AGENTS.md` §0). Retraction means asking matz to remove the entry.
+
+**Version bump ritual for any route:** bump `s.version` and `spin.toml`'s
+`version` together (the readiness script now gates on their agreement), tag,
+push, then push/publish the artifact.
 
 ## Open before a real release
 
@@ -109,7 +195,9 @@ Results:
    publishing is Nelson's call (also `AGENTS.md` §0). **Neither
    `raylib-spinel` nor `hello_raylib` has a git remote at all** — so the first
    real step is a repo of ours, not the index: a `--git` dependency consumes any
-   pushed repo, and needs nothing from matz.
+   pushed repo, and needs nothing from matz. The exact commands per route are in
+   the runbook above; as decided on 2026-10-17, nothing is published and the
+   runbook stays on the shelf until Nelson picks a route.
 
 ## Does this touch draft E?
 
