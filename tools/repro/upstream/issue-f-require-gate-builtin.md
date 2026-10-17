@@ -1,14 +1,12 @@
 # Draft: `--require-gate` refuses a require that Spinel's own builtin satisfies
 
-**Title:** `--require-gate` refuses `require "rbconfig"` (and `"rubygems"`),
-although the parser splices `RbConfig`/`Gem` for programs that name them — any
-program using `optparse` now fails to build
+**Filed:** [matz/spinel#9441](https://github.com/matz/spinel/issues/9441),
+2026-10-17, as: *"`--require-gate` refuses `require \"rbconfig\"` although the
+parser splices `RbConfig` itself — every gated build of an `optparse` program
+fails"*. Everything below `## Summary` is the filed body verbatim.
 
 **Toolchain:** `spinel 2026.09.12+10525 (8a51e2822) [gcc 13.3.0]`
 (verified 2026-10-17)
-
-**Status: verified, dependency-free (one file, and a two-file spin project).
-Not filed.**
 
 ## Summary
 

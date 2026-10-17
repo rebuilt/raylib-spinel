@@ -18,7 +18,7 @@ Toolchain for every observation: `spinel 2026.09.12+10525 (8a51e2822)`
 | `issue-d-string-pack-p.md` | `Array#pack("p*")` emits a single pointer regardless of the array size | **filed**: https://github.com/matz/spinel/issues/9349 |
 | `issue-e-native-subclass-header.md` | a package outside the compiler's tree cannot use `native_subclass` (emitted `#include "../<header>"` is not searchable) | draft, **not filed** (verified 2026-10-17) |
 | `native_subclass_header/` | repro for issue-e: a standalone spin project with its own carried C | evidence; build fails at the C compile step |
-| `issue-f-require-gate-builtin.md` | `--require-gate` refuses `require "rbconfig"` / `"rubygems"`, whose constants the compiler splices itself; any gated build that uses `optparse` fails | draft, **not filed** (verified 2026-10-17) |
+| `issue-f-require-gate-builtin.md` | `--require-gate` refuses `require "rbconfig"` / `"rubygems"`, whose constants the compiler splices itself; any gated build that uses `optparse` fails | **filed**: https://github.com/matz/spinel/issues/9441 (2026-10-17) |
 | `require_gate_optapp/` | repro for issue-f: a two-file spin project whose only dependency is `optparse` | evidence; `spin build` refuses, `spinel bin/app.rb` compiles and runs |
 | `issue-a-block-param-native-method.md` | a Ruby method on a native class is unreachable from a block parameter | draft, **not filed** (undocumented layer; mechanism is documented design) |
 | `a_native_class_methods/` | experiment: monkey-patched Ruby accessors on a `native_struct` class, 16 variants | evidence; **does not work** — see its README |
