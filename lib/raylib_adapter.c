@@ -2758,11 +2758,11 @@ void rl_DetachAudioMixedProcessor(void * processor) {
 void rl_Vector2Add(rl_Vector2 *a, rl_Vector2 *b, rl_Vector2 *out) {
   out->v = Vector2Add((*RL_V2(a)), b->v);
 }
-void rl_Vector2Scale(rl_Vector2 *v, double scale, rl_Vector2 *out) {
-  out->v = Vector2Scale((*RL_V2(v)), (float)scale);
+void rl_Vector2Scale(rl_Vector2 *v, float scale, rl_Vector2 *out) {
+  out->v = Vector2Scale((*RL_V2(v)), scale);
 }
-void rl_Vector2Rotate(rl_Vector2 *v, double angle, rl_Vector2 *out) {
-  out->v = Vector2Rotate((*RL_V2(v)), (float)angle);
+void rl_Vector2Rotate(rl_Vector2 *v, float angle, rl_Vector2 *out) {
+  out->v = Vector2Rotate((*RL_V2(v)), angle);
 }
 void rl_Vector2Normalize(rl_Vector2 *v, rl_Vector2 *out) {
   out->v = Vector2Normalize((*RL_V2(v)));
@@ -2773,8 +2773,8 @@ void rl_Vector2Normalize(rl_Vector2 *v, rl_Vector2 *out) {
 float rl_Vector2Length(rl_Vector2 *v) {
   return Vector2Length((*RL_V2(v)));
 }
-void rl_Vector2Lerp(rl_Vector2 *a, rl_Vector2 *b, double amount, rl_Vector2 *out) {
-  out->v = Vector2Lerp((*RL_V2(a)), b->v, (float)amount);
+void rl_Vector2Lerp(rl_Vector2 *a, rl_Vector2 *b, float amount, rl_Vector2 *out) {
+  out->v = Vector2Lerp((*RL_V2(a)), b->v, amount);
 }
 float rl_Vector2Angle(rl_Vector2 *a, rl_Vector2 *b) {
   return Vector2Angle((*RL_V2(a)), b->v);
@@ -2792,7 +2792,11 @@ void rl_Vector2Fill(rl_Vector2 *o, float x, float y) {
   (*RL_V2(o)) = (Vector2){ x, y };
 }
 
-void rl_RectangleFill(rl_Rectangle *self, double x, double y, double w, double h) {
+/* NOTE: the prototype Spinel emits for an `ffi_func` `:float` argument is a C
+ * `float`; a shim that takes `double` here would read the register as the wrong
+ * type (the float is passed in the low 32 bits, the double read is garbage).
+ * tools/check_shim_types.rb enforces the match. */
+void rl_RectangleFill(rl_Rectangle *self, float x, float y, float w, float h) {
   self->v = (Rectangle){ (float)x, (float)y, (float)w, (float)h };
 }
 void rl_Vector4Fill(rl_Vector4 *o, float x, float y, float z, float w) {
@@ -4094,8 +4098,8 @@ sp_int rl_audio_IsSoundValid(void *snd) { return IsSoundValid(*RL_SOUND(snd)) ? 
 void rl_audio_PlaySound(void *snd) { PlaySound(*RL_SOUND(snd)); }
 void rl_audio_StopSound(void *snd) { StopSound(*RL_SOUND(snd)); }
 sp_int rl_audio_IsSoundPlaying(void *snd) { return IsSoundPlaying(*RL_SOUND(snd)) ? 1 : 0; }
-void rl_audio_SetSoundVolume(void *snd, double v) { SetSoundVolume(*RL_SOUND(snd), (float)v); }
-void rl_audio_SetSoundPitch(void *snd, double v) { SetSoundPitch(*RL_SOUND(snd), (float)v); }
+void rl_audio_SetSoundVolume(void *snd, float v) { SetSoundVolume(*RL_SOUND(snd), v); }
+void rl_audio_SetSoundPitch(void *snd, float v) { SetSoundPitch(*RL_SOUND(snd), v); }
 void rl_audio_UnloadSound(void *snd) { Sound *s = RL_SOUND(snd); UnloadSound(*s); free(s); }
 void *rl_audio_LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels) {
   AudioStream *a = (AudioStream *)malloc(sizeof(AudioStream));
