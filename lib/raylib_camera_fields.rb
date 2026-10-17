@@ -6,11 +6,11 @@
 # generated, so regenerating raylib_ffi.rb cannot drop them.
 module Raylib
   native_struct "Camera", "rl_Camera"
-  native_method :position=, [:ptr], :void, "rl_Camera_set_position"
-  native_method :target=, [:ptr], :void, "rl_Camera_set_target"
-  native_method :up=, [:ptr], :void, "rl_Camera_set_up"
+  native_method :position=, [:any], :void, "rl_Camera_set_position"
+  native_method :target=, [:any], :void, "rl_Camera_set_target"
+  native_method :up=, [:any], :void, "rl_Camera_set_up"
 
   native_struct "Camera2D", "rl_Camera2D"
-  native_method :offset=, [:ptr], :void, "rl_Camera2D_set_offset"
-  native_method :target=, [:ptr], :void, "rl_Camera2D_set_target"
+  native_method :offset=, [:any], :void, "rl_Camera2D_set_offset"
+  native_method :target=, [:any], :void, "rl_Camera2D_set_target"
 end

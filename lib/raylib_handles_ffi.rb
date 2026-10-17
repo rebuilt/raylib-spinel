@@ -74,7 +74,7 @@ module Raylib
   native_method :glyphPadding=, [:int], :int, "rl_m_Font_set_glyphPadding"
   native_method :glyphs=, [:any], :void, "rl_m_Font_set_glyphs"
   native_method :recs=, [:any], :void, "rl_m_Font_set_recs"
-  native_method :texture=, [:ptr], :void, "rl_m_Font_set_texture"
+  native_method :texture=, [:any], :void, "rl_m_Font_set_texture"
   native_method :texture_ptr, [], :ptr, "rl_Font_texture_ptr"
 
   # -------------------------------------------------------------- GlyphInfo
@@ -149,9 +149,9 @@ native_struct "MaterialMap", "rl_MaterialMap"
   native_new [], "rl_MaterialMap_new"
   native_new [:any, :any], "rl_MaterialMap_view_any"
   ffi_func :rl_MaterialMap_texture_ptr, [:ptr], :ptr
-  native_method :texture=, [:ptr], :void, "rl_MaterialMap_set_texture"
+  native_method :texture=, [:any], :void, "rl_MaterialMap_set_texture"
   ffi_func :rl_MaterialMap_color, [:ptr, :ptr], :void
-  native_method :color=, [:ptr], :void, "rl_MaterialMap_set_color"
+  native_method :color=, [:any], :void, "rl_MaterialMap_set_color"
   native_method :value, [], :float, "rl_m_MaterialMap_value"
   native_method :value=, [:float], :float, "rl_m_MaterialMap_set_value"
   ffi_func :rl_m_Material_maps, [:ptr], :long
@@ -163,7 +163,7 @@ native_struct "MaterialMap", "rl_MaterialMap"
   ffi_func :rl_m_Model_boneCount_v, [:ptr], :int
 
   native_struct "Material", "rl_Material"
-  native_method :shader=, [:ptr], :void, "rl_Material_set_shader"
+  native_method :shader=, [:any], :void, "rl_Material_set_shader_any"
   native_new [], "rl_Material_new"
   native_new [:any, :any], "rl_Material_view"
   native_new [:any], "rl_Material_view_addr"
@@ -213,9 +213,9 @@ native_struct "MaterialMap", "rl_MaterialMap"
   native_new [], "rl_Transform_new"
   native_new [:any, :any], "rl_Transform_view_any"
   native_new [:any], "rl_Transform_view_addr"
-  native_method :translation=, [:ptr], :void, "rl_Transform_set_translation"
-  native_method :rotation=, [:ptr], :void, "rl_Transform_set_rotation"
-  native_method :scale=, [:ptr], :void, "rl_Transform_set_scale"
+  native_method :translation=, [:any], :void, "rl_Transform_set_translation"
+  native_method :rotation=, [:any], :void, "rl_Transform_set_rotation"
+  native_method :scale=, [:any], :void, "rl_Transform_set_scale"
 
   native_struct "ModelAnimation", "rl_ModelAnimation"
   native_new [], "rl_ModelAnimation_new"

@@ -7,17 +7,17 @@
 module Raylib
   native_struct "Ray", "rl_Ray"
   ffi_func :rl_Ray_position, [:ptr, :ptr], :void
-  native_method :position=, [:ptr], :void, "rl_Ray_set_position"
+  native_method :position=, [:any], :void, "rl_Ray_set_position"
   ffi_func :rl_Ray_direction, [:ptr, :ptr], :void
-  native_method :direction=, [:ptr], :void, "rl_Ray_set_direction"
+  native_method :direction=, [:any], :void, "rl_Ray_set_direction"
 
   native_struct "RayCollision", "rl_RayCollision"
   native_method :hit, [], :bool, "rl_m_RayCollision_hit"
   native_method :hit=, [:bool], :bool, "rl_m_RayCollision_set_hit"
   ffi_func :rl_RayCollision_point, [:ptr, :ptr], :void
-  native_method :point=, [:ptr], :void, "rl_RayCollision_set_point"
+  native_method :point=, [:any], :void, "rl_RayCollision_set_point"
   ffi_func :rl_RayCollision_normal, [:ptr, :ptr], :void
-  native_method :normal=, [:ptr], :void, "rl_RayCollision_set_normal"
+  native_method :normal=, [:any], :void, "rl_RayCollision_set_normal"
 
   native_struct "BoneInfo", "rl_BoneInfo"
   ffi_func :rl_BoneInfo_name, [:ptr], :str
@@ -28,8 +28,8 @@ module Raylib
   native_struct "RenderTexture", "rl_RenderTexture"
   native_method :id, [], :int, "rl_m_RenderTexture_id"
   native_method :id=, [:int], :int, "rl_m_RenderTexture_set_id"
-  native_method :texture=, [:ptr], :void, "rl_RenderTexture_set_texture"
-  native_method :depth=, [:ptr], :void, "rl_RenderTexture_set_depth"
+  native_method :texture=, [:any], :void, "rl_RenderTexture_set_texture"
+  native_method :depth=, [:any], :void, "rl_RenderTexture_set_depth"
   native_struct "Mesh", "rl_Mesh"
   ffi_func :rl_m_Mesh_animVertices, [:ptr], :long
   native_method :animVertices=, [:any], :void, "rl_Mesh_set_animVertices"
@@ -56,12 +56,12 @@ module Raylib
   native_method :locs=, [:any], :void, "rl_Shader_set_locs"
 
   native_struct "BoundingBox", "rl_BoundingBox"
-  native_method :min=, [:ptr], :void, "rl_BoundingBox_set_min"
-  native_method :max=, [:ptr], :void, "rl_BoundingBox_set_max"
+  native_method :min=, [:any], :void, "rl_BoundingBox_set_min"
+  native_method :max=, [:any], :void, "rl_BoundingBox_set_max"
 
   native_struct "NPatchInfo", "rl_NPatchInfo"
   ffi_func :rl_NPatchInfo_source, [:ptr, :ptr], :void
-  native_method :source=, [:ptr], :void, "rl_NPatchInfo_set_source"
+  native_method :source=, [:any], :void, "rl_NPatchInfo_set_source"
 
   native_struct "FilePathList", "rl_FilePathList"
   ffi_func :rl_m_FilePathList_paths, [:ptr], :long
@@ -95,7 +95,7 @@ module Raylib
   native_method :params=, [:any], :void, "rl_AutomationEvent_set_params"
 
   native_struct "GlyphInfo", "rl_GlyphInfo"
-  native_method :image=, [:ptr], :void, "rl_GlyphInfo_set_image"
+  native_method :image=, [:any], :void, "rl_GlyphInfo_set_image"
 
   native_struct "AutomationEventList", "rl_AutomationEventList"
   native_method :events=, [:any], :void, "rl_AutomationEventList_set_events"

@@ -6,6 +6,12 @@
 #include "spinel/runtime.h"
 #include "rl_handle_views.h"
 
+/* Unwrap a boxed Ruby object to its view/object pointer.  Used by the
+ * view-typed field writers below, whose parameters are `:any` (a box) rather
+ * than `:ptr`: a name collision with a scene struct field turns the field
+ * write poly, and the poly dispatch hands them the boxed value. */
+static void *rl_h_unbox(sp_RbVal v);
+
 /* --- P2 view payload access (owned vs view objects). */
 #define RL_AEVENT(o) (((rl_AutomationEvent *)(o))->p ? ((rl_AutomationEvent *)(o))->p : &((rl_AutomationEvent *)(o))->v)
 #define RL_AEVLIST(o) (((rl_AutomationEventList *)(o))->p ? ((rl_AutomationEventList *)(o))->p : &((rl_AutomationEventList *)(o))->v)
@@ -2888,6 +2894,16 @@ void rl_Shader_setLoc(void *shader, int index, int value) {
 void rl_Material_set_shader(void *material, void *shader) {
   (RL_MAT(material))->shader = *RL_SHDR(shader);
 }
+/* Boxed twin for the `material.shader = v` writer. A poly field write hands a
+ * field writer the *boxed* value (the dispatch cannot know the receiver's
+ * class), while `Raylib.rl_Material_set_shader(...)` -- the ffi_func the scenes
+ * call directly -- passes the view pointer raw. One C symbol cannot serve both
+ * ABIs (the wrapper prototype and the native_method prototype disagree), so the
+ * writer gets its own symbol. tools/check_shim_types.rb rejects a symbol that is
+ * declared both ways. */
+void rl_Material_set_shader_any(void *material, sp_RbVal shader) {
+  (RL_MAT(material))->shader = *RL_SHDR(rl_h_unbox(shader));
+}
 void rl_SetShaderValueInt(void *shader, int locIndex, int v, int type) {
   SetShaderValue(*RL_SHDR(shader), locIndex, &v, type);
 }
@@ -3525,7 +3541,7 @@ long rl_Font_recs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->recs;
 long rl_Font_glyphs_addr(void *font) { return (long)(intptr_t)RL_FONT(font)->glyphs; }
 void rl_m_Font_set_glyphs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->glyphs = (GlyphInfo *)rl_h_unbox(pv); }
 void rl_m_Font_set_recs(rl_Font *self, sp_RbVal pv) { RL_FONT(self)->recs = (Rectangle *)rl_h_unbox(pv); }
-void rl_m_Font_set_texture(rl_Font *self, void *tex) { RL_FONT(self)->texture = *RL_TEX(tex); }
+void rl_m_Font_set_texture(rl_Font *self, sp_RbVal tex) { RL_FONT(self)->texture = *RL_TEX(rl_h_unbox(tex)); }
 void *rl_GlyphInfo_image_ptr(void *g) { return (void *)&RL_GLYPH(g)->image; }
 long rl_ptr_addr(void *p) { return (long)(intptr_t)p; }
 
@@ -3830,9 +3846,9 @@ rl_MaterialMap *rl_MaterialMap_view_any(sp_int cls_id, sp_RbVal pv, sp_RbVal own
   return s;
 }
 void *rl_MaterialMap_texture_ptr(rl_MaterialMap *self) { return (void *)&RL_MAP(self)->texture; }
-void rl_MaterialMap_set_texture(rl_MaterialMap *self, void *t) { RL_MAP(self)->texture = *RL_TEX(t); }
+void rl_MaterialMap_set_texture(rl_MaterialMap *self, sp_RbVal t) { RL_MAP(self)->texture = *RL_TEX(rl_h_unbox(t)); }
 void rl_MaterialMap_color(rl_MaterialMap *self, void *out) { ((rl_Color *)out)->c = RL_MAP(self)->color; }
-void rl_MaterialMap_set_color(rl_MaterialMap *self, void *c) { RL_MAP(self)->color = *RL_COLOR(c); }
+void rl_MaterialMap_set_color(rl_MaterialMap *self, sp_RbVal c) { RL_MAP(self)->color = *RL_COLOR(rl_h_unbox(c)); }
 double rl_m_MaterialMap_value(rl_MaterialMap *self) { return (double)RL_MAP(self)->value; }
 double rl_m_MaterialMap_set_value(rl_MaterialMap *self, double v) { RL_MAP(self)->value = (float)v; return v; }
 
@@ -3843,27 +3859,27 @@ long rl_m_Material_params(rl_Material *self) { return (long)(intptr_t)RL_MAT(sel
 void rl_Material_set_params_ptr(void *self, void *p) { memcpy(RL_MAT(self)->params, p, 4 * sizeof(float)); }
 /* Transform writers: Vector3 (translation/scale) and Quaternion (rotation,
  * a Vector4) by value. */
-void rl_Transform_set_translation(void *self, void *v) { RL_TRANSFORM(self)->translation = *RL_V3(v); }
-void rl_Transform_set_rotation(void *self, void *v) { RL_TRANSFORM(self)->rotation = *RL_V4(v); }
-void rl_Transform_set_scale(void *self, void *v) { RL_TRANSFORM(self)->scale = *RL_V3(v); }
+void rl_Transform_set_translation(void *self, sp_RbVal v) { RL_TRANSFORM(self)->translation = *RL_V3(rl_h_unbox(v)); }
+void rl_Transform_set_rotation(void *self, sp_RbVal v) { RL_TRANSFORM(self)->rotation = *RL_V4(rl_h_unbox(v)); }
+void rl_Transform_set_scale(void *self, sp_RbVal v) { RL_TRANSFORM(self)->scale = *RL_V3(rl_h_unbox(v)); }
 /* Camera field writers for the struct-typed fields (the generators emit
  * writers for scalars only). Camera3D payload: ->c; Camera2D: ->v. */
-void rl_Camera_set_position(void *self, void *v) { ((rl_Camera *)self)->c.position = *RL_V3(v); }
-void rl_Camera_set_target(void *self, void *v) { ((rl_Camera *)self)->c.target = *RL_V3(v); }
-void rl_Camera_set_up(void *self, void *v) { ((rl_Camera *)self)->c.up = *RL_V3(v); }
-void rl_Camera2D_set_offset(void *self, void *v) { ((rl_Camera2D *)self)->v.offset = *RL_V2(v); }
-void rl_Camera2D_set_target(void *self, void *v) { ((rl_Camera2D *)self)->v.target = *RL_V2(v); }
+void rl_Camera_set_position(void *self, sp_RbVal v) { ((rl_Camera *)self)->c.position = *RL_V3(rl_h_unbox(v)); }
+void rl_Camera_set_target(void *self, sp_RbVal v) { ((rl_Camera *)self)->c.target = *RL_V3(rl_h_unbox(v)); }
+void rl_Camera_set_up(void *self, sp_RbVal v) { ((rl_Camera *)self)->c.up = *RL_V3(rl_h_unbox(v)); }
+void rl_Camera2D_set_offset(void *self, sp_RbVal v) { ((rl_Camera2D *)self)->v.offset = *RL_V2(rl_h_unbox(v)); }
+void rl_Camera2D_set_target(void *self, sp_RbVal v) { ((rl_Camera2D *)self)->v.target = *RL_V2(rl_h_unbox(v)); }
 
 /* Ray, RayCollision, BoneInfo and RenderTexture field accessors. */
 void rl_Ray_position(void *o, void *out) { ((rl_Vector3 *)out)->v = ((rl_Ray *)o)->v.position; }
-void rl_Ray_set_position(void *o, void *v) { ((rl_Ray *)o)->v.position = *RL_V3(v); }
+void rl_Ray_set_position(void *o, sp_RbVal v) { ((rl_Ray *)o)->v.position = *RL_V3(rl_h_unbox(v)); }
 void rl_Ray_direction(void *o, void *out) { ((rl_Vector3 *)out)->v = ((rl_Ray *)o)->v.direction; }
-void rl_Ray_set_direction(void *o, void *v) { ((rl_Ray *)o)->v.direction = *RL_V3(v); }
+void rl_Ray_set_direction(void *o, sp_RbVal v) { ((rl_Ray *)o)->v.direction = *RL_V3(rl_h_unbox(v)); }
 
 sp_int rl_m_RayCollision_hit(void *o) { return ((rl_RayCollision *)o)->v.hit ? 1 : 0; }
 sp_int rl_m_RayCollision_set_hit(void *o, sp_int v) { ((rl_RayCollision *)o)->v.hit = v ? true : false; return v; }
-void rl_RayCollision_set_point(void *o, void *v) { ((rl_RayCollision *)o)->v.point = *RL_V3(v); }
-void rl_RayCollision_set_normal(void *o, void *v) { ((rl_RayCollision *)o)->v.normal = *RL_V3(v); }
+void rl_RayCollision_set_point(void *o, sp_RbVal v) { ((rl_RayCollision *)o)->v.point = *RL_V3(rl_h_unbox(v)); }
+void rl_RayCollision_set_normal(void *o, sp_RbVal v) { ((rl_RayCollision *)o)->v.normal = *RL_V3(rl_h_unbox(v)); }
 
 const char *rl_BoneInfo_name(void *o) { return RL_BONE(o)->name; }
 void rl_BoneInfo_set_name(void *o, const char *s) { snprintf(RL_BONE(o)->name, sizeof(RL_BONE(o)->name), "%s", s); }
@@ -3872,8 +3888,8 @@ sp_int rl_m_BoneInfo_set_parent(void *o, sp_int v) { RL_BONE(o)->parent = (int)v
 
 sp_int rl_m_RenderTexture_id(void *o) { return (sp_int)RL_RT(o)->id; }
 sp_int rl_m_RenderTexture_set_id(void *o, sp_int v) { RL_RT(o)->id = (unsigned int)v; return v; }
-void rl_RenderTexture_set_texture(void *o, void *t) { RL_RT(o)->texture = *RL_TEX(t); }
-void rl_RenderTexture_set_depth(void *o, void *t) { RL_RT(o)->depth = *RL_TEX(t); }
+void rl_RenderTexture_set_texture(void *o, sp_RbVal t) { RL_RT(o)->texture = *RL_TEX(rl_h_unbox(t)); }
+void rl_RenderTexture_set_depth(void *o, sp_RbVal t) { RL_RT(o)->depth = *RL_TEX(rl_h_unbox(t)); }
 
 /* Mesh: the animation/skinning arrays, boneCount, vaoId and vboId. */
 long rl_m_Mesh_animVertices(rl_Mesh *self) { return (long)(intptr_t)RL_MESH(self)->animVertices; }
@@ -3901,10 +3917,10 @@ void rl_ModelAnimation_set_keyframePoses(void *o, sp_RbVal pv) { RL_ANIM(o)->key
  * (BoundingBox, NPatchInfo and FilePathList are GC-embedded: payload is ->v.) */
 long rl_m_Shader_locs(void *self) { return (long)(intptr_t)RL_SHDR(self)->locs; }
 void rl_Shader_set_locs(void *self, sp_RbVal pv) { RL_SHDR(self)->locs = (int *)rl_h_unbox(pv); }
-void rl_BoundingBox_set_min(void *self, void *v) { ((rl_BoundingBox *)self)->v.min = *RL_V3(v); }
-void rl_BoundingBox_set_max(void *self, void *v) { ((rl_BoundingBox *)self)->v.max = *RL_V3(v); }
+void rl_BoundingBox_set_min(void *self, sp_RbVal v) { ((rl_BoundingBox *)self)->v.min = *RL_V3(rl_h_unbox(v)); }
+void rl_BoundingBox_set_max(void *self, sp_RbVal v) { ((rl_BoundingBox *)self)->v.max = *RL_V3(rl_h_unbox(v)); }
 void rl_NPatchInfo_source(void *self, void *out) { ((rl_Rectangle *)out)->v = ((rl_NPatchInfo *)self)->v.source; }
-void rl_NPatchInfo_set_source(void *self, void *r) { ((rl_NPatchInfo *)self)->v.source = *RL_RECT(r); }
+void rl_NPatchInfo_set_source(void *self, sp_RbVal r) { ((rl_NPatchInfo *)self)->v.source = *RL_RECT(rl_h_unbox(r)); }
 long rl_m_FilePathList_paths(void *self) { return (long)(intptr_t)((rl_FilePathList *)self)->v.paths; }
 void rl_FilePathList_set_paths(void *self, sp_RbVal pv) { ((rl_FilePathList *)self)->v.paths = (char **)rl_h_unbox(pv); }
 
@@ -3934,13 +3950,11 @@ long rl_m_VrStereoConfig_scaleIn(rl_VrStereoConfig *self) { return (long)(intptr
 void rl_VrStereoConfig_set_scaleIn(void *self, sp_RbVal pv) { memcpy(((rl_VrStereoConfig *)self)->v.scaleIn, rl_h_unbox(pv), 2 * sizeof(float)); }
 long rl_m_AutomationEvent_params(rl_AutomationEvent *self) { return (long)(intptr_t)RL_AEVENT(self)->params; }
 void rl_AutomationEvent_set_params(void *self, sp_RbVal pv) { memcpy(RL_AEVENT(self)->params, rl_h_unbox(pv), 4 * sizeof(int)); }
-void rl_GlyphInfo_set_image(void *self, void *img) { RL_GLYPH(self)->image = *RL_IMG(img); }
+void rl_GlyphInfo_set_image(void *self, sp_RbVal img) { RL_GLYPH(self)->image = *RL_IMG(rl_h_unbox(img)); }
 void rl_AutomationEventList_set_events(void *self, sp_RbVal pv) { RL_AEVLIST(self)->events = (AutomationEvent *)rl_h_unbox(pv); }
 
 /* ---- Audio structs: Wave, AudioStream, Sound, Music (view classes, like
  * Texture2D: the shims below malloc the payload raylib returns by value). ---- */
-#define RL_WAVE(o) (((rl_Wave *)(o))->p ? ((rl_Wave *)(o))->p : &((rl_Wave *)(o))->v)
-typedef struct rl_Wave_s { sp_int cls_id; Wave *p; sp_RbVal owner; Wave v; } rl_Wave;
 static void rl_Wave_scan(void *p) { rl_Wave *s = (rl_Wave *)p; if (s->p) sp_mark_rbval(s->owner); }
 rl_Wave *rl_Wave_new(sp_int cls_id) { rl_Wave *s = (rl_Wave *)sp_gc_alloc(sizeof(rl_Wave), NULL, rl_Wave_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Wave){ 0 }; return s; }
 rl_Wave *rl_Wave_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Wave *s = (rl_Wave *)sp_gc_alloc(sizeof(rl_Wave), NULL, rl_Wave_scan); s->cls_id = cls_id; s->p = (Wave *)rl_h_unbox(pv); s->owner = owner; return s; }
