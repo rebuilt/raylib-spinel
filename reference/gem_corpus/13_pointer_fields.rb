@@ -29,6 +29,24 @@ mesh.normals.put_array_of_float32(0, [0, 1, 0])
 mesh.texcoords.put_array_of_float32(0, [0, 0])
 puts "mesh: #{mesh.vertexCount} vertices, #{mesh.triangleCount} triangles"
 
+# The three spellings FFI accepts for a pointer field, each read back through
+# the field's own reader: the reader's value round-tripped (regression: the
+# Spinel side stored the wrapper object itself into the struct, so the field
+# read back a heap address and UnloadMesh freed that), a bare address, and a
+# freshly wrapped pointer. This program loads the ffi package, whose Pointer
+# family sends `address` polymorphically -- that widens Raylib::Ptr#@address to
+# a box, and both sides now rely on the box's payload (see the Ptr class
+# comment), so a layout or inference change fails HERE. Addresses differ per
+# run, so print equality.
+v = mesh.vertices
+mesh.vertices = v
+puts "vertices round trip: #{mesh.vertices.address == v.address}"
+addr = mesh.normals.address
+mesh.normals = addr
+puts "normals address write: #{mesh.normals.address == addr}"
+mesh.normals = FFI::Pointer.new(addr)
+puts "FFI::Pointer write: #{mesh.normals.address == addr}"
+
 UploadMesh(mesh, false)
 model = LoadModelFromMesh(mesh)
 puts "model: #{model.materialCount} material(s)"
