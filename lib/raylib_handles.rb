@@ -10,22 +10,15 @@
 # pointers (renamed to *_ptr in C so these names are new definitions, not
 # redefinitions).
 module Raylib
-  # `font.recs + index * Rectangle.size` / `font.glyphs + index * GlyphInfo.size`:
-  # Spinel boxes :ptr arithmetic, so the address travels as an Integer.
-  class PtrAddr
-    def initialize(addr)
-      @addr = addr
-    end
-
-    def +(offset) = @addr + offset
-    def to_i = @addr
-    def address = @addr
-  end
-
+  # Interior arrays (font.recs, font.glyphs, events) travel as Raylib::Ptr: the
+  # gem indexes them with `ptr + index * Rectangle.size`, and Spinel boxes :ptr
+  # arithmetic, so the address itself is what Ptr#+ shifts. (This used to be a
+  # second, near-identical wrapper class; one address-over-a-long class is what
+  # the C side can unbox -- see rl_p_unbox in raylib_adapter.c.)
   class Font
     def texture = Texture2D.new(Raylib.rl_Font_texture_ptr(self), self)
-    def recs = PtrAddr.new(Raylib.rl_Font_recs_addr(self))
-    def glyphs = PtrAddr.new(Raylib.rl_Font_glyphs_addr(self))
+    def recs = Ptr.new(Raylib.rl_Font_recs_addr(self))
+    def glyphs = Ptr.new(Raylib.rl_Font_glyphs_addr(self))
   end
 
   class GlyphInfo
@@ -38,7 +31,7 @@ module Raylib
 
   class AutomationEventList
     # the gem indexes the events array with AutomationEvent.size
-    def events = PtrAddr.new(Raylib.rl_AutomationEventList_events_addr(self))
+    def events = Ptr.new(Raylib.rl_AutomationEventList_events_addr(self))
   end
 
   class RenderTexture
