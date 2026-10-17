@@ -1,5 +1,42 @@
 [
   {
+    "gem": "AudioStream",
+    "ours": "AudioStream",
+    "read": [
+      "buffer",
+      "processor",
+      "sampleRate",
+      "sampleSize",
+      "channels"
+    ],
+    "write": [
+      "buffer",
+      "processor",
+      "sampleRate",
+      "sampleSize",
+      "channels"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadAudioStream",
+      "IsAudioStreamValid",
+      "UnloadAudioStream",
+      "UpdateAudioStream",
+      "IsAudioStreamProcessed",
+      "PlayAudioStream",
+      "PauseAudioStream",
+      "ResumeAudioStream",
+      "IsAudioStreamPlaying",
+      "StopAudioStream",
+      "SetAudioStreamVolume",
+      "SetAudioStreamPitch",
+      "SetAudioStreamPan",
+      "SetAudioStreamCallback",
+      "AttachAudioStreamProcessor",
+      "DetachAudioStreamProcessor"
+    ]
+  },
+  {
     "gem": "AutomationEvent",
     "ours": "AutomationEvent",
     "read": [
@@ -689,6 +726,43 @@
     "functions": []
   },
   {
+    "gem": "Music",
+    "ours": "Music",
+    "read": [
+      "stream",
+      "frameCount",
+      "looping",
+      "ctxType",
+      "ctxData"
+    ],
+    "write": [
+      "stream",
+      "frameCount",
+      "looping",
+      "ctxType",
+      "ctxData"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadMusicStream",
+      "LoadMusicStreamFromMemory",
+      "IsMusicValid",
+      "UnloadMusicStream",
+      "PlayMusicStream",
+      "IsMusicStreamPlaying",
+      "UpdateMusicStream",
+      "StopMusicStream",
+      "PauseMusicStream",
+      "ResumeMusicStream",
+      "SeekMusicStream",
+      "SetMusicVolume",
+      "SetMusicPitch",
+      "SetMusicPan",
+      "GetMusicTimeLength",
+      "GetMusicTimePlayed"
+    ]
+  },
+  {
     "gem": "NPatchInfo",
     "ours": "NPatchInfo",
     "read": [
@@ -836,6 +910,35 @@
       "SetShaderValueMatrix",
       "SetShaderValueTexture",
       "UnloadShader"
+    ]
+  },
+  {
+    "gem": "Sound",
+    "ours": "Sound",
+    "read": [
+      "stream",
+      "frameCount"
+    ],
+    "write": [
+      "stream",
+      "frameCount"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadSound",
+      "LoadSoundAlias",
+      "IsSoundValid",
+      "UpdateSound",
+      "UnloadSound",
+      "UnloadSoundAlias",
+      "PlaySound",
+      "StopSound",
+      "PauseSound",
+      "ResumeSound",
+      "IsSoundPlaying",
+      "SetSoundVolume",
+      "SetSoundPitch",
+      "SetSoundPan"
     ]
   },
   {
@@ -1138,6 +1241,38 @@
     "functions": [
       "BeginVrStereoMode",
       "UnloadVrStereoConfig"
+    ]
+  },
+  {
+    "gem": "Wave",
+    "ours": "Wave",
+    "read": [
+      "frameCount",
+      "sampleRate",
+      "sampleSize",
+      "channels",
+      "data"
+    ],
+    "write": [
+      "frameCount",
+      "sampleRate",
+      "sampleSize",
+      "channels",
+      "data"
+    ],
+    "helpers": [],
+    "functions": [
+      "LoadWave",
+      "LoadWaveFromMemory",
+      "IsWaveValid",
+      "LoadSoundFromWave",
+      "UnloadWave",
+      "ExportWave",
+      "ExportWaveAsCode",
+      "WaveCopy",
+      "WaveCrop",
+      "WaveFormat",
+      "LoadWaveSamples"
     ]
   }
 ]

@@ -2375,31 +2375,31 @@ module Raylib
       Raylib.rl_LoadWave(fileName)
     end
     def self.LoadWaveFromMemory(fileType, fileData, dataSize)
-      Raylib.rl_LoadWaveFromMemory(fileType, fileData, dataSize)
+      Wave.new(Raylib.rl_audio_LoadWaveFromMemory(fileType, fileData, dataSize), nil)
     end
     def self.IsWaveValid(wave)
-      Raylib.rl_IsWaveValid(wave)
+      Raylib.rl_audio_IsWaveValid(wave) != 0
     end
     def self.LoadSound(fileName)
       Raylib.rl_LoadSound(fileName)
     end
     def self.LoadSoundFromWave(wave)
-      Raylib.rl_LoadSoundFromWave(wave)
+      Sound.new(Raylib.rl_audio_LoadSoundFromWave(wave), nil)
     end
     def self.LoadSoundAlias(source)
       Raylib.rl_LoadSoundAlias(source)
     end
     def self.IsSoundValid(sound)
-      Raylib.rl_IsSoundValid(sound)
+      Raylib.rl_audio_IsSoundValid(sound) != 0
     end
     def self.UpdateSound(sound, data, frameCount)
       Raylib.rl_UpdateSound(sound, data, frameCount)
     end
     def self.UnloadWave(wave)
-      Raylib.rl_UnloadWave(wave)
+      Raylib.rl_audio_UnloadWave(wave)
     end
     def self.UnloadSound(sound)
-      Raylib.rl_UnloadSound(sound)
+      Raylib.rl_audio_UnloadSound(sound)
     end
     def self.UnloadSoundAlias(kw_alias)
       Raylib.rl_UnloadSoundAlias(kw_alias)
@@ -2411,10 +2411,10 @@ module Raylib
       Raylib.rl_ExportWaveAsCode(wave, fileName)
     end
     def self.PlaySound(sound)
-      Raylib.rl_PlaySound(sound)
+      Raylib.rl_audio_PlaySound(sound)
     end
     def self.StopSound(sound)
-      Raylib.rl_StopSound(sound)
+      Raylib.rl_audio_StopSound(sound)
     end
     def self.PauseSound(sound)
       Raylib.rl_PauseSound(sound)
@@ -2423,13 +2423,13 @@ module Raylib
       Raylib.rl_ResumeSound(sound)
     end
     def self.IsSoundPlaying(sound)
-      Raylib.rl_IsSoundPlaying(sound)
+      Raylib.rl_audio_IsSoundPlaying(sound) != 0
     end
     def self.SetSoundVolume(sound, volume)
-      Raylib.rl_SetSoundVolume(sound, volume)
+      Raylib.rl_audio_SetSoundVolume(sound, volume)
     end
     def self.SetSoundPitch(sound, pitch)
-      Raylib.rl_SetSoundPitch(sound, pitch)
+      Raylib.rl_audio_SetSoundPitch(sound, pitch)
     end
     def self.SetSoundPan(sound, pan)
       Raylib.rl_SetSoundPan(sound, pan)
@@ -2447,7 +2447,7 @@ module Raylib
       Raylib.rl_LoadMusicStreamFromMemory(fileType, data, dataSize)
     end
     def self.IsMusicValid(music)
-      Raylib.rl_IsMusicValid(music)
+      Raylib.rl_audio_IsMusicValid(music) != 0
     end
     def self.UnloadMusicStream(music)
       Raylib.rl_UnloadMusicStream(music)
@@ -2489,22 +2489,22 @@ module Raylib
       Raylib.rl_GetMusicTimePlayed(music)
     end
     def self.LoadAudioStream(sampleRate, sampleSize, channels)
-      Raylib.rl_LoadAudioStream(sampleRate, sampleSize, channels)
+      AudioStream.new(Raylib.rl_audio_LoadAudioStream(sampleRate, sampleSize, channels), nil)
     end
     def self.IsAudioStreamValid(stream)
-      Raylib.rl_IsAudioStreamValid(stream)
+      Raylib.rl_audio_IsAudioStreamValid(stream) != 0
     end
     def self.UnloadAudioStream(stream)
-      Raylib.rl_UnloadAudioStream(stream)
+      Raylib.rl_audio_UnloadAudioStream(stream)
     end
     def self.UpdateAudioStream(stream, data, frameCount)
-      Raylib.rl_UpdateAudioStream(stream, data, frameCount)
+      Raylib.rl_audio_UpdateAudioStream(stream, data, frameCount)
     end
     def self.IsAudioStreamProcessed(stream)
       Raylib.rl_IsAudioStreamProcessed(stream)
     end
     def self.PlayAudioStream(stream)
-      Raylib.rl_PlayAudioStream(stream)
+      Raylib.rl_audio_PlayAudioStream(stream)
     end
     def self.PauseAudioStream(stream)
       Raylib.rl_PauseAudioStream(stream)
@@ -2513,10 +2513,10 @@ module Raylib
       Raylib.rl_ResumeAudioStream(stream)
     end
     def self.IsAudioStreamPlaying(stream)
-      Raylib.rl_IsAudioStreamPlaying(stream)
+      Raylib.rl_audio_IsAudioStreamPlaying(stream) != 0
     end
     def self.StopAudioStream(stream)
-      Raylib.rl_StopAudioStream(stream)
+      Raylib.rl_audio_StopAudioStream(stream)
     end
     def self.SetAudioStreamVolume(stream, volume)
       Raylib.rl_SetAudioStreamVolume(stream, volume)

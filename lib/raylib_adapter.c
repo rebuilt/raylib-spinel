@@ -3924,3 +3924,102 @@ long rl_m_AutomationEvent_params(rl_AutomationEvent *self) { return (long)(intpt
 void rl_AutomationEvent_set_params(void *self, sp_RbVal pv) { memcpy(RL_AEVENT(self)->params, rl_h_unbox(pv), 4 * sizeof(int)); }
 void rl_GlyphInfo_set_image(void *self, void *img) { RL_GLYPH(self)->image = *RL_IMG(img); }
 void rl_AutomationEventList_set_events(void *self, sp_RbVal pv) { RL_AEVLIST(self)->events = (AutomationEvent *)rl_h_unbox(pv); }
+
+/* ---- Audio structs: Wave, AudioStream, Sound, Music (view classes, like
+ * Texture2D: the shims below malloc the payload raylib returns by value). ---- */
+#define RL_WAVE(o) (((rl_Wave *)(o))->p ? ((rl_Wave *)(o))->p : &((rl_Wave *)(o))->v)
+typedef struct rl_Wave_s { sp_int cls_id; Wave *p; sp_RbVal owner; Wave v; } rl_Wave;
+static void rl_Wave_scan(void *p) { rl_Wave *s = (rl_Wave *)p; if (s->p) sp_mark_rbval(s->owner); }
+rl_Wave *rl_Wave_new(sp_int cls_id) { rl_Wave *s = (rl_Wave *)sp_gc_alloc(sizeof(rl_Wave), NULL, rl_Wave_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Wave){ 0 }; return s; }
+rl_Wave *rl_Wave_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Wave *s = (rl_Wave *)sp_gc_alloc(sizeof(rl_Wave), NULL, rl_Wave_scan); s->cls_id = cls_id; s->p = (Wave *)rl_h_unbox(pv); s->owner = owner; return s; }
+sp_int rl_m_Wave_frameCount(rl_Wave *self) { return (sp_int)RL_WAVE(self)->frameCount; }
+sp_int rl_m_Wave_set_frameCount(rl_Wave *self, sp_int v) { RL_WAVE(self)->frameCount = (unsigned int)v; return v; }
+sp_int rl_m_Wave_sampleRate(rl_Wave *self) { return (sp_int)RL_WAVE(self)->sampleRate; }
+sp_int rl_m_Wave_set_sampleRate(rl_Wave *self, sp_int v) { RL_WAVE(self)->sampleRate = (unsigned int)v; return v; }
+sp_int rl_m_Wave_sampleSize(rl_Wave *self) { return (sp_int)RL_WAVE(self)->sampleSize; }
+sp_int rl_m_Wave_set_sampleSize(rl_Wave *self, sp_int v) { RL_WAVE(self)->sampleSize = (unsigned int)v; return v; }
+sp_int rl_m_Wave_channels(rl_Wave *self) { return (sp_int)RL_WAVE(self)->channels; }
+sp_int rl_m_Wave_set_channels(rl_Wave *self, sp_int v) { RL_WAVE(self)->channels = (unsigned int)v; return v; }
+long rl_m_Wave_data(rl_Wave *self) { return (long)(intptr_t)RL_WAVE(self)->data; }
+void rl_Wave_set_data(rl_Wave *self, sp_RbVal pv) { RL_WAVE(self)->data = rl_h_unbox(pv); }
+
+#define RL_ASTREAM(o) (((rl_AudioStream *)(o))->p ? ((rl_AudioStream *)(o))->p : &((rl_AudioStream *)(o))->v)
+typedef struct rl_AudioStream_s { sp_int cls_id; AudioStream *p; sp_RbVal owner; AudioStream v; } rl_AudioStream;
+static void rl_AudioStream_scan(void *p) { rl_AudioStream *s = (rl_AudioStream *)p; if (s->p) sp_mark_rbval(s->owner); }
+rl_AudioStream *rl_AudioStream_new(sp_int cls_id) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = NULL; s->v = (AudioStream){ 0 }; return s; }
+rl_AudioStream *rl_AudioStream_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_AudioStream *s = (rl_AudioStream *)sp_gc_alloc(sizeof(rl_AudioStream), NULL, rl_AudioStream_scan); s->cls_id = cls_id; s->p = (AudioStream *)rl_h_unbox(pv); s->owner = owner; return s; }
+long rl_m_AudioStream_buffer(rl_AudioStream *self) { return (long)(intptr_t)RL_ASTREAM(self)->buffer; }
+void rl_AudioStream_set_buffer(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->buffer = rl_h_unbox(pv); }
+long rl_m_AudioStream_processor(rl_AudioStream *self) { return (long)(intptr_t)RL_ASTREAM(self)->processor; }
+void rl_AudioStream_set_processor(rl_AudioStream *self, sp_RbVal pv) { RL_ASTREAM(self)->processor = rl_h_unbox(pv); }
+sp_int rl_m_AudioStream_sampleRate(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->sampleRate; }
+sp_int rl_m_AudioStream_set_sampleRate(rl_AudioStream *self, sp_int v) { RL_ASTREAM(self)->sampleRate = (unsigned int)v; return v; }
+sp_int rl_m_AudioStream_sampleSize(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->sampleSize; }
+sp_int rl_m_AudioStream_set_sampleSize(rl_AudioStream *self, sp_int v) { RL_ASTREAM(self)->sampleSize = (unsigned int)v; return v; }
+sp_int rl_m_AudioStream_channels(rl_AudioStream *self) { return (sp_int)RL_ASTREAM(self)->channels; }
+sp_int rl_m_AudioStream_set_channels(rl_AudioStream *self, sp_int v) { RL_ASTREAM(self)->channels = (unsigned int)v; return v; }
+
+#define RL_SOUND(o) (((rl_Sound *)(o))->p ? ((rl_Sound *)(o))->p : &((rl_Sound *)(o))->v)
+typedef struct rl_Sound_s { sp_int cls_id; Sound *p; sp_RbVal owner; Sound v; } rl_Sound;
+static void rl_Sound_scan(void *p) { rl_Sound *s = (rl_Sound *)p; if (s->p) sp_mark_rbval(s->owner); }
+rl_Sound *rl_Sound_new(sp_int cls_id) { rl_Sound *s = (rl_Sound *)sp_gc_alloc(sizeof(rl_Sound), NULL, rl_Sound_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Sound){ 0 }; return s; }
+rl_Sound *rl_Sound_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Sound *s = (rl_Sound *)sp_gc_alloc(sizeof(rl_Sound), NULL, rl_Sound_scan); s->cls_id = cls_id; s->p = (Sound *)rl_h_unbox(pv); s->owner = owner; return s; }
+sp_int rl_m_Sound_frameCount(rl_Sound *self) { return (sp_int)RL_SOUND(self)->frameCount; }
+sp_int rl_m_Sound_set_frameCount(rl_Sound *self, sp_int v) { RL_SOUND(self)->frameCount = (unsigned int)v; return v; }
+void rl_Sound_stream(rl_Sound *self, void *out) { ((rl_AudioStream *)out)->v = RL_SOUND(self)->stream; }
+void rl_Sound_set_stream(rl_Sound *self, void *s) { RL_SOUND(self)->stream = ((rl_AudioStream *)s)->v; }
+
+#define RL_MUSIC(o) (((rl_Music *)(o))->p ? ((rl_Music *)(o))->p : &((rl_Music *)(o))->v)
+typedef struct rl_Music_s { sp_int cls_id; Music *p; sp_RbVal owner; Music v; } rl_Music;
+static void rl_Music_scan(void *p) { rl_Music *s = (rl_Music *)p; if (s->p) sp_mark_rbval(s->owner); }
+rl_Music *rl_Music_new(sp_int cls_id) { rl_Music *s = (rl_Music *)sp_gc_alloc(sizeof(rl_Music), NULL, rl_Music_scan); s->cls_id = cls_id; s->p = NULL; s->v = (Music){ 0 }; return s; }
+rl_Music *rl_Music_view(sp_int cls_id, sp_RbVal pv, sp_RbVal owner) { rl_Music *s = (rl_Music *)sp_gc_alloc(sizeof(rl_Music), NULL, rl_Music_scan); s->cls_id = cls_id; s->p = (Music *)rl_h_unbox(pv); s->owner = owner; return s; }
+sp_int rl_m_Music_frameCount(rl_Music *self) { return (sp_int)RL_MUSIC(self)->frameCount; }
+sp_int rl_m_Music_set_frameCount(rl_Music *self, sp_int v) { RL_MUSIC(self)->frameCount = (unsigned int)v; return v; }
+sp_int rl_m_Music_looping(rl_Music *self) { return RL_MUSIC(self)->looping ? 1 : 0; }
+sp_int rl_m_Music_set_looping(rl_Music *self, sp_int v) { RL_MUSIC(self)->looping = v ? true : false; return v; }
+sp_int rl_m_Music_ctxType(rl_Music *self) { return (sp_int)RL_MUSIC(self)->ctxType; }
+sp_int rl_m_Music_set_ctxType(rl_Music *self, sp_int v) { RL_MUSIC(self)->ctxType = (int)v; return v; }
+long rl_m_Music_ctxData(rl_Music *self) { return (long)(intptr_t)RL_MUSIC(self)->ctxData; }
+void rl_Music_set_ctxData(rl_Music *self, sp_RbVal pv) { RL_MUSIC(self)->ctxData = rl_h_unbox(pv); }
+void rl_Music_stream(rl_Music *self, void *out) { ((rl_AudioStream *)out)->v = RL_MUSIC(self)->stream; }
+void rl_Music_set_stream(rl_Music *self, void *s) { RL_MUSIC(self)->stream = ((rl_AudioStream *)s)->v; }
+
+/* ---- Audio function shims (raylib takes/returns these structs by value) ---- */
+void *rl_audio_LoadWaveFromMemory(const char *fileType, const char *fileData, int dataSize) {
+  Wave *w = (Wave *)malloc(sizeof(Wave));
+  *w = LoadWaveFromMemory(fileType, (const unsigned char *)fileData, dataSize);
+  return w;
+}
+sp_int rl_audio_IsWaveValid(void *wave) { return IsWaveValid(((rl_Wave *)wave)->v) ? 1 : 0; }
+void rl_audio_UnloadWave(void *wave) { UnloadWave(((rl_Wave *)wave)->v); free(wave); }
+void *rl_audio_LoadSoundFromWave(void *wave) {
+  Sound *s = (Sound *)malloc(sizeof(Sound));
+  *s = LoadSoundFromWave(((rl_Wave *)wave)->v);
+  return s;
+}
+sp_int rl_audio_IsSoundValid(void *snd) { return IsSoundValid(((rl_Sound *)snd)->v) ? 1 : 0; }
+void rl_audio_PlaySound(void *snd) { PlaySound(((rl_Sound *)snd)->v); }
+void rl_audio_StopSound(void *snd) { StopSound(((rl_Sound *)snd)->v); }
+sp_int rl_audio_IsSoundPlaying(void *snd) { return IsSoundPlaying(((rl_Sound *)snd)->v) ? 1 : 0; }
+void rl_audio_SetSoundVolume(void *snd, double v) { SetSoundVolume(((rl_Sound *)snd)->v, (float)v); }
+void rl_audio_SetSoundPitch(void *snd, double v) { SetSoundPitch(((rl_Sound *)snd)->v, (float)v); }
+void rl_audio_UnloadSound(void *snd) { UnloadSound(((rl_Sound *)snd)->v); free(snd); }
+void *rl_audio_LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels) {
+  AudioStream *a = (AudioStream *)malloc(sizeof(AudioStream));
+  *a = LoadAudioStream(sampleRate, sampleSize, channels);
+  return a;
+}
+sp_int rl_audio_IsAudioStreamValid(void *s) { return IsAudioStreamValid(((rl_AudioStream *)s)->v) ? 1 : 0; }
+sp_int rl_audio_IsAudioStreamPlaying(void *s) { return IsAudioStreamPlaying(((rl_AudioStream *)s)->v) ? 1 : 0; }
+void rl_audio_PlayAudioStream(void *s) { PlayAudioStream(((rl_AudioStream *)s)->v); }
+void rl_audio_StopAudioStream(void *s) { StopAudioStream(((rl_AudioStream *)s)->v); }
+void rl_audio_UpdateAudioStream(void *s, long data_addr, int frames) {
+  UpdateAudioStream(((rl_AudioStream *)s)->v, (const void *)(intptr_t)data_addr, frames);
+}
+void rl_audio_UnloadAudioStream(void *s) { UnloadAudioStream(((rl_AudioStream *)s)->v); free(s); }
+sp_int rl_audio_IsMusicValid(void *m) { return IsMusicValid(((rl_Music *)m)->v) ? 1 : 0; }
+
+/* Scratch buffers for the Ruby side: an address (for a Ptr) rather than a box. */
+long rl_MemAllocAddr(int bytes) { return (long)(intptr_t)malloc((size_t)bytes); }
+void rl_MemFreeAddr(long addr) { free((void *)(intptr_t)addr); }
