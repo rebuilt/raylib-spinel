@@ -16,7 +16,7 @@ Toolchain for every observation: `spinel 2026.09.12+10525 (8a51e2822)`
 | file | subject | status |
 | --- | --- | --- |
 | `issue-d-string-pack-p.md` | `Array#pack("p*")` emits a single pointer regardless of the array size | **filed**: https://github.com/matz/spinel/issues/9349 |
-| `issue-e-native-subclass-header.md` | a package outside the compiler's tree cannot use `native_subclass` (emitted `#include "../<header>"` is searchable only inside the install tree); behind it, an undocumented `_init` twin and a `self`-as-`:ptr` refusal | draft, **not filed** (re-verified 2026-10-17 on `+10525`; emit site unchanged on `origin/master` `1e214014c`) |
+| `issue-e-native-subclass-header.md` | a package outside the compiler's tree cannot use `native_subclass` (emitted `#include "../<header>"` is searchable only inside the install tree); behind it, an undocumented `_init` twin and a `self`-as-`:ptr` refusal | draft, **not filed** (re-verified 2026-10-17 on `+10525`; emit site unchanged on `origin/master` `1e214014c`; holds identically installed into spin's package cache) |
 | `native_subclass_header/` | repro for issue-e: a standalone spin project with its own carried C | evidence; `spin build` fails at the C compile step on `#include "../thing.h"` |
 | `native_subclass_header_workaround/` | the same project with the two undocumented additions that make it work (`ffi_cflags "-I" + __dir__ + "/include"`, `sp_Thing_init`) | evidence; builds, runs, and gives real subclass semantics (`is_a?`, `case`/`when`, methods from a block parameter) |
 | `issue-f-require-gate-builtin.md` | `--require-gate` refuses `require "rbconfig"` / `"rubygems"`, whose constants the compiler splices itself; any gated build that uses `optparse` fails | **filed**: https://github.com/matz/spinel/issues/9441 (2026-10-17) |
@@ -60,6 +60,20 @@ cp optional/selfptr.rb bin/ && spin build     # the independent refusal: node 53
 The two projects differ only in the two things the draft names: the
 `ffi_cflags` include directory one level below the package root (with its
 `include/` directory) and `sp_Thing_init`, the in-place constructor twin.
+
+The same pair, consumed **as an installed dependency** — the state a published
+package is in — fails and works the same way (measured 2026-10-17):
+
+```bash
+# consumer app: spin init; spin add thing --git file://$PWD/../native_subclass_header
+spin build   # /tmp/spinel_out_*.c:5: fatal error: ../thing.h: No such file or directory
+# ... with the workaround package instead:
+spin build && ./build/bin/app
+# methods from a block param -> [7, 8]; sub.is_a?(Thing) -> true; sub.class -> Sub
+```
+
+`~/.cache/spin/packages/thing-0.1.0/` is no more reachable through `..` than
+any directory outside the compiler's install tree.
 
 The project is two spin projects (a local `thing` package carrying the C, and an
 application using it) because a spin *application* cannot carry native C of its
