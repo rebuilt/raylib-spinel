@@ -3846,8 +3846,13 @@ long rl_m_Model_boneMatrices(rl_Model *self) { return (long)(intptr_t)RL_MODEL(s
 void rl_Model_set_boneMatrices_ptr(void *model, void *p) { RL_MODEL(model)->boneMatrices = (Matrix *)p; }
 
 /* Ptr#put_array_of_float32: write one float32 at an address */
-void rl_PtrWriteFloat(long addr, long byte_offset, double v) {
-  *((float *)(intptr_t)(addr + byte_offset)) = (float)v;
+void rl_PtrWriteFloat(long addr, long byte_offset, float v) {
+  *((float *)(intptr_t)(addr + byte_offset)) = v;
+}
+/* Ptr#put_array_of_int16: write one int16 at an address (16-bit PCM buffers,
+ * e.g. UpdateAudioStream's short* payload). */
+void rl_PtrWriteInt16(long addr, long byte_offset, int v) {
+  *((int16_t *)(intptr_t)(addr + byte_offset)) = (int16_t)v;
 }
 /* Pointer-taking aliases of the Model scalar accessors, for the wrapper's
  * readers: a module ffi_func with the view as its argument is the shape that

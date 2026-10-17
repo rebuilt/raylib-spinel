@@ -33,6 +33,15 @@ class Ptr
       i += 1
     end
   end
+
+  # 16-bit PCM, the same shape (byte offset, then each element)
+  def put_array_of_int16(offset, values)
+    i = 0
+    while i < values.length
+      Raylib.rl_PtrWriteInt16(@address, offset + i * 2, values[i].to_i)
+      i += 1
+    end
+  end
 end
 
   class Image
