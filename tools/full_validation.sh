@@ -38,6 +38,9 @@ fi
 step "hello_raylib gate (make check: scenes, single TU, sweep, pixels)"
 make -C "$ROOT/../hello_raylib" check || rc=1
 
+step "hello_raylib ring lap (every scene through the real F6 handoff)"
+make -C "$ROOT/../hello_raylib" ring || rc=1
+
 echo
 if [ "$rc" = 0 ]; then echo "full validation: OK"; else echo "full validation: FAILURES above"; fi
 exit "$rc"
