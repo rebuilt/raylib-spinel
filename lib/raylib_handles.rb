@@ -257,21 +257,21 @@ end
     def paths = Ptr.new(Raylib.rl_m_FilePathList_paths(self))
   end
   class VrDeviceInfo
-    # The gem's inline arrays read as value arrays; ours hand over the array's
-    # address (a Ptr), and the writers take a boxed source pointer.
-    def lensDistortionValues = Ptr.new(Raylib.rl_m_VrDeviceInfo_lensDistortionValues(self))
-    def chromaAbCorrection = Ptr.new(Raylib.rl_m_VrDeviceInfo_chromaAbCorrection(self))
+    # The gem's inline arrays read as value arrays (element-indexed, see
+    # Raylib::FloatArrayPtr); the writers take a boxed source pointer.
+    def lensDistortionValues = FloatArrayPtr.new(Raylib.rl_m_VrDeviceInfo_lensDistortionValues(self))
+    def chromaAbCorrection = FloatArrayPtr.new(Raylib.rl_m_VrDeviceInfo_chromaAbCorrection(self))
   end
 
   class VrStereoConfig
     def projection = Ptr.new(Raylib.rl_m_VrStereoConfig_projection(self))
     def viewOffset = Ptr.new(Raylib.rl_m_VrStereoConfig_viewOffset(self))
-    def leftLensCenter = Ptr.new(Raylib.rl_m_VrStereoConfig_leftLensCenter(self))
-    def rightLensCenter = Ptr.new(Raylib.rl_m_VrStereoConfig_rightLensCenter(self))
-    def leftScreenCenter = Ptr.new(Raylib.rl_m_VrStereoConfig_leftScreenCenter(self))
-    def rightScreenCenter = Ptr.new(Raylib.rl_m_VrStereoConfig_rightScreenCenter(self))
-    def scale = Ptr.new(Raylib.rl_m_VrStereoConfig_scale(self))
-    def scaleIn = Ptr.new(Raylib.rl_m_VrStereoConfig_scaleIn(self))
+    def leftLensCenter = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_leftLensCenter(self))
+    def rightLensCenter = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_rightLensCenter(self))
+    def leftScreenCenter = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_leftScreenCenter(self))
+    def rightScreenCenter = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_rightScreenCenter(self))
+    def scale = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_scale(self))
+    def scaleIn = FloatArrayPtr.new(Raylib.rl_m_VrStereoConfig_scaleIn(self))
   end
 
   class AutomationEvent

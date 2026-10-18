@@ -3891,6 +3891,11 @@ void rl_Model_set_boneMatrices_ptr(void *model, void *p) { RL_MODEL(model)->bone
 void rl_PtrWriteFloat(long addr, long byte_offset, float v) {
   *((float *)(intptr_t)(addr + byte_offset)) = v;
 }
+/* FloatArrayPtr#[]: read one float32 at an address (the gem's inline float
+ * arrays are element-indexed: device.lensDistortionValues[1]). */
+float rl_PtrReadFloat(long addr, long byte_offset) {
+  return *((const float *)(intptr_t)(addr + byte_offset));
+}
 /* Ptr#put_array_of_int16: write one int16 at an address (16-bit PCM buffers,
  * e.g. UpdateAudioStream's short* payload). */
 void rl_PtrWriteInt16(long addr, long byte_offset, int v) {

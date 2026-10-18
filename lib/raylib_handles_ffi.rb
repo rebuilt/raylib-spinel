@@ -17,6 +17,7 @@ module Raylib
   # boxes poly arithmetic, so the address travels as an Integer)
   ffi_func :rl_ptr_addr, [:ptr], :long
   ffi_func :rl_PtrWriteFloat, [:long, :long, :float], :void
+  ffi_func :rl_PtrReadFloat, [:long, :long], :float
   ffi_func :rl_PtrWriteInt16, [:long, :long, :int], :void
 
   # Interior pointers into the payload of a handle (for sub-struct views).

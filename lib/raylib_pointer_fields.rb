@@ -75,6 +75,40 @@ module Raylib
     end
   end
 
+  # The gem's INLINE float arrays (VrDeviceInfo#lensDistortionValues,
+  # VrStereoConfig#scale, ...) element-index as value arrays:
+  # `device.lensDistortionValues[1] = 0.22` reads/writes one float32. That is
+  # the only spelling MRI accepts there -- FFI::Struct#[]= on an array member
+  # raises NotImplementedError ("cannot set array field"), measured on
+  # raylib-bindings 0.8.4 -- so a scene that must run on both engines indexes
+  # elements. Ptr deliberately does NOT grow these methods: it also wraps
+  # byte-pointer fields (Image#data), where float32 elements would corrupt
+  # silently. Known gap: MRI's InlineArray also answers #to_ptr/#to_a/#each
+  # (length-aware); ours is element access only.
+  #
+  # Same one-ivar boxed-address layout as Ptr (see the note there): the address
+  # must stay an INT-boxed first ivar so rl_p_unbox can read it in place.
+  class FloatArrayPtr
+    def initialize(address)
+      @address = [address, nil].first
+    end
+
+    def address = @address
+    def to_i = @address
+
+    def [](index)
+      addr = @address
+      Raylib.rl_PtrReadFloat(addr, index.to_i * 4)
+    end
+
+    def []=(index, value)
+      addr = @address
+      f = value.to_f
+      Raylib.rl_PtrWriteFloat(addr, index.to_i * 4, f)
+      value
+    end
+  end
+
   class Image
     def data = Ptr.new(Raylib.rl_m_Image_data(self))
   end
