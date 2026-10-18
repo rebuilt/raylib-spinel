@@ -125,7 +125,14 @@ def vendored_raylib_link(tmp):
         dst = os.path.join(link_dir, name)
         if not os.path.exists(dst):
             os.symlink(src, dst)
-    return ["--link", "-L" + link_dir, "--link", "-Wl,-rpath," + link_dir]
+    # DT_RPATH, not DT_RUNPATH: --disable-new-dtags makes the pin win against
+    # LD_LIBRARY_PATH. With the default DT_RUNPATH a libraylib on that path
+    # shadows the pin at runtime (the hello_raylib AGENTS.md 2.K class), which
+    # silently changes the engine under test -- when ~/.local's libraylib.so.600
+    # was content-replaced on 2026-10-17, 11_render_texture's FBO readback
+    # started differing from the MRI side for no source change.
+    return ["--link", "-L" + link_dir, "--link", "-Wl,-rpath," + link_dir,
+            "--link", "-Wl,--disable-new-dtags"]
 
 
 def spinel_run(path, flags, tmp):
