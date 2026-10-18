@@ -171,10 +171,12 @@ push, then push/publish the artifact.
    finds the vendored libraylib (`AGENTS.md` §K). Keep the rpath, drop the `-I`.
    spin's portable mechanism for headers is `[native] pkg_config = ["raylib"]`,
    whose flags *do* reach the carried-C compile. Deliberately not used here:
-   this box has two `raylib.pc` files and `pkg-config` answers `~/.local`
-   (6.0.0 headers) while the `hello_raylib` Makefile compiles the same adapters
-   against `/usr/local` (6.2-dev), so a `[native]` entry would let
-   `PKG_CONFIG_PATH` decide which of the two build paths gets which headers. It
+   this box has two `raylib.pc` files that disagree with each other and with
+   their own headers — `pkg-config` answers `~/.local` (`Version: 6.2.0`, 6.2
+   headers) while `/usr/local`'s claims `6.0.0` under 6.1-dev headers — and the
+   `hello_raylib` Makefile compiles the same adapters against `/usr/local`, so a
+   `[native]` entry would let `PKG_CONFIG_PATH` decide which of the two build
+   paths gets which headers. It
    is the right default for a package with one raylib to talk to.
 5. **libraylib at runtime** is the first thing a new consumer hits, and the rule
    is narrower than "install raylib". `ffi_lib "raylib"` (spinel's
@@ -187,7 +189,11 @@ push, then push/publish the artifact.
    the rpath above is the vendoring hook — put a `libraylib.so` in a `raylib/`
    sibling of the binary's directory, which is how `hello_raylib` ships the
    `raylib-bindings` gem's known-good build. On this box `LD_LIBRARY_PATH` puts
-   a 6.0.0 build first, which is the `AGENTS.md` §K weak-symbol story. The
+   `~/.local/lib` first, which ships both `libraylib.so` (a 6.2 build since
+   2026-10-17) and `libraylib.so.600` — today a complete 6.1-dev build, but an
+   incomplete one occupied that slot when the `AGENTS.md` §K weak-symbol story
+   happened. `hello_raylib/tools/raylib_versions.rb` reports which file wins
+   per build path. The
    README says none of this yet.
 6. **Publish gates.** `spin publish` needs `origin` (or `--repo`), HEAD pushed to
    a remote branch, `spin test` green, and the index name: `raylib` is free in

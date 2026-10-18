@@ -30,6 +30,9 @@ step "adapter + duplicate audits"
 python3 tools/check_shim_unwraps.py || rc=1
 ruby tools/check_duplicate_methods.rb || rc=1
 
+step "raylib library audit (versions, load-order winners, post-6.0 entry points)"
+ruby "$ROOT/../hello_raylib/tools/raylib_versions.rb" --check || rc=1
+
 if [ "${1:-}" != "--quick" ]; then
   step "gem examples, differential run section (CRuby vs Spinel, screenshots)"
   python3 tools/run_gem_corpus.py --only run || rc=1
