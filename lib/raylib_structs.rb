@@ -6,7 +6,9 @@
 # `create`/`copy_from`/`set`/`to_a`, the Color constructors and the `size` class
 # methods. Our classes are Spinel native structs with attribute accessors, so
 # the same names and semantics are reimplemented here. Loaded by raylib.rb
-# (Spinel path only); under MRI the gem provides them.
+# (Spinel path only); under MRI the gem provides them. The Color helpers live
+# in raylib_ffi.rb instead, so the `require "raylib-spinel"` entry gets them
+# too.
 #
 # Every numeric argument is coerced with `to_f`/`to_i` (AGENTS B4): with mixed
 # Integer/Float call sites Spinel boxes the parameter, and a raw assignment to a
@@ -129,31 +131,6 @@ module Raylib
       self.y = y.to_f
       self.width = width.to_f
       self.height = height.to_f
-      self
-    end
-  end
-
-  class Color
-
-    def set(r, g, b, a)
-      self.r = r.to_i
-      self.g = g.to_i
-      self.b = b.to_i
-      self.a = a.to_i
-      self
-  
-    # The gem's Color.set(rgba) reads instance accessors from a class method and
-    # so raises; this is the intended behaviour, the same value as from_u32.
-    def self.set(rgba)
-      Color.from_u32(rgba)
-    end
-  end
-
-    def copy(other)
-      self.r = other.r
-      self.g = other.g
-      self.b = other.b
-      self.a = other.a
       self
     end
   end

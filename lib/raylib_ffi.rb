@@ -1292,6 +1292,36 @@ module Raylib
           rgba & 0xFF
         )
       end
+
+      # The gem's class-level Color.set(rgba) is dead code upstream: its body
+      # does self[:r] = on the CLASS, and MRI raises for that (measured on
+      # Ruby 4.0.6 + raylib-bindings 0.8.5: NoMethodError, undefined method
+      # '[]=' for class Raylib::Color). Parity therefore means "exists and
+      # raises NoMethodError"; a working class-level setter would diverge
+      # from MRI. The message matches this box's MRI (3.4+ quoting style).
+      def self.set(rgba)
+        raise NoMethodError, "undefined method '[]=' for class Raylib::Color"
+      end
+
+      # Instance helpers: same behaviour as the gem's raylib_helper.rb. They
+      # live here (not in raylib_structs.rb) because that file is only loaded
+      # via the `require "raylib"` entry, and scenes using `require
+      # "raylib-spinel"` must get them too.
+      def set(r, g, b, a)
+        self.r = r.to_i
+        self.g = g.to_i
+        self.b = b.to_i
+        self.a = a.to_i
+        self
+      end
+
+      def copy(other)
+        self.r = other.r
+        self.g = other.g
+        self.b = other.b
+        self.a = other.a
+        self
+      end
     end
 
     # Positional factories (Vector2/Vector4/Matrix).
@@ -3877,23 +3907,23 @@ module Raylib
   # ====== generated: snake_case aliases (MRI gem naming) ======
   def self.trace_log(p0, p1, p2)
     Raylib.TraceLog(p0, p1, p2)
+  end
 
-    # ====== generated: wrappers + constants ======
-    def self.LoadFileData(fileName, dataSize)
-      Raylib.rl_LoadFileData(fileName, Raylib.ptr_addr(dataSize))
-    end
-    def self.EncodeDataBase64(data, dataSize, outputSize)
-      Raylib.rl_EncodeDataBase64(data, dataSize, Raylib.ptr_addr(outputSize))
-    end
-    def self.LoadFontData(fileData, dataSize, fontSize, codepoints, codepointCount, type, glyphCount)
-      Raylib.rl_LoadFontData(Raylib.ptr_addr(fileData), dataSize, fontSize, Raylib.ptr_addr(codepoints), codepointCount, type, glyphCount)
-    end
-    def self.LoadCodepoints(text, count)
-      Raylib.rl_LoadCodepoints(text, Raylib.ptr_addr(count))
-    end
-    def self.LoadModelAnimations(fileName, animCount)
-      Raylib.rl_LoadModelAnimations(fileName, Raylib.ptr_addr(animCount))
-    end
+  # ====== generated: wrappers + constants ======
+  def self.LoadFileData(fileName, dataSize)
+    Raylib.rl_LoadFileData(fileName, Raylib.ptr_addr(dataSize))
+  end
+  def self.EncodeDataBase64(data, dataSize, outputSize)
+    Raylib.rl_EncodeDataBase64(data, dataSize, Raylib.ptr_addr(outputSize))
+  end
+  def self.LoadFontData(fileData, dataSize, fontSize, codepoints, codepointCount, type, glyphCount)
+    Raylib.rl_LoadFontData(Raylib.ptr_addr(fileData), dataSize, fontSize, Raylib.ptr_addr(codepoints), codepointCount, type, glyphCount)
+  end
+  def self.LoadCodepoints(text, count)
+    Raylib.rl_LoadCodepoints(text, Raylib.ptr_addr(count))
+  end
+  def self.LoadModelAnimations(fileName, animCount)
+    Raylib.rl_LoadModelAnimations(fileName, Raylib.ptr_addr(animCount))
   end
 end
 

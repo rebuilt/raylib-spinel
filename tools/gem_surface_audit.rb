@@ -108,7 +108,10 @@ def visit(node, namespace, ours, in_singleton = false, in_class_body = nil, nati
         s.methods << node.name
       end
     end
-    node.compact_child_nodes.each { |c| visit(c, namespace, ours, in_singleton, in_class_body, native_ctx) }
+    # Do not descend into def bodies: a `def` nested inside another method
+    # only defines on the enclosing class when the outer method runs, so
+    # counting it would report false coverage (this is how a lazily-nested
+    # `def self.set` inside Color#set once passed as Color.set).
   when Prism::CallNode
     # DSL declarations inside a class body: native_method :name, ...
     if node.name == :ffi_func || node.name == :native_method || node.name == :ffi_func_alias
