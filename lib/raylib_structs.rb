@@ -6,9 +6,9 @@
 # `create`/`copy_from`/`set`/`to_a`, the Color constructors and the `size` class
 # methods. Our classes are Spinel native structs with attribute accessors, so
 # the same names and semantics are reimplemented here. Loaded by raylib.rb
-# (Spinel path only); under MRI the gem provides them. The Color helpers live
-# in raylib_ffi.rb instead, so the `require "raylib-spinel"` entry gets them
-# too.
+# (Spinel path only); under MRI the gem provides them. The Color helpers and
+# the Vector2/Rectangle `.create` factories live in raylib_ffi.rb instead, so
+# the `require "raylib-spinel"` entry gets them too.
 #
 # Every numeric argument is coerced with `to_f`/`to_i` (AGENTS B4): with mixed
 # Integer/Float call sites Spinel boxes the parameter, and a raw assignment to a
@@ -25,13 +25,7 @@ module Raylib
   RAD2DEG = 57.29577951308232
 
   class Vector2
-    def self.create(x = 0.0, y = 0.0)
-      v = Vector2.new
-      v.x = x.to_f
-      v.y = y.to_f
-      v
-    end
-
+    # `.create` lives in raylib_ffi.rb (fill-factory route, both entries).
     def self.copy_from(vec)
       Vector2.create(vec.x, vec.y)
     end
@@ -112,15 +106,7 @@ module Raylib
   end
 
   class Rectangle
-    def self.create(x = 0.0, y = 0.0, width = 0.0, height = 0.0)
-      r = Rectangle.new
-      r.x = x.to_f
-      r.y = y.to_f
-      r.width = width.to_f
-      r.height = height.to_f
-      r
-    end
-
+    # `.create` lives in raylib_ffi.rb (fill-factory route, both entries).
     def self.copy_from(rec)
       Rectangle.create(rec.x, rec.y, rec.width, rec.height)
     end

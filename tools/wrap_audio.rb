@@ -40,7 +40,11 @@ TARGETS = {
   "IsAudioStreamPlaying" => "Raylib.rl_audio_IsAudioStreamPlaying({0}) != 0",
   "PlayAudioStream" => "Raylib.rl_audio_PlayAudioStream({0})",
   "StopAudioStream" => "Raylib.rl_audio_StopAudioStream({0})",
-  "UpdateAudioStream" => "Raylib.rl_audio_UpdateAudioStream({0}, {1}, {2})",
+  # {1}.address, not {1}: gem-shaped call sites pass a pointer OBJECT
+  # (FFI::MemoryPointer / Raylib::Ptr) because MRI's :pointer refuses an
+  # Integer, and ffi_func params cannot take objects at all -- #address is
+  # the forced INT box the :long shim parameter consumes.
+  "UpdateAudioStream" => "Raylib.rl_audio_UpdateAudioStream({0}, {1}.address, {2})",
   "UnloadAudioStream" => "Raylib.rl_audio_UnloadAudioStream({0})",
   "IsMusicValid" => "Raylib.rl_audio_IsMusicValid({0}) != 0"
 }.freeze

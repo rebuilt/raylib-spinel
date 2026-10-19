@@ -1361,6 +1361,25 @@ module Raylib
       m
     end
 
+    # Gem-shaped `.create` factories (raylib_helper.rb in the real gem; gem
+    # code reaches for Raylib::Vector2.create / Raylib::Rectangle.create). They
+    # used to live only in raylib_structs.rb, which `require "raylib-spinel"`
+    # never loads, and were moved here so every entry point provides them. The
+    # bodies delegate to the fill factories above -- AGENTS §A: construct
+    # through the rl_*Fill shims, never new + field writes -- and `to_f` keeps
+    # the float FFI args safe at Integer-literal call sites (§B4).
+    class Vector2
+      def self.create(x = 0.0, y = 0.0)
+        Raylib.Vector2(x.to_f, y.to_f)
+      end
+    end
+
+    class Rectangle
+      def self.create(x = 0.0, y = 0.0, width = 0.0, height = 0.0)
+        Raylib.Rectangle(x.to_f, y.to_f, width.to_f, height.to_f)
+      end
+    end
+
     # ====== generated: wrappers + constants ======
     def self.SetWindowIcon(image)
       Raylib.rl_SetWindowIcon(image)
@@ -2525,8 +2544,14 @@ module Raylib
     def self.UnloadAudioStream(stream)
       Raylib.rl_audio_UnloadAudioStream(stream)
     end
+    # The gem's data argument is a pointer object (MRI's :pointer refuses a
+    # raw Integer). AOT ffi_func params cannot take objects (raylib_ffi Color
+    # note; :any even generates a C `void` param), so take the address here:
+    # FFI::MemoryPointer (carried ffi package) and Raylib::Ptr both return the
+    # forced INT box from #address, which is what the :long shim consumes.
+    # Call sites pass the object. Canonical body enforced by wrap_audio.rb.
     def self.UpdateAudioStream(stream, data, frameCount)
-      Raylib.rl_audio_UpdateAudioStream(stream, data, frameCount)
+      Raylib.rl_audio_UpdateAudioStream(stream, data.address, frameCount)
     end
     def self.IsAudioStreamProcessed(stream)
       Raylib.rl_IsAudioStreamProcessed(stream)

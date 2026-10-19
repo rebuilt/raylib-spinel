@@ -4144,6 +4144,11 @@ sp_int rl_audio_IsAudioStreamValid(void *s) { return IsAudioStreamValid(*RL_ASTR
 sp_int rl_audio_IsAudioStreamPlaying(void *s) { return IsAudioStreamPlaying(*RL_ASTREAM(s)) ? 1 : 0; }
 void rl_audio_PlayAudioStream(void *s) { PlayAudioStream(*RL_ASTREAM(s)); }
 void rl_audio_StopAudioStream(void *s) { StopAudioStream(*RL_ASTREAM(s)); }
+/* data_addr: a raw address, taken by the Ruby wrapper with #address off the
+ * caller's pointer object (FFI::MemoryPointer / Raylib::Ptr); the wrapper
+ * exists because MRI's :pointer argument refuses an Integer but accepts the
+ * object, and ffi_func params cannot take objects at all (raylib_ffi.rb
+ * Color note). */
 void rl_audio_UpdateAudioStream(void *s, long data_addr, int frames) {
   UpdateAudioStream(*RL_ASTREAM(s), (const void *)(intptr_t)data_addr, frames);
 }
