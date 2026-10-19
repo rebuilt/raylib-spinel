@@ -3,40 +3,24 @@
 # raylib_handles.rb — the gem-shaped handle API on top of the native view
 # classes (declared in raylib_handles_ffi.rb).
 #
-# Fields are native accessors; this file adds the sub-struct views (font
-# texture/glyphs/recs, glyph image, render target texture/depth, model
+# Fields are native accessors; this file adds the sub-struct views (model
 # material/mesh/transform, material shader), the gem's `size`/pointer helpers,
 # and fresh definitions for the raw shims that used to return interior
 # pointers (renamed to *_ptr in C so these names are new definitions, not
 # redefinitions).
 module Raylib
-  # Interior arrays (font.recs, font.glyphs, events) travel as Raylib::Ptr: the
-  # gem indexes them with `ptr + index * Rectangle.size`, and Spinel boxes :ptr
-  # arithmetic, so the address itself is what Ptr#+ shifts. (This used to be a
-  # second, near-identical wrapper class; one address-over-a-long class is what
-  # the C side can unbox -- see rl_p_unbox in raylib_adapter.c.)
-  class Font
-    def texture = Texture2D.new(Raylib.rl_Font_texture_ptr(self), self)
-    def recs = Ptr.new(Raylib.rl_Font_recs_addr(self))
-    def glyphs = Ptr.new(Raylib.rl_Font_glyphs_addr(self))
-  end
-
-  class GlyphInfo
-
-    def image = Image.new(Raylib.rl_GlyphInfo_image_ptr(self), self)
-  end
-
+  # Interior arrays (events; font.recs/glyphs live next to their class in
+  # raylib_handles_ffi.rb) travel as Raylib::Ptr: the gem indexes them with
+  # `ptr + index * Rectangle.size`, and Spinel boxes :ptr arithmetic, so the
+  # address itself is what Ptr#+ shifts. (This used to be a second,
+  # near-identical wrapper class; one address-over-a-long class is what the C
+  # side can unbox -- see rl_p_unbox in raylib_adapter.c.)
   class AutomationEvent
   end
 
   class AutomationEventList
     # the gem indexes the events array with AutomationEvent.size
     def events = Ptr.new(Raylib.rl_AutomationEventList_events_addr(self))
-  end
-
-  class RenderTexture
-    def texture = Texture2D.new(Raylib.rl_RenderTexture_texture_ptr(self), self)
-    def depth = Texture2D.new(Raylib.rl_RenderTexture_depth_ptr(self), self)
   end
 
   class Model
@@ -255,6 +239,9 @@ end
   end
   class FilePathList
     def paths = Ptr.new(Raylib.rl_m_FilePathList_paths(self))
+    # gem-shaped per-entry path string (mirror of the MRI helper in
+    # raylib_ruby.rb). The C shim returns "" for a null handle/index.
+    def path(index) = Raylib.rl_FilePathList_path(self, index)
   end
   class VrDeviceInfo
     # The gem's inline arrays read as value arrays (element-indexed, see

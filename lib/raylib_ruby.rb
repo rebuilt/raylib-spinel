@@ -88,6 +88,21 @@ module Raylib
     UnloadImage(image)
   end
 
+  # ---- FilePathList#path (mirror of the Spinel-side helper) ----
+  # The gem's FilePathList stores a char** in `paths`; expose the same
+  # per-entry reader the Spinel adapter provides, so directory scenes can
+  # write files.path(i) on both engines.
+  class FilePathList
+    def path(index)
+      return "" if index < 0 || index >= count
+
+      ptr = paths.get_pointer(index * FFI.type_size(:pointer))
+      return "" if ptr.null?
+
+      ptr.read_string
+    end
+  end
+
   # ---- UpdateCamera ----
   # The gem binds raylib's UpdateCamera(Camera*, int) and expects a raw
   # pointer; Spinel passes the native Camera object straight to the same

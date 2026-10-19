@@ -431,6 +431,11 @@ module Raylib
   ffi_func :rl_FontBaseSize, [:ptr], :float
   ffi_func :rl_DirListCount, [:ptr], :int
   ffi_func :rl_DirListName, %i[ptr int], :str
+  # Path accessor for the gem-shaped FilePathList#path (ffi_func so the C
+  # return stays const char*; a native_method :str boxes sp_RbVal instead,
+  # which mismatches the shim and reads as an empty string). Ruby-side method
+  # lives next to `paths` in raylib_handles.rb.
+  ffi_func :rl_FilePathList_path, %i[ptr int], :str
   ffi_func :rl_FontTexture_ptr, [:ptr], :ptr
   ffi_func :rl_FontGlyphAdvanceX, [:ptr, :int], :int
   ffi_func :rl_FontGlyphRecWidth, [:ptr, :int], :float
@@ -815,7 +820,6 @@ module Raylib
   native_new [], "rl_FilePathList_new"
   native_method :count, [], :int, "rl_FilePathList_count"
   native_method :count=, [:int], :int, "rl_FilePathList_set_count"
-  native_method :path, [:int], :str, "rl_FilePathList_path"
   native_struct "AutomationEvent", "rl_AutomationEvent"
   native_new [], "rl_AutomationEvent_new"
   native_new [:any, :any], "rl_AutomationEvent_view_any"

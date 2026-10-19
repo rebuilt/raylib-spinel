@@ -78,6 +78,15 @@ module Raylib
   native_method :recs=, [:any], :void, "rl_m_Font_set_recs"
   native_method :texture=, [:any], :void, "rl_m_Font_set_texture"
   native_method :texture_ptr, [], :ptr, "rl_Font_texture_ptr"
+  # View accessors next to the class declaration: a polymorphic send (a Struct
+  # field or an Array element) only finds the native-class arm when the
+  # definition sits here rather than in raylib_handles.rb. The ffi_funcs they
+  # read through are declared at the top of this file.
+  class Font
+    def texture = Texture2D.new(Raylib.rl_Font_texture_ptr(self), self)
+    def recs = Ptr.new(Raylib.rl_Font_recs_addr(self))
+    def glyphs = Ptr.new(Raylib.rl_Font_glyphs_addr(self))
+  end
 
   # -------------------------------------------------------------- GlyphInfo
   native_struct "GlyphInfo", "rl_GlyphInfo"
@@ -92,6 +101,9 @@ module Raylib
   native_method :offsetY=, [:int], :int, "rl_m_GlyphInfo_set_offsetY"
   native_method :advanceX, [], :int, "rl_m_GlyphInfo_advanceX"
   native_method :advanceX=, [:int], :int, "rl_m_GlyphInfo_set_advanceX"
+  class GlyphInfo
+    def image = Image.new(Raylib.rl_GlyphInfo_image_ptr(self), self)
+  end
 
   # --------------------------------------------------------- RenderTexture
   native_struct "RenderTexture", "rl_RenderTexture"
@@ -99,6 +111,10 @@ module Raylib
   native_new [:any, :any], "rl_RenderTexture_view"
   native_method :texture_ptr, [], :ptr, "rl_RenderTexture_texture_ptr"
   native_method :depth_ptr, [], :ptr, "rl_RenderTexture_depth_ptr"
+  class RenderTexture
+    def texture = Texture2D.new(Raylib.rl_RenderTexture_texture_ptr(self), self)
+    def depth = Texture2D.new(Raylib.rl_RenderTexture_depth_ptr(self), self)
+  end
 end
 
 # ------------------------------------------------------------------ batch 2
