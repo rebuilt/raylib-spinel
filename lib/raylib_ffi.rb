@@ -431,8 +431,6 @@ module Raylib
   ffi_func :rl_FontBaseSize, [:ptr], :float
   ffi_func :rl_DirListCount, [:ptr], :int
   ffi_func :rl_DirListName, %i[ptr int], :str
-  ffi_func :rl_AudioStreamSineReset, [], :void
-  ffi_func :rl_UpdateAudioStreamSine, %i[ptr int float float int], :void
   ffi_func :rl_FontTexture_ptr, [:ptr], :ptr
   ffi_func :rl_FontGlyphAdvanceX, [:ptr, :int], :int
   ffi_func :rl_FontGlyphRecWidth, [:ptr, :int], :float

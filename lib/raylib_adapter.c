@@ -3103,9 +3103,6 @@ void rl_DrawTextureProF(void *texture, float sx, float sy, float sw, float sh,
  * - DirList accessors: LoadDirectoryFiles hands back an opaque
  *   FilePathList, and Spinel cannot read a C struct field, so the
  *   count / name accessors are re-exported over the handle.
- * - AudioStreamSine: UpdateAudioStream takes a float* buffer, so the
- *   440 Hz test tone is generated on the C side from the gain the
- *   Ruby side (the ADSR envelope) asks for.
  * ================================================================ */
 
 int rl_DirListCount(void *list) {
@@ -3117,21 +3114,6 @@ const char *rl_DirListName(void *list, int index) {
   rl_FilePathList *fl = (rl_FilePathList *)list;
   if (index < 0 || index >= fl->v.count) return "";
   return fl->v.paths[index];
-}
-
-static double sp_sine_time = 0.0;
-
-void rl_AudioStreamSineReset(void) { sp_sine_time = 0.0; }
-void rl_UpdateAudioStreamSine(void *stream, int frames, float gain,
-                              float frequency, int sampleRate) {
-  static float buffer[4096];
-  if (frames > 4096) frames = 4096;
-  if (frames < 0) frames = 0;
-  for (int i = 0; i < frames; i++) {
-    buffer[i] = gain * (float)sinf(2.0f * (float)PI * frequency * sp_sine_time);
-    sp_sine_time += 1.0 / (double)sampleRate;
-  }
-  if (frames > 0) UpdateAudioStream(*RL_ASTREAM(stream), buffer, frames);
 }
 
 /* ================================================================
