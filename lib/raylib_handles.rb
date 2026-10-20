@@ -228,7 +228,8 @@ end
     def pointer = self
   end
   class Shader
-    def locs = Ptr.new(Raylib.rl_m_Shader_locs(self))
+    # locs lives in raylib_handles_ffi.rb (IntArrayPtr: byte-offset pointer
+    # arithmetic + write_int32, matching the gem's FFI::Pointer).
   end
   class NPatchInfo
     def source

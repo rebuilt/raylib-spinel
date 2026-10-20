@@ -198,6 +198,22 @@ module Raylib
     end
   end
 
+  # ---- File text pointer helpers (mirror of the Spinel adapter) ----
+  # LoadFileText hands back a heap buffer owned by raylib; reading it into a
+  # Ruby String and freeing must go through the same pointer, so the *Ptr pair
+  # (and PtrToString) is the portable spelling.
+  def self.LoadFileTextPtr(file_name)
+    LoadFileText(file_name)
+  end
+
+  def self.PtrToString(ptr)
+    ptr.read_string
+  end
+
+  def self.UnloadFileTextPtr(ptr)
+    UnloadFileText(ptr)
+  end
+
   # ---- DrawPixelsPacked (custom — the Spinel adapter batches the pool) ----
   # Draw `count` 1x1 pixels from parallel pools: x/y floats and packed
   # 0xRRGGBBAA colours. The AOT twin emits the whole pool in one immediate-mode

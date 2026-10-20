@@ -109,6 +109,29 @@ module Raylib
     end
   end
 
+  # raylib's inline int arrays (Shader#locs) index by byte offset like the
+  # gem's FFI::Pointer: `(shader.locs + 4 * index).write_int32(loc)`.
+  class IntArrayPtr
+    def initialize(address)
+      @address = [address, nil].first
+    end
+
+    def address = @address
+    def to_i = @address
+
+    def +(offset)
+      IntArrayPtr.new(address + offset)
+    end
+
+    def write_int32(value)
+      Raylib.rl_PtrWriteInt32(address, 0, value)
+    end
+
+    def read_int32
+      Raylib.rl_PtrReadInt32(address, 0)
+    end
+  end
+
   class Image
     def data = Ptr.new(Raylib.rl_m_Image_data(self))
   end

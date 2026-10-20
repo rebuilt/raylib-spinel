@@ -19,6 +19,8 @@ module Raylib
   ffi_func :rl_PtrWriteFloat, [:long, :long, :float], :void
   ffi_func :rl_PtrReadFloat, [:long, :long], :float
   ffi_func :rl_PtrWriteInt16, [:long, :long, :int], :void
+  ffi_func :rl_PtrWriteInt32, [:long, :long, :int], :void
+  ffi_func :rl_PtrReadInt32, [:long, :long], :int
 
   # Interior pointers into the payload of a handle (for sub-struct views).
   # ffi_funcs (not native_methods): only ffi :ptr returns feed an [:any] ctor.
@@ -215,6 +217,13 @@ native_struct "MaterialMap", "rl_MaterialMap"
   native_new [:any], "rl_Shader_view_addr"
   native_method :id, [], :int, "rl_m_Shader_id"
   native_method :id=, [:int], :int, "rl_m_Shader_set_id"
+  # Gem-shaped locs (raylib's inline int[32]): shader.locs is an address view,
+  # so (shader.locs + 4 * index).write_int32(loc) works like the gem's
+  # FFI::Pointer arithmetic.
+  ffi_func :rl_m_Shader_locs, [:ptr], :long
+  class Shader
+    def locs = IntArrayPtr.new(Raylib.rl_m_Shader_locs(self))
+  end
 
   ffi_func :rl_Model_bone_ptr, [:ptr, :int], :ptr
   ffi_func :rl_Model_bind_pose_ptr, [:ptr, :int], :ptr

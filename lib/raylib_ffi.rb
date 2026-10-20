@@ -1480,6 +1480,20 @@ module Raylib
     def self.UnloadVrStereoConfig(config)
       Raylib.rl_UnloadVrStereoConfig(config)
     end
+    # File-text pointer pair (gem-spelled wrappers over the pointer-preserving
+    # shims; the flat UnloadFileText(:str) would free a copy).
+    def self.LoadFileTextPtr(file_name)
+      Raylib.rl_LoadFileTextPtr(file_name)
+    end
+
+    def self.PtrToString(ptr)
+      Raylib.rl_PtrToString(ptr)
+    end
+
+    def self.UnloadFileTextPtr(ptr)
+      Raylib.rl_UnloadFileTextPtr(ptr)
+    end
+
     def self.LoadShader(vsFileName, fsFileName)
       Shader.new(Raylib.rl_LoadShader(vsFileName, fsFileName), nil)
     end

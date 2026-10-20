@@ -3905,6 +3905,12 @@ long rl_m_Model_boneMatrices(rl_Model *self) { return (long)(intptr_t)RL_MODEL(s
 void rl_Model_set_boneMatrices_ptr(void *model, void *p) { RL_MODEL(model)->boneMatrices = (Matrix *)p; }
 
 /* Ptr#put_array_of_float32: write one float32 at an address */
+void rl_PtrWriteInt32(long addr, int offset, int value) {
+  *(int *)(intptr_t)(addr + offset) = value;
+}
+int rl_PtrReadInt32(long addr, int offset) {
+  return *(int *)(intptr_t)(addr + offset);
+}
 void rl_PtrWriteFloat(long addr, long byte_offset, float v) {
   *((float *)(intptr_t)(addr + byte_offset)) = v;
 }
