@@ -198,6 +198,28 @@ module Raylib
     end
   end
 
+  # ---- DrawPixelsPacked (custom — the Spinel adapter batches the pool) ----
+  # Draw `count` 1x1 pixels from parallel pools: x/y floats and packed
+  # 0xRRGGBBAA colours. The AOT twin emits the whole pool in one immediate-mode
+  # rlBegin/rlEnd; here each pixel is a normal DrawPixel and the (tiny) palette
+  # is memoised so no Color is allocated in the loop.
+  DRAW_PIXEL_COLORS = {}
+
+  def self.DrawPixelsPacked(xs, ys, colors, count)
+    i = 0
+    while i < count
+      rgba = colors[i]
+      c = DRAW_PIXEL_COLORS[rgba]
+      if c.nil?
+        c = Color.new((rgba >> 24) & 0xFF, (rgba >> 16) & 0xFF,
+                      (rgba >> 8) & 0xFF, rgba & 0xFF)
+        DRAW_PIXEL_COLORS[rgba] = c
+      end
+      DrawPixel(xs[i].to_i, ys[i].to_i, c)
+      i += 1
+    end
+  end
+
   # ---- Model mesh/skeleton helpers (mirror of the Spinel ModelRef) ----
   # The gem's helper surface has material/material_count/bone_count; scenes
   # also index meshes. Its bone_count/bone_info/bind_pose_transform still read
