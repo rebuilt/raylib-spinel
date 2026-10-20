@@ -6,6 +6,14 @@
 # gem already binds raygui, so that require is a no-op.
 
 module Raylib
+
+  # Boolean -> int at the FFI boundary. A plain `flag ? 1 : 0` is only safe
+  # when flag is a boolean: Integer 0 is truthy in Ruby, so a caller that
+  # already normalised to 0/1 (or handed a C int back in) would flip to 1.
+  def self.int_flag(flag)
+    return 0 if flag == false || flag.nil? || flag == 0
+    1
+  end
   ffi_lib "raylib"
   ffi_cflags "-I/usr/local/include"
 
@@ -138,9 +146,9 @@ module Raylib
   def self.GuiStatusBar(a1, a2) = Raylib.rl_GuiStatusBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2))
   def self.GuiCheckBox(a1, a2, a3) = Raylib.rl_GuiCheckBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3))
   def self.GuiComboBox(a1, a2, a3) = Raylib.rl_GuiComboBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3))
-  def self.GuiDropdownBox(a1, a2, a3, a4) = Raylib.rl_GuiDropdownBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4 ? 1 : 0)
-  def self.GuiSpinner(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSpinner(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, a6 ? 1 : 0)
-  def self.GuiValueBox(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiValueBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, a6 ? 1 : 0)
+  def self.GuiDropdownBox(a1, a2, a3, a4) = Raylib.rl_GuiDropdownBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.int_flag(a4))
+  def self.GuiSpinner(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSpinner(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, Raylib.int_flag(a6))
+  def self.GuiValueBox(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiValueBox(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), a4, a5, Raylib.int_flag(a6))
   def self.GuiSlider(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSlider(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
   def self.GuiSliderBar(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiSliderBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
   def self.GuiProgressBar(a1, a2, a3, a4, a5, a6) = Raylib.rl_GuiProgressBar(a1.x, a1.y, a1.width, a1.height, Raylib.ptr_addr(a2), Raylib.ptr_addr(a3), Raylib.ptr_addr(a4), a5, a6)
@@ -157,7 +165,7 @@ module Raylib
   def self.GuiToggleSlider(bounds, text, active) = Raylib.rl_GuiToggleSlider(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(active))
   def self.GuiTabBar(bounds, text, hscroll, active) = Raylib.rl_GuiTabBar(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(hscroll), Raylib.ptr_addr(active))
   def self.GuiTabBarEx(bounds, text, count, hscroll, active, focus) = Raylib.rl_GuiTabBarEx(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), count, Raylib.ptr_addr(hscroll), Raylib.ptr_addr(active), Raylib.ptr_addr(focus))
-  def self.GuiValueBoxFloat(bounds, text, text_value, value, edit) = Raylib.rl_GuiValueBoxFloat(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(text_value), Raylib.ptr_addr(value), edit ? 1 : 0)
+  def self.GuiValueBoxFloat(bounds, text, text_value, value, edit) = Raylib.rl_GuiValueBoxFloat(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(text_value), Raylib.ptr_addr(value), Raylib.int_flag(edit))
   def self.GuiColorBarAlpha(bounds, text, alpha) = Raylib.rl_GuiColorBarAlpha(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(alpha))
   def self.GuiColorBarHue(bounds, text, value) = Raylib.rl_GuiColorBarHue(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.ptr_addr(value))
   def self.GuiColorPickerHSV(bounds, text, color_hsv) = Raylib.rl_GuiColorPickerHSV(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.vector3_addr(color_hsv))
@@ -168,7 +176,7 @@ module Raylib
 
   # Value-returning helpers: run the control, then read the updated value.
   def self.GuiCheckBoxValue(x, y, w, h, text, checked)
-    r = Raylib.rl_GuiCheckBoxValue(x, y, w, h, text, checked ? 1 : 0)
+    r = Raylib.rl_GuiCheckBoxValue(x, y, w, h, text, Raylib.int_flag(checked))
     [r, Raylib.rl_Gui_GetInt]
   end
   def self.GuiSliderBarValue(x, y, w, h, l, r, value, lo, hi)
@@ -184,12 +192,12 @@ module Raylib
     # does for `checked`). Handing a bare bool to an int slot is CRuby's
     # TypeError "no implicit conversion of false into Integer".
     res = Raylib.rl_GuiSpinnerValue(x, y, w, h, text, value, lo, hi,
-                                    edit ? 1 : 0)
+                                    Raylib.int_flag(edit))
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiDropdownBoxValue(x, y, w, h, text, active, edit)
     res = Raylib.rl_GuiDropdownBoxValue(x, y, w, h, text, active,
-                                        edit ? 1 : 0)
+                                        Raylib.int_flag(edit))
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiComboBoxValue(x, y, w, h, text, active)
@@ -201,13 +209,13 @@ module Raylib
     [res, Raylib.rl_Gui_GetInt]
   end
 
-  def self.GuiTextBoxFloat(x, y, w, h, text, edit) = Raylib.rl_GuiTextBoxFloat(x, y, w, h, text, edit ? 1 : 0)
+  def self.GuiTextBoxFloat(x, y, w, h, text, edit) = Raylib.rl_GuiTextBoxFloat(x, y, w, h, text, Raylib.int_flag(edit))
   def self.GuiScrollPanel(bounds, text, content, scroll, view) = Raylib.rl_GuiScrollPanel(bounds.x, bounds.y, bounds.width, bounds.height, text, Raylib.rectangle_addr(content), Raylib.vector2_addr(scroll), Raylib.rectangle_addr(view))
   def self.GuiIconText(icon, text) = Raylib.rl_GuiIconText(icon, text)
 
   def self.GuiValueBoxValue(x, y, w, h, text, value, lo, hi, edit)
     res = Raylib.rl_GuiValueBoxValue(x, y, w, h, text, value, lo, hi,
-                                     edit ? 1 : 0)
+                                     Raylib.int_flag(edit))
     [res, Raylib.rl_Gui_GetInt]
   end
   def self.GuiToggleGroupValue(x, y, w, h, text, active)
@@ -240,10 +248,10 @@ module Raylib
   def self.GuiGetFont = Raylib.rl_GuiGetFont
   def self.GuiGetIcons = Raylib.rl_GuiGetIcons
   def self.GuiLoadIcons(file_name, load_names)
-    Raylib.rl_GuiLoadIcons(file_name, load_names ? 1 : 0)
+    Raylib.rl_GuiLoadIcons(file_name, Raylib.int_flag(load_names))
   end
   def self.GuiLoadIconsFromMemory(data, data_size, load_names)
-    Raylib.rl_GuiLoadIconsFromMemory(data, data_size, load_names ? 1 : 0)
+    Raylib.rl_GuiLoadIconsFromMemory(data, data_size, Raylib.int_flag(load_names))
   end
   def self.GuiLoadStyleFromMemory(data, data_size)
     Raylib.rl_GuiLoadStyleFromMemory(data, data_size)
@@ -251,7 +259,7 @@ module Raylib
   def self.GuiDrawIcon(icon_id, x, y, pixel_size, color)
     Raylib.rl_GuiDrawIcon(icon_id, x, y, pixel_size, color)
   end
-  def self.GuiTextBox(bounds, text, text_size, edit) = Raylib.rl_GuiTextBox(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), text_size, edit ? 1 : 0)
+  def self.GuiTextBox(bounds, text, text_size, edit) = Raylib.rl_GuiTextBox(bounds.x, bounds.y, bounds.width, bounds.height, Raylib.ptr_addr(text), text_size, Raylib.int_flag(edit))
   def self.GuiTextInputBox(bounds, title, message, text, text_size, btns, active, secret)
     # coerce at the boundary: the delegate's parameters are untyped, and a raw
     # forward lets the inference mistype the slots (B4)
@@ -264,9 +272,6 @@ module Raylib
 
   # Value-returning variants (control result + updated value(s)).
   def self.GuiSetColorHSV(h, s, v) = Raylib.rl_Gui_SetHsv(h, s, v)
-
-  # Legacy RGui* aliases (the examples use these names).
-  # RGuiCheckBox takes the same `int *` as GuiCheckBox (see the note above).
 
   # raygui control + style property constants (raygui 5.0)
   DEFAULT = 0

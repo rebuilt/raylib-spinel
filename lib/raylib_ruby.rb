@@ -88,6 +88,15 @@ module Raylib
     UnloadImage(image)
   end
 
+  # ---- raygui helpers as module functions ----
+  # The gem's value-returning helpers (RGuiCheckBox, RGuiSlider, RGuiListView,
+  # ... in raygui_helper.rb) are module *instance* methods, available to code
+  # that does `include Raylib`. Scenes call them as Raylib.RGuiX like every
+  # other binding, so mirror the whole instance surface onto the module.
+  # Methods defined directly on the singleton (the snake_case aliases, the
+  # Vector2/Color factories, ...) take precedence over the included ones.
+  singleton_class.include(Raylib)
+
   # ---- FilePathList#path (mirror of the Spinel-side helper) ----
   # The gem's FilePathList stores a char** in `paths`; expose the same
   # per-entry reader the Spinel adapter provides, so directory scenes can
@@ -187,6 +196,14 @@ module Raylib
       m.m2 = values[8]; m.m6 = values[9]; m.m10 = values[10]; m.m14 = values[11]
       m.m3 = values[12]; m.m7 = values[13]; m.m11 = values[14]; m.m15 = values[15]
     end
+  end
+
+  # ---- Rectangle factory (mirror of the Spinel-side helper) ----
+  # raylib_ffi.rb defines Raylib::Rectangle(x, y, w, h) next to the Vector2/4
+  # factories; scenes write Raylib::Rectangle(...) in places, so provide the
+  # same call shape here (the gem's own factory is Rectangle.create).
+  def self.Rectangle(x, y, width, height)
+    Rectangle.create(x, y, width, height)
   end
 
   # ---- snake_case aliases (MRI gem :snake_case naming) ----

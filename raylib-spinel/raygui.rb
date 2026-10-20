@@ -7,6 +7,8 @@
 # CRuby the raylib-bindings gem already binds raygui.
 if RUBY_ENGINE == "spinel"
   require_relative "../lib/raygui_ffi"
+  # Gem-shaped RGui* helpers (Rectangle bounds, value-first returns).
+  require_relative "../lib/raygui_compat"
 else
   # no-op under CRuby
 end

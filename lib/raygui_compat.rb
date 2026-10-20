@@ -17,7 +17,7 @@ module Raylib
 
   def self.RGuiToggle(bounds, text, active)
     res = Raylib.rl_GuiToggleValue(bounds.x, bounds.y, bounds.width, bounds.height,
-                                   text, active ? 1 : 0)
+                                   text, Raylib.int_flag(active))
     [Raylib.rl_Gui_GetInt, res]
   end
 
@@ -35,7 +35,7 @@ module Raylib
 
   def self.RGuiCheckBox(bounds, text, checked)
     res = Raylib.rl_GuiCheckBoxValue(bounds.x, bounds.y, bounds.width,
-                                     bounds.height, text, checked ? 1 : 0)
+                                     bounds.height, text, Raylib.int_flag(checked))
     [Raylib.rl_Gui_GetInt != 0, res]
   end
 
@@ -48,21 +48,21 @@ module Raylib
   def self.RGuiDropdownBox(bounds, text, active, edit_mode)
     res = Raylib.rl_GuiDropdownBoxValue(bounds.x, bounds.y, bounds.width,
                                         bounds.height, text, (active || 0).to_i,
-                                        edit_mode ? 1 : 0)
+                                        Raylib.int_flag(edit_mode))
     [Raylib.rl_Gui_GetInt, res]
   end
 
   def self.RGuiSpinner(bounds, text, value, min_value, max_value, edit_mode)
     res = Raylib.rl_GuiSpinnerValue(bounds.x, bounds.y, bounds.width,
                                     bounds.height, text, (value || 0).to_i, (min_value || 0).to_i,
-                                    (max_value || 0).to_i, edit_mode ? 1 : 0)
+                                    (max_value || 0).to_i, Raylib.int_flag(edit_mode))
     [Raylib.rl_Gui_GetInt, res]
   end
 
   def self.RGuiValueBox(bounds, text, value, min_value, max_value, edit_mode)
     res = Raylib.rl_GuiValueBoxValue(bounds.x, bounds.y, bounds.width,
                                      bounds.height, text, (value || 0).to_i, (min_value || 0).to_i,
-                                     (max_value || 0).to_i, edit_mode ? 1 : 0)
+                                     (max_value || 0).to_i, Raylib.int_flag(edit_mode))
     [Raylib.rl_Gui_GetInt, res]
   end
 

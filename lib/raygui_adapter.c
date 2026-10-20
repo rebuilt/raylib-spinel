@@ -115,7 +115,9 @@ int rl_GuiListView(float x, float y, float w, float h, const char *text,
 }
 int rl_GuiColorPicker(float x, float y, float w, float h, const char *text,
                       void *color) {
-  return GuiColorPicker((Rectangle){ x, y, w, h }, text, &((rl_Color *)color)->c);
+  /* color_addr() hands over the Color payload (this file's rl_Color wrapper
+   * has no payload pointer to unwrap through), so the cast is to Color*. */
+  return GuiColorPicker((Rectangle){ x, y, w, h }, text, (Color *)color);
 }
 int rl_GuiGrid(float x, float y, float w, float h, const char *text,
                float spacing, int subdivs, void *mouseCell) {
@@ -310,7 +312,7 @@ void rl_GuiLoadStyleFromMemory(void *fileData, int dataSize) {
   GuiLoadStyleFromMemory((const unsigned char *)fileData, dataSize);
 }
 void rl_GuiDrawIcon(int iconId, int posX, int posY, int pixelSize, void *color) {
-  GuiDrawIcon(iconId, posX, posY, pixelSize, ((rl_Color *)color)->c);
+  GuiDrawIcon(iconId, posX, posY, pixelSize, *(Color *)color);
 }
 
 /* ---- value-returning controls ---- */

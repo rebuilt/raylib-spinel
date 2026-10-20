@@ -72,6 +72,9 @@ RAW_BY_DESIGN = {
     "DrawMeshInstanced": {"transforms"},
     "DestroyPhysicsBody": {"body"}, "PhysicsAddTorque": {"body"},
     "PhysicsShatter": {"body"}, "SetPhysicsBodyRotation": {"body"},
+    # raygui color params arrive as the Color payload from Raylib.color_addr
+    # (raygui_adapter.c's rl_Color mirror has no p/owner to unwrap).
+    "GuiColorPicker": {"color"}, "GuiDrawIcon": {"color"},
 }
 
 DEF_RE = re.compile(r"^(?:void|int|float|double|bool|char|size_t|unsigned [a-z]+|"
