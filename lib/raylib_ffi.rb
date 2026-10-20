@@ -469,6 +469,11 @@ module Raylib
   ffi_func :rl_ModelSetDiffuseTexture, %i[ptr int ptr], :int
   ffi_func :rl_RayCollision_point, [:ptr, :ptr], :void
   ffi_func :rl_RayCollision_normal, [:ptr, :ptr], :void
+  ffi_func :rl_BoundingBox_min_ptr, [:ptr], :ptr
+  ffi_func :rl_BoundingBox_max_ptr, [:ptr], :ptr
+  ffi_func :rl_Transform_t_ptr, [:ptr], :ptr
+  ffi_func :rl_Transform_r_ptr, [:ptr], :ptr
+  ffi_func :rl_Transform_s_ptr, [:ptr], :ptr
   ffi_func :rl_Camera2D_offset_ptr, [:ptr], :ptr
   ffi_func :rl_Camera2D_target_ptr, [:ptr], :ptr
   ffi_func :rl_Camera_position_ptr, [:ptr], :ptr
@@ -709,6 +714,7 @@ module Raylib
   native_struct "Vector4", "rl_Vector4"
   native_new [], "rl_Vector4_new"
   native_new [:ptr, :any], "rl_Vector4_view"
+  native_new [:any], "rl_Vector4_view_addr"
   native_method :x, [], :float, "rl_Vector4_x"
   native_method :x=, [:float], :float, "rl_Vector4_set_x"
   native_method :y, [], :float, "rl_Vector4_y"
@@ -753,12 +759,25 @@ module Raylib
   native_method :with_max, %i[float float float], :self, "rl_BoundingBox_with_max"
   native_method :min_ptr, [], :ptr, "rl_BoundingBox_min_ptr"
   native_method :max_ptr, [], :ptr, "rl_BoundingBox_max_ptr"
+  class BoundingBox
+    def min = Vector3.new(Raylib.rl_BoundingBox_min_ptr(self))
+    def max = Vector3.new(Raylib.rl_BoundingBox_max_ptr(self))
+  end
   # Transform (3 Vector3s): the gem helper class, views for t/r/s.
   native_struct "Transform", "rl_Transform"
   native_new [], "rl_Transform_new"
   native_method :t_ptr, [], :ptr, "rl_Transform_t_ptr"
   native_method :r_ptr, [], :ptr, "rl_Transform_r_ptr"
   native_method :s_ptr, [], :ptr, "rl_Transform_s_ptr"
+  # Gem helper names (raylib_helper.rb Transform#t/#r/#s), address views.
+  class Transform
+    def t = Vector3.new(Raylib.rl_Transform_t_ptr(self))
+    def translation = t
+    def r = Vector4.new(Raylib.rl_Transform_r_ptr(self))
+    def rotation = r
+    def s = Vector3.new(Raylib.rl_Transform_s_ptr(self))
+    def scale = s
+  end
   native_struct "Ray", "rl_Ray"
   native_new [], "rl_Ray_new"
   native_struct "RayCollision", "rl_RayCollision"
@@ -767,6 +786,8 @@ module Raylib
   native_method :hit=, [:int], :int, "rl_RayCollision_set_hit"
   native_method :distance, [], :float, "rl_RayCollision_distance"
   native_method :distance=, [:float], :float, "rl_RayCollision_set_distance"
+  # collision.point / collision.normal live in raylib_handles.rb (value copies
+  # from the out-param shims).
   native_struct "Matrix", "rl_Matrix"
   native_new [], "rl_Matrix_new"
   native_method :m0, [], :float, "rl_Matrix_m0"

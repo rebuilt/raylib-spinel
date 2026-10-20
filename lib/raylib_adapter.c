@@ -3613,6 +3613,14 @@ rl_Vector3 *rl_Vector3_view_addr(sp_int cls_id, sp_RbVal addr) {
   return s;
 }
 
+rl_Vector4 *rl_Vector4_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Vector4 *s = (rl_Vector4 *)sp_gc_alloc(sizeof(rl_Vector4), NULL, rl_Vector4_scan);
+  s->cls_id = cls_id;
+  s->p = (Vector4 *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
+
 /* Rectangle view from an address Integer (the gem idiom
  * `Rectangle.new(font.recs + i * Rectangle.size)`; the argument is a
  * boxed Integer because Spinel boxes poly arithmetic). */

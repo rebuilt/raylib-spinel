@@ -198,6 +198,34 @@ module Raylib
     end
   end
 
+  # ---- Model mesh/skeleton helpers (mirror of the Spinel ModelRef) ----
+  # The gem's helper surface has material/material_count/bone_count; scenes
+  # also index meshes. Its bone_count/bone_info/bind_pose_transform still read
+  # the raylib 5 field layout (Model[:boneCount]), but this gem's own Model
+  # struct keeps the skeleton under Model[:skeleton] -- so those three are
+  # overridden here with the layout the gem actually binds.
+  class Model
+    def mesh(index = 0)
+      Mesh.new(self[:meshes] + index * FFI::NativeType::POINTER.size)
+    end
+
+    def mesh_count
+      self[:meshCount]
+    end
+
+    def bone_count
+      self[:skeleton][:boneCount]
+    end
+
+    def bone_info(index)
+      BoneInfo.new(self[:skeleton][:bones] + index * BoneInfo.size)
+    end
+
+    def bind_pose_transform(index)
+      Transform.new(self[:skeleton][:bindPose] + index * Transform.size)
+    end
+  end
+
   # ---- Rectangle factory (mirror of the Spinel-side helper) ----
   # raylib_ffi.rb defines Raylib::Rectangle(x, y, w, h) next to the Vector2/4
   # factories; scenes write Raylib::Rectangle(...) in places, so provide the

@@ -128,9 +128,7 @@ module Raylib
 
   class BoundingBox
 
-    # Sub-struct views (bounding_box.min / .max Vector3s).
-    def min = Vector3.new(min_ptr, self)
-    def max = Vector3.new(max_ptr, self)
+    # min/max views live in raylib_ffi.rb next to the native declarations.
 
     # The gem's factory: create(min_vector, max_vector) or
     # create(min_x, min_y, min_z, max_x, max_y, max_z). The optional tail keeps
@@ -149,19 +147,8 @@ module Raylib
     end
   end
 
-  class Transform
-
-    # raylib's Transform { Vector3 translation; Quaternion rotation; Vector3
-    # scale; } (rotation is 16 bytes, hence size 40). The gem exposes both the
-    # layout names and the t/r/s shorthand; all are reads (views).
-    def translation = Vector3.new(t_ptr, self)
-    def rotation = Vector4.new(r_ptr, self)
-    def scale = Vector3.new(s_ptr, self)
-
-    def t = translation
-    def r = rotation
-    def s = scale
-  end
+  # Transform#t/.r/.s (and the layout names) live in raylib_ffi.rb next to the
+  # native declarations, using the address-view form.
 
   class Ray
   end
