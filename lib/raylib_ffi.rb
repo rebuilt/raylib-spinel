@@ -469,6 +469,11 @@ module Raylib
   ffi_func :rl_ModelSetDiffuseTexture, %i[ptr int ptr], :int
   ffi_func :rl_RayCollision_point, [:ptr, :ptr], :void
   ffi_func :rl_RayCollision_normal, [:ptr, :ptr], :void
+  ffi_func :rl_Camera2D_offset_ptr, [:ptr], :ptr
+  ffi_func :rl_Camera2D_target_ptr, [:ptr], :ptr
+  ffi_func :rl_Camera_position_ptr, [:ptr], :ptr
+  ffi_func :rl_Camera_target_ptr, [:ptr], :ptr
+  ffi_func :rl_Camera_up_ptr, [:ptr], :ptr
   ffi_func :rl_Camera_position_x, [:ptr], :float
   ffi_func :rl_Camera_position_y, [:ptr], :float
   ffi_func :rl_Camera_position_z, [:ptr], :float
@@ -728,10 +733,20 @@ module Raylib
   native_new [], "rl_Camera2D_new"
   native_method :offset_ptr, [], :ptr, "rl_Camera2D_offset_ptr"
   native_method :target_ptr, [], :ptr, "rl_Camera2D_target_ptr"
+  # Vector2 views (gem: camera.offset.x), address form like Camera#position.
+  class Camera2D
+    def offset = Vector2.new(Raylib.rl_Camera2D_offset_ptr(self))
+    def target = Vector2.new(Raylib.rl_Camera2D_target_ptr(self))
+  end
   native_method :rotation, [], :float, "rl_Camera2D_rotation"
   native_method :rotation=, [:float], :float, "rl_Camera2D_set_rotation"
   native_method :zoom, [], :float, "rl_Camera2D_zoom"
   native_method :zoom=, [:float], :float, "rl_Camera2D_set_zoom"
+  # Gem-shaped fluent builders (raylib_helper.rb Camera2D#with_*).
+  native_method :with_target, [:float, :float], :self, "rl_Camera2D_with_target"
+  native_method :with_offset, [:float, :float], :self, "rl_Camera2D_with_offset"
+  native_method :with_rotation, [:float], :self, "rl_Camera2D_with_rotation"
+  native_method :with_zoom, [:float], :self, "rl_Camera2D_with_zoom"
   native_struct "BoundingBox", "rl_BoundingBox"
   native_new [], "rl_BoundingBox_new"
   native_method :with_min, %i[float float float], :self, "rl_BoundingBox_with_min"
@@ -969,6 +984,15 @@ module Raylib
   native_method :position_ptr, [], :ptr, "rl_Camera_position_ptr"
   native_method :target_ptr, [], :ptr, "rl_Camera_target_ptr"
   native_method :up_ptr, [], :ptr, "rl_Camera_up_ptr"
+  # Vector3 views (gem: camera.position.x). ffi_func form: a native_method :ptr
+  # return is boxed and produces a zeroed view when fed to Vector3.new.
+  class Camera
+    # The address-view constructor (the 2-arg form wants a raw void*, which an
+    # ffi_func :ptr result is not). The camera outlives these views in scenes.
+    def position = Vector3.new(Raylib.rl_Camera_position_ptr(self))
+    def target = Vector3.new(Raylib.rl_Camera_target_ptr(self))
+    def up = Vector3.new(Raylib.rl_Camera_up_ptr(self))
+  end
   native_method :fovy, [], :float, "rl_Camera_fovy"
   native_method :fovy=, [:float], :float, "rl_Camera_set_fovy"
   native_method :projection, [], :int, "rl_Camera_projection"
@@ -1163,8 +1187,9 @@ module Raylib
       Raylib.rl_DrawTexture(texture, (x || 0).to_i, (y || 0).to_i, color)
     end
 
-    def self.DrawTextureEx(texture, x, y, rotation, scale, color)
-      Raylib.rl_DrawTextureEx(texture, x, y, rotation, scale, color)
+    def self.DrawTextureEx(texture, position, rotation, scale, color)
+      Raylib.rl_DrawTextureEx(texture, position.x, position.y, rotation, scale,
+                              color)
     end
 
     def self.LoadTexture(path)
@@ -1185,6 +1210,14 @@ module Raylib
 
     def self.BeginMode3D(camera)
       Raylib.rl_BeginMode3D(camera)
+    end
+
+    def self.EndMode3D()
+      Raylib.rl_EndMode3D()
+    end
+
+    def self.DrawGrid(slices, spacing)
+      Raylib.rl_DrawGrid(slices, spacing)
     end
 
     def self.UpdateCamera(camera, mode)

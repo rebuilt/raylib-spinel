@@ -121,65 +121,10 @@ module Raylib
     end
   end
 
-  class Camera2D
-
-    # Sub-struct views (the gem's camera.offset / camera.target Vector2s).
-    def offset = Vector2.new(offset_ptr, self)
-    def target = Vector2.new(target_ptr, self)
-
-    def with_offset(x, y)
-      offset.set(x, y)
-      self
-    end
-
-    def with_target(x, y)
-      target.set(x, y)
-      self
-    end
-
-    def with_rotation(rotation)
-      self.rotation = rotation
-      self
-    end
-
-    def with_zoom(zoom)
-      self.zoom = zoom
-      self
-    end
-  end
-
-  class Camera
-
-    # Sub-struct views (the gem's camera.position / .target / .up Vector3s).
-    def position = Vector3.new(position_ptr, self)
-    def target = Vector3.new(target_ptr, self)
-    def up = Vector3.new(up_ptr, self)
-
-    def with_position(x, y, z)
-      position.set(x, y, z)
-      self
-    end
-
-    def with_target(x, y, z)
-      target.set(x, y, z)
-      self
-    end
-
-    def with_up(x, y, z)
-      up.set(x, y, z)
-      self
-    end
-
-    def with_fovy(fovy)
-      self.fovy = fovy
-      self
-    end
-
-    def with_projection(projection)
-      self.projection = projection
-      self
-    end
-  end
+  # Camera#position/.target/.up and the with_* fluent builders, and
+  # Camera2D#offset/.target and its with_* builders, live in raylib_ffi.rb
+  # next to the native declarations (address-view / C fill shims), so every
+  # entry path loads one definition.
 
   class BoundingBox
 

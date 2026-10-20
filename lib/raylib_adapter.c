@@ -122,6 +122,16 @@ Color *rl_Color_view(sp_int cls_id, void *p, sp_RbVal owner) {
   self->owner = owner;
   return self;
 }
+
+/* Color view from an address Integer (the gem idiom
+ * Color.new(mapPixels + Color.size * i) over LoadImageColors). */
+rl_Color *rl_Color_view_addr(sp_int cls_id, sp_RbVal addr) {
+  rl_Color *s = (rl_Color *)sp_gc_alloc(sizeof(rl_Color), NULL, rl_Color_scan);
+  s->cls_id = cls_id;
+  s->p = (Color *)rl_h_unbox(addr);
+  s->owner = sp_box_nil();
+  return s;
+}
 sp_int rl_Color_set_r(rl_Color *self, sp_int r) { RL_COLOR(self)->r = (unsigned char)r; return r; }
 sp_int rl_Color_set_g(rl_Color *self, sp_int g) { RL_COLOR(self)->g = (unsigned char)g; return g; }
 sp_int rl_Color_set_b(rl_Color *self, sp_int b) { RL_COLOR(self)->b = (unsigned char)b; return b; }
@@ -585,6 +595,23 @@ rl_Camera2D *rl_Camera2D_new(sp_int cls_id) {
 }
 double rl_Camera2D_rotation(rl_Camera2D *self) {
   return (double)self->v.rotation;
+}
+
+rl_Camera2D *rl_Camera2D_with_target(rl_Camera2D *self, double x, double y) {
+  self->v.target = (Vector2){ (float)x, (float)y };
+  return self;
+}
+rl_Camera2D *rl_Camera2D_with_offset(rl_Camera2D *self, double x, double y) {
+  self->v.offset = (Vector2){ (float)x, (float)y };
+  return self;
+}
+rl_Camera2D *rl_Camera2D_with_rotation(rl_Camera2D *self, double rotation) {
+  self->v.rotation = (float)rotation;
+  return self;
+}
+rl_Camera2D *rl_Camera2D_with_zoom(rl_Camera2D *self, double zoom) {
+  self->v.zoom = (float)zoom;
+  return self;
 }
 /* Sub-struct views (P2): offset/target point into the embedded Camera2D. */
 void *rl_Camera2D_offset_ptr(rl_Camera2D *self) { return (void *)&self->v.offset; }
