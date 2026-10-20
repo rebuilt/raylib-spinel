@@ -223,6 +223,18 @@ module Raylib
     font
   end
 
+  # ---- camera component helpers (mirror of the Spinel-side wrappers) ----
+  # Scenes read camera.position.x etc. through these because Spinel's
+  # polymorphic field dispatch cannot resolve Camera#position once physac's
+  # PhysicsBodyData#position is in the translation unit (the require "raylib"
+  # entry loads it).
+  def self.CameraPositionX(camera) = camera.position.x
+  def self.CameraPositionY(camera) = camera.position.y
+  def self.CameraPositionZ(camera) = camera.position.z
+  def self.CameraTargetX(camera) = camera.target.x
+  def self.CameraTargetY(camera) = camera.target.y
+  def self.CameraTargetZ(camera) = camera.target.z
+
   # ---- rlgl: the Spinel side exposes it as `Rlgl`, the gem on Raylib ----
   # Scenes write Rlgl.rlBegin(RL_TRIANGLES) etc. The alias is installed at the
   # bottom of this file (top level) so the constant resolves like on Spinel.
@@ -252,6 +264,21 @@ module Raylib
 
   def self.UnloadFileTextPtr(ptr)
     UnloadFileText(ptr)
+  end
+
+  # ---- DrawTexturePacked (custom — the Spinel adapter unpacks the tint) ----
+  # Draw a sprite with a packed 0xRRGGBBAA tint. Tints are per-bunny random, so
+  # the Color is reused and its channels rewritten instead of being allocated
+  # (or memoised) per sprite.
+  DRAW_TEXTURE_COLOR = Color.new(0, 0, 0, 255)
+
+  def self.DrawTexturePacked(texture, x, y, rgba)
+    c = DRAW_TEXTURE_COLOR
+    c.r = (rgba >> 24) & 0xFF
+    c.g = (rgba >> 16) & 0xFF
+    c.b = (rgba >> 8) & 0xFF
+    c.a = rgba & 0xFF
+    DrawTexture(texture, x, y, c)
   end
 
   # ---- DrawPixelsPacked (custom — the Spinel adapter batches the pool) ----

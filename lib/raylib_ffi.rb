@@ -1007,6 +1007,20 @@ module Raylib
   native_method :up_ptr, [], :ptr, "rl_Camera_up_ptr"
   # Vector3 views (gem: camera.position.x). ffi_func form: a native_method :ptr
   # return is boxed and produces a zeroed view when fed to Vector3.new.
+  # Camera position/target components. Spinel emits a *field* dispatch for
+  # `position` once any native struct has a field of that name (physac's
+  # PhysicsBodyData does, and the `require "raylib"` entry loads it), which
+  # leaves the Camera arm out and breaks `camera.position.x` on polymorphic
+  # receivers. These helpers go through the component shims instead, so they
+  # work on typed and polymorphic receivers alike (mirrored on CRuby in
+  # raylib_ruby.rb).
+  def self.CameraPositionX(camera) = Raylib.rl_Camera_position_x(camera)
+  def self.CameraPositionY(camera) = Raylib.rl_Camera_position_y(camera)
+  def self.CameraPositionZ(camera) = Raylib.rl_Camera_position_z(camera)
+  def self.CameraTargetX(camera) = Raylib.rl_Camera_target_x(camera)
+  def self.CameraTargetY(camera) = Raylib.rl_Camera_target_y(camera)
+  def self.CameraTargetZ(camera) = Raylib.rl_Camera_target_z(camera)
+
   class Camera
     # The address-view constructor (the 2-arg form wants a raw void*, which an
     # ffi_func :ptr result is not). The camera outlives these views in scenes.
@@ -1206,6 +1220,12 @@ module Raylib
     end
     def self.DrawTexture(texture, x, y, color)
       Raylib.rl_DrawTexture(texture, (x || 0).to_i, (y || 0).to_i, color)
+    end
+
+    # Draw a sprite with a packed 0xRRGGBBAA tint (no Color per sprite on the
+    # Ruby side); mirrored on CRuby in raylib_ruby.rb.
+    def self.DrawTexturePacked(texture, x, y, rgba)
+      Raylib.rl_DrawTexturePacked(texture, x, y, rgba)
     end
 
     def self.DrawTextureEx(texture, position, rotation, scale, color)
