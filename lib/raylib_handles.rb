@@ -410,9 +410,19 @@ end
 
   def self.rl_ImageFromImageF(image, x, y, w, h) = Image.new(Raylib.rl_ImageFromImageF_ptr(image, x, y, w, h), nil)
 
-  def self.rl_LoadFontAtlas(path, fontSize, loadGlyphCount, atlasGlyphCount, padding, packMethod, fontType)
+  # Gem-shaped name for the atlas builder (mirrored on CRuby in
+  # raylib_ruby.rb via LoadFontData + GenImageFontAtlas).
+  def self.LoadFontAtlas(path, fontSize, loadGlyphCount, atlasGlyphCount,
+                         padding, packMethod, fontType)
     Font.new(Raylib.rl_LoadFontAtlas_ptr(path, fontSize, loadGlyphCount,
                                          atlasGlyphCount, padding, packMethod,
                                          fontType), nil)
+  end
+
+  # kept for the older spelling used elsewhere
+  def self.rl_LoadFontAtlas(path, fontSize, loadGlyphCount, atlasGlyphCount,
+                            padding, packMethod, fontType)
+    LoadFontAtlas(path, fontSize, loadGlyphCount, atlasGlyphCount, padding,
+                  packMethod, fontType)
   end
 end

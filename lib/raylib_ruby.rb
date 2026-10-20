@@ -198,6 +198,46 @@ module Raylib
     end
   end
 
+  # ---- LoadFontAtlas (custom — the Spinel adapter builds the font in C) ----
+  # LoadFontData + GenImageFontAtlas + texture, mirroring rl_LoadFontAtlas_ptr
+  # (used by the SDF text scene for custom glyph ranges / packing).
+  def self.LoadFontAtlas(path, font_size, load_glyph_count, atlas_glyph_count,
+                         padding, pack_method, font_type)
+    size_buf = FFI::MemoryPointer.new(:int, 1)
+    data = LoadFileData(path, size_buf)
+    loaded_buf = FFI::MemoryPointer.new(:int, 1)
+    glyphs = LoadFontData(data, size_buf.read_int32, font_size, nil,
+                          load_glyph_count, font_type, loaded_buf)
+    recs_buf = FFI::MemoryPointer.new(:pointer, 1)
+    atlas = GenImageFontAtlas(glyphs, recs_buf, atlas_glyph_count, font_size,
+                              padding, pack_method)
+    font = Font.new
+    font[:baseSize] = font_size
+    font[:glyphCount] = atlas_glyph_count
+    font[:glyphPadding] = padding
+    font[:texture] = LoadTextureFromImage(atlas)
+    font[:recs] = recs_buf.get_pointer(0)
+    font[:glyphs] = glyphs
+    UnloadImage(atlas)
+    UnloadFileData(data)
+    font
+  end
+
+  # ---- rlgl: the Spinel side exposes it as `Rlgl`, the gem on Raylib ----
+  # Scenes write Rlgl.rlBegin(RL_TRIANGLES) etc. The alias is installed at the
+  # bottom of this file (top level) so the constant resolves like on Spinel.
+
+  # ---- physac struct helpers (mirror of the Spinel physac shims) ----
+  # physac.h makes PhysicsBody opaque; the Spinel side exposes these two field
+  # helpers. Mirror them over the gem's PhysicsBodyData layout.
+  def self.PhysicsBodySetEnabled(body, enabled)
+    PhysicsBodyData.new(body)[:enabled] = enabled ? true : false
+  end
+
+  def self.PhysicsBodyGetPosY(body)
+    PhysicsBodyData.new(body)[:position].y
+  end
+
   # ---- File text pointer helpers (mirror of the Spinel adapter) ----
   # LoadFileText hands back a heap buffer owned by raylib; reading it into a
   # Ruby String and freeing must go through the same pointer, so the *Ptr pair
@@ -293,3 +333,8 @@ module Raylib
     end
   end
 end
+
+# rlgl compat: the Spinel build exposes the immediate-mode API (and its RL_*
+# constants) as a top-level `Rlgl` module; the gem binds the same functions on
+# Raylib. Alias the constant so scene code keeps one spelling.
+Object.const_set(:Rlgl, Raylib) unless Object.const_defined?(:Rlgl)
