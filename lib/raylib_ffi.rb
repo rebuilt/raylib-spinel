@@ -1024,6 +1024,12 @@ module Raylib
   # every TU shape; see FontTexture above). Mirrored on CRuby.
   # rlgl matrix multiply from a Matrix view (the raw Rlgl.rlMultMatrixf ffi_func
   # passes the view header under AOT; the gem's takes a pointer to floats).
+  # Gamepad device name (the gem's binding returns a pointer; CRuby mirror in
+  # raylib_ruby.rb reads the string).
+  def self.GamepadName(gamepad)
+    Raylib.GetGamepadName(gamepad)
+  end
+
   def self.MultMatrixf(matrix)
     Raylib.rl_rlMultMatrixf_matrix(matrix)
   end

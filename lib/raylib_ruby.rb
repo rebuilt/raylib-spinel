@@ -229,6 +229,13 @@ module Raylib
   # PhysicsBodyData#position is in the translation unit (the require "raylib"
   # entry loads it).
   # ---- font glyph metrics (mirror of the Spinel-side wrappers) ----
+  # ---- gamepad name (mirror of the Spinel :str wrapper) ----
+  # The gem binds GetGamepadName as :pointer; scenes want the device name.
+  def self.GamepadName(gamepad)
+    ptr = GetGamepadName(gamepad)
+    ptr.nil? ? '' : ptr.read_string
+  end
+
   def self.MultMatrixf(matrix)
     rlMultMatrixf(matrix)
   end
