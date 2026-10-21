@@ -2913,6 +2913,13 @@ void rl_RayCollision_normal(void *self, void *out) {
 }
 
 /* Camera3D position component reads (native Camera has no field accessors). */
+/* rlgl matrix multiply from an rl_Matrix view. The rlMultMatrixf ffi_func
+ * takes :ptr, which under AOT receives the view header, not the matrix; this
+ * unwraps it (used by the flocking scenes' per-boid orientation). */
+void rl_rlMultMatrixf_matrix(void *mat) {
+  rlMultMatrixf((float *)&((rl_Matrix *)mat)->v);
+}
+
 void rl_Camera_position_from_bounds(void *self, void *box, float pad) {
   BoundingBox *b = (BoundingBox *)box;
   ((rl_Camera *)self)->c.position = (Vector3){ b->max.x + pad, b->max.y + pad,

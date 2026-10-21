@@ -228,6 +228,36 @@ module Raylib
   # polymorphic field dispatch cannot resolve Camera#position once physac's
   # PhysicsBodyData#position is in the translation unit (the require "raylib"
   # entry loads it).
+  # ---- font glyph metrics (mirror of the Spinel-side wrappers) ----
+  def self.MultMatrixf(matrix)
+    rlMultMatrixf(matrix)
+  end
+
+  def self.RenderTextureTexture(target)
+    target.texture
+  end
+
+  def self.BoundingBoxMin(box) = box.min
+  def self.BoundingBoxMax(box) = box.max
+
+  def self.FilePathListPath(list, index)
+    list.path(index)
+  end
+
+  def self.TransformTranslation(xform) = xform.t
+
+  def self.FontTexture(font)
+    font.texture
+  end
+
+  def self.FontGlyphAdvanceX(font, index)
+    GlyphInfo.new(font.glyphs + index * GlyphInfo.size).advanceX
+  end
+
+  def self.FontGlyphRecWidth(font, index)
+    Rectangle.new(font.recs + index * Rectangle.size).width
+  end
+
   def self.CameraPositionX(camera) = camera.position.x
   def self.CameraPositionY(camera) = camera.position.y
   def self.CameraPositionZ(camera) = camera.position.z

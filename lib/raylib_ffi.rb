@@ -476,6 +476,7 @@ module Raylib
   ffi_func :rl_Transform_s_ptr, [:ptr], :ptr
   ffi_func :rl_Camera2D_offset_ptr, [:ptr], :ptr
   ffi_func :rl_Camera2D_target_ptr, [:ptr], :ptr
+  ffi_func :rl_rlMultMatrixf_matrix, [:ptr], :void
   ffi_func :rl_Camera_position_ptr, [:ptr], :ptr
   ffi_func :rl_Camera_target_ptr, [:ptr], :ptr
   ffi_func :rl_Camera_up_ptr, [:ptr], :ptr
@@ -1014,6 +1015,47 @@ module Raylib
   # receivers. These helpers go through the component shims instead, so they
   # work on typed and polymorphic receivers alike (mirrored on CRuby in
   # raylib_ruby.rb).
+  # Font glyph metrics. A polymorphic receiver cannot reach Font#glyphs /
+  # #recs in every TU shape (the name is a native struct field, and the
+  # require "raylib" entry degrades the send to an empty field dispatch), so
+  # scenes go through these shim wrappers (mirrored on CRuby).
+  # Render texture / bounding box / path-list views through their shims, for
+  # polymorphic receivers (the Ruby accessors on native classes do not survive
+  # every TU shape; see FontTexture above). Mirrored on CRuby.
+  # rlgl matrix multiply from a Matrix view (the raw Rlgl.rlMultMatrixf ffi_func
+  # passes the view header under AOT; the gem's takes a pointer to floats).
+  def self.MultMatrixf(matrix)
+    Raylib.rl_rlMultMatrixf_matrix(matrix)
+  end
+
+  def self.RenderTextureTexture(target)
+    Texture2D.new(Raylib.rl_RenderTexture_texture_ptr(target), target)
+  end
+
+  def self.BoundingBoxMin(box) = Vector3.new(Raylib.rl_BoundingBox_min_ptr(box))
+  def self.BoundingBoxMax(box) = Vector3.new(Raylib.rl_BoundingBox_max_ptr(box))
+
+  def self.FilePathListPath(list, index)
+    Raylib.rl_FilePathList_path(list, index)
+  end
+
+  def self.TransformTranslation(xform) = Vector3.new(Raylib.rl_Transform_t_ptr(xform))
+
+  # Font texture view through the shim (Font#texture is a native struct field
+  # name, and a polymorphic receiver degrades the Ruby accessor in some TU
+  # shapes; mirrored on CRuby).
+  def self.FontTexture(font)
+    Raylib.rl_FontTexture(font)
+  end
+
+  def self.FontGlyphAdvanceX(font, index)
+    Raylib.rl_FontGlyphAdvanceX(font, index)
+  end
+
+  def self.FontGlyphRecWidth(font, index)
+    Raylib.rl_FontGlyphRecWidth(font, index)
+  end
+
   def self.CameraPositionX(camera) = Raylib.rl_Camera_position_x(camera)
   def self.CameraPositionY(camera) = Raylib.rl_Camera_position_y(camera)
   def self.CameraPositionZ(camera) = Raylib.rl_Camera_position_z(camera)
