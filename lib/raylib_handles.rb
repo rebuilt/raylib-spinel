@@ -408,7 +408,6 @@ end
     Shader.new(Raylib.rl_LoadShaderFS_ptr(fsFileName), nil)
   end
 
-  def self.rl_ImageFromImageF(image, x, y, w, h) = Image.new(Raylib.rl_ImageFromImageF_ptr(image, x, y, w, h), nil)
 
   # Gem-shaped name for the atlas builder (mirrored on CRuby in
   # raylib_ruby.rb via LoadFontData + GenImageFontAtlas).

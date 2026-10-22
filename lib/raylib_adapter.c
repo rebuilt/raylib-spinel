@@ -186,26 +186,6 @@ void rl_DrawTextInt(const char *prefix, int value, int x, int y, int size,
 float rl_FontBaseSize(void *font) { return (float)(RL_FONT(font))->baseSize; }
 int rl_TextureWidth(void *texture) { return (int)(RL_TEX(texture))->width; }
 int rl_TextureHeight(void *texture) { return (int)(RL_TEX(texture))->height; }
-void rl_DrawTextureRec4(void *texture, float x, float y, float w, float h,
-                        void *position, void *tint) {
-  Rectangle src = { x, y, w, h };
-  DrawTextureRec(*RL_TEX(texture), src, *RL_V2(position),
-                 *RL_COLOR(tint));
-}
-void rl_BeginMode2DF(float target_x, float target_y, float offset_x,
-                     float offset_y, float rotation, float zoom) {
-  Camera2D cam = { 0 };
-  cam.target.x = target_x;
-  cam.target.y = target_y;
-  cam.offset.x = offset_x;
-  cam.offset.y = offset_y;
-  cam.rotation = rotation;
-  cam.zoom = zoom;
-  BeginMode2D(cam);
-}
-void rl_DrawRectangleRecF(float x, float y, float w, float h, void *color) {
-  DrawRectangleRec((Rectangle){ x, y, w, h }, *RL_COLOR(color));
-}
 void *rl_Camera3DCreate(float px, float py, float pz, float tx, float ty,
                         float tz, float ux, float uy, float uz, float fovy,
                         int projection) {
@@ -2942,11 +2922,6 @@ void rl_MatrixRotateXYZ(void *angle, void *out) {
 
 /* Circle/rect collision from raw floats (avoids native Rectangle field writes
  * in the all-in-one TU). center is a native rl_Vector2. */
-_Bool rl_CheckCollisionCircleRecF(void *center, float radius,
-                                  float x, float y, float w, float h) {
-  Rectangle rec = { x, y, w, h };
-  return CheckCollisionCircleRec(*RL_V2(center), radius, rec);
-}
 
 /* ---- Shader value helpers (SetShaderValue takes a void* value) ---- */
 
@@ -3031,15 +3006,6 @@ int rl_FontGlyphAdvanceX(void *font, int index) {
 float rl_FontGlyphRecWidth(void *font, int index) {
   return (RL_FONT(font))->recs[index].width;
 }
-void rl_DrawRectangleLinesExF(float x, float y, float w, float h, float thick,
-                              void *color) {
-  DrawRectangleLinesEx((Rectangle){ x, y, w, h }, thick, *RL_COLOR(color));
-}
-_Bool rl_CheckCollisionPointRecF(void *point, float x, float y, float w,
-                                 float h) {
-  return CheckCollisionPointRec(*RL_V2(point),
-                                (Rectangle){ x, y, w, h });
-}
 
 /* Build a Font from a TTF file's data via LoadFontData + GenImageFontAtlas
  * (used by the SDF font example). loadGlyphCount 0 lets raylib use defaults. */
@@ -3083,53 +3049,13 @@ rl_Vector3 *rl_Vector3_new0(sp_int cls_id) {
 
 
 /* Pure float/int shims added to bypass Spinel single-TU Rectangle struct-id collision */
-void *rl_ImageFromImageF_ptr(void *image, float x, float y, float w, float h) {
-  Image *img = RL_IMG(image);
-  Image *result = (Image *)malloc(sizeof(Image));
-  *result = ImageFromImage(*img, (Rectangle){ x, y, w, h });
-  return result;
-}
 
-void rl_DrawRectangleProF(float x, float y, float w, float h,
-                          float ox, float oy, float rotation, void *color) {
-  DrawRectanglePro((Rectangle){ x, y, w, h },
-                   (Vector2){ ox, oy },
-                   rotation,
-                   *RL_COLOR(color));
-}
 
-void rl_DrawRectangleRoundedF(float x, float y, float w, float h,
-                              float roundness, int segments, void *color) {
-  DrawRectangleRounded((Rectangle){ x, y, w, h },
-                       roundness, segments,
-                       *RL_COLOR(color));
-}
 
-void rl_DrawRectangleRoundedLinesExF(float x, float y, float w, float h,
-                                    float roundness, int segments, float thick, void *color) {
-  DrawRectangleRoundedLinesEx((Rectangle){ x, y, w, h },
-                              roundness, segments, thick,
-                              *RL_COLOR(color));
-}
 
-void rl_DrawTextureRecF(void *texture, float sx, float sy, float sw, float sh,
-                        float px, float py, void *tint) {
-  DrawTextureRec(*RL_TEX(texture),
-                 (Rectangle){ sx, sy, sw, sh },
-                 (Vector2){ px, py },
-                 *RL_COLOR(tint));
-}
 
 /* DrawTexturePro with raw float src/dest/origin (avoids native Rectangle/
  * Vector2 field writes in the all-in-one TU). */
-void rl_DrawTextureProF(void *texture, float sx, float sy, float sw, float sh,
-                        float dx, float dy, float dw, float dh,
-                        float ox, float oy, float rotation, void *tint) {
-  DrawTexturePro(*RL_TEX(texture),
-                 (Rectangle){ sx, sy, sw, sh },
-                 (Rectangle){ dx, dy, dw, dh },
-                 (Vector2){ ox, oy }, rotation, *RL_COLOR(tint));
-}
 
 /* ================================================================
  * Shims added for the second Tier-1 example batch.
@@ -3167,18 +3093,6 @@ const char *rl_DirListName(void *list, int index) {
  * BoundingBox is { Vector3 min, max }, so the caller supplies
  * (minX,minY,minZ,maxX,maxY,maxZ) twice. Unused dims may be 0; the
  * test is a strict per-axis interval overlap. */
-_Bool rl_CheckCollisionBoxesF(float min1_x, float min1_y, float min1_z,
-                              float max1_x, float max1_y, float max1_z,
-                              float min2_x, float min2_y, float min2_z,
-                              float max2_x, float max2_y, float max2_z) {
-  BoundingBox b1;
-  BoundingBox b2;
-  b1.min = (Vector3){ min1_x, min1_y, min1_z };
-  b1.max = (Vector3){ max1_x, max1_y, max1_z };
-  b2.min = (Vector3){ min2_x, min2_y, min2_z };
-  b2.max = (Vector3){ max2_x, max2_y, max2_z };
-  return CheckCollisionBoxes(b1, b2);
-}
 
 /* Assign a texture to a material's MAP_DIFFUSE slot.
  *

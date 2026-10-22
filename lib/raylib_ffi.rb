@@ -440,8 +440,6 @@ module Raylib
   ffi_func :rl_FontGlyphAdvanceX, [:ptr, :int], :int
   ffi_func :rl_FontGlyphRecWidth, [:ptr, :int], :float
   ffi_func :rl_LoadFontAtlas_ptr, %i[str int int int int int int], :ptr
-  ffi_func :rl_DrawRectangleLinesExF, %i[float float float float float ptr], :void
-  ffi_func :rl_CheckCollisionPointRecF, %i[ptr float float float float], :bool
   ffi_func :rl_Model_material_ptr, [:ptr, :int], :ptr
   ffi_func :rl_Model_transform, [:ptr, :ptr], :void
   ffi_func :rl_Model_set_transform, [:ptr, :ptr], :void
@@ -487,13 +485,6 @@ module Raylib
   ffi_func :rl_Camera_target_y, [:ptr], :float
   ffi_func :rl_Camera_target_z, [:ptr], :float
   ffi_func :rl_ImageColorR, [:ptr, :int], :int
-  ffi_func :rl_CheckCollisionCircleRecF, %i[ptr float float float float float], :bool
-  # CheckCollisionBoxes from 12 raw floats, bypassing native BoundingBox/Vector3
-  # construction (single-TU cls_id mismatch; see AGENTS.md section A). Arg order
-  # is (min x,y,z, max x,y,z) for box 1 then box 2.
-  ffi_func :rl_CheckCollisionBoxesF,
-           %i[float float float float float float float float float float float float],
-           :bool
   ffi_func :rl_MatrixRotateXYZ, [:ptr, :ptr], :void
   ffi_func :rl_IntAlloc, [], :ptr
   ffi_func :rl_IntGet, [:ptr], :int
@@ -505,15 +496,6 @@ module Raylib
   ffi_func :rl_RenderTexture_texture_ptr, [:ptr], :ptr
   ffi_func :rl_TextureWidth, [:ptr], :int
   ffi_func :rl_TextureHeight, [:ptr], :int
-  ffi_func :rl_ImageFromImageF_ptr, %i[ptr float float float float], :ptr
-  ffi_func :rl_DrawRectangleProF, %i[float float float float float float float ptr], :void
-  ffi_func :rl_DrawRectangleRoundedF, %i[float float float float float int ptr], :void
-  ffi_func :rl_DrawRectangleRoundedLinesExF, %i[float float float float float int float ptr], :void
-  ffi_func :rl_DrawTextureRecF, %i[ptr float float float float float float ptr], :void
-  ffi_func :rl_DrawTextureProF, %i[ptr float float float float float float float float float float float ptr], :void
-  ffi_func :rl_DrawTextureRec4, %i[ptr float float float float ptr ptr], :void
-  ffi_func :rl_BeginMode2DF, %i[float float float float float float], :void
-  ffi_func :rl_DrawRectangleRecF, %i[float float float float ptr], :void
   ffi_func :rl_Camera3DCreate, %i[float float float float float float float float float float int], :ptr
   ffi_func :rl_EndMode3D, [], :void
   ffi_func :rl_DrawGrid, [:int, :float], :void
