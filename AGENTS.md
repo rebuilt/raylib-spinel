@@ -27,9 +27,10 @@ This is a Ruby codebase. New tools under `tools/` are Ruby.
 
 - The Python tools here predate the rule (the generators, `coerce_ptr_args.py`,
   `check_shim_unwraps.py`, `fix_pointer_handle_shims.py`,
-  `coverage_audit.py`, `gem_compat_audit.py`, ...). Leave them alone unless a
-  change needs one, and port one when you touch it rather than adding a Python
-  sibling.
+  `coverage_audit.py`, ...). Leave them alone unless a change needs one, and
+  port one when you touch it rather than adding a Python sibling.
+  (`gem_compat_audit.py` was ported to `gem_compat_audit.rb` on 2026-10-22;
+  it reproduces the Python tool's JSON byte-for-byte.)
 - Ruby tools may use `Prism` for parsing (see `tools/check_duplicate_methods.rb`
   and `tools/gem_surface_audit.rb`): a name lands on the class it is defined in,
   which a grep cannot do across the files that reopen `module Raylib`.
